@@ -350,15 +350,6 @@ class Model(metaclass=model):
         for name, prop in self._properties.items():
             yield prop.name_on_entity, prop.prepare_to_store(self, getattr(self, name))
 
-    def _to_dict(self):
-        # This is used to to avoid having to call `prepare_to_store`
-        # on each property for every comparison.
-        data = {}
-        for name, prop in self._properties.items():
-            data[prop.name_on_entity] = getattr(self, name)
-
-        return data
-
     @classmethod
     def _load(cls, key, data):
         instance = cls()
@@ -433,7 +424,11 @@ class Model(metaclass=model):
         if self.key != other.key:
             return False
 
-        return self._to_dict() == other._to_dict()
+        for name in self._properties:
+            if getattr(self, name) != getattr(other, name):
+                return False
+
+        return True
 
     def __ne__(self, other):
         return not (self == other)

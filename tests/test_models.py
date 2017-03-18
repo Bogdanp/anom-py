@@ -30,6 +30,7 @@ def test_model_instances_can_be_equal():
 def test_model_instances_can_not_be_equal():
     assert Person() != {}
     assert Person(key=Key("Person", 1)) != Person(key=Key("Person", 2))
+    assert Person(key=Key("Person", 1), first_name="John") != Person(key=Key("Person", 1), first_name="Jane")
 
 
 def test_models_cannot_have_overlapping_kinds():
