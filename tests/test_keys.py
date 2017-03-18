@@ -75,3 +75,7 @@ def test_keys_get_multi_fails_given_incomplete_keys():
 def test_keys_get_multi_fails_unknown_kind():
     with pytest.raises(RuntimeError):
         get_multi([Key("UnknownKind")])
+
+
+def test_keys_can_be_constructed_from_models():
+    assert Key(models.Person) == Key("Person")

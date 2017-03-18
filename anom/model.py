@@ -22,19 +22,22 @@ class Key:
     """A Datastore key.
 
     Parameters:
-      kind(str): The Datastore kind this key represents.
+      kind(str or model): The Datastore kind this key represents.
       path(int or str): The id or name of this key.
       parent(anom.Key, optional): This key's ancestor.
       namespace(str, optional): This key's namespace.
 
     Attributes:
       is_complete(bool): Whether or not this key has an id.
-      id_or_name(int|str): This key's id.
+      id_or_name(int or str): This key's id.
       int_id(int): This key's numeric id.
       str_id(str): This key's string id.
     """
 
     def __init__(self, kind, *path, parent=None, namespace=None):
+        if isinstance(kind, model):
+            kind = kind._kind
+
         if parent and not parent.is_complete:
             raise ValueError("Cannot use incomplete Keys as parents.")
 
@@ -321,8 +324,8 @@ class Model(metaclass=model):
     """Base class for Datastore models.
 
     Attributes:
-      key(Key): The Datastore Key for this entity.  If the entity was
-        never stored then the Key is going to be incomplete.
+      key(anom.Key): The Datastore Key for this entity.  If the entity
+        was never stored then the Key is going to be incomplete.
     """
 
     def __init__(self, *, key=None, **properties):
@@ -357,6 +360,21 @@ class Model(metaclass=model):
             setattr(instance, name, prop.prepare_to_load(instance, data.get(name)))
 
         return instance
+
+    @classmethod
+    def get_by_id(cls, id_or_name, *, parent=None, namespace=None):
+        """Get an entity by id.
+
+        Parameters:
+          id_or_name(int or str): The entity's id.
+          parent(anom.Key, optional): The entity's parent Key.
+          namespace(str, optional): The entity's namespace.
+
+        Returns:
+          Model: An entity or ``None`` if the entity doesn't exist in
+          Datastore.
+        """
+        return Key(cls, id_or_name, parent=parent, namespace=namespace).get()
 
     def pre_delete_hook(self):
         """A hook that runs before this entity is deleted.  Raising an

@@ -43,3 +43,7 @@ def test_models_cannot_have_overlapping_kinds():
 
 def test_model_reprs_can_be_used_to_rebuild_them():
     assert repr(Person(email="foo@example.com")) == "Person(key=Key('Person', parent=None, namespace=None), email='foo@example.com', first_name=None, last_name=None, parent=None)"  # noqa
+
+
+def test_models_can_get_entities_by_id(person):
+    assert Person.get_by_id(person.key.int_id) == person

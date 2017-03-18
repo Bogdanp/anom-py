@@ -261,7 +261,7 @@ class Json(Compressable, Property):
 
 
 class Key(Property):
-    """A Property for :class:`.DSKey` values.
+    """A Property for :class:`anom.Key` values.
 
     Parameters:
       name(str, optional): The name of this property on the Datastore
