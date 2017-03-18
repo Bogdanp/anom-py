@@ -22,10 +22,16 @@ class Key:
     """A Datastore key.
 
     Parameters:
-      kind(str)
-      path(int or str)
-      parent(Key)
-      namespace(str)
+      kind(str): The Datastore kind this key represents.
+      path(int or str): The id or name of this key.
+      parent(anom.Key, optional): This key's ancestor.
+      namespace(str, optional): This key's namespace.
+
+    Attributes:
+      is_complete(bool): Whether or not this key has an id.
+      id_or_name(int|str): This key's id.
+      int_id(int): This key's numeric id.
+      str_id(str): This key's string id.
     """
 
     def __init__(self, kind, *path, parent=None, namespace=None):
@@ -64,7 +70,7 @@ class Key:
             kind.
 
         Returns:
-          model: A Model class.
+          type: A Model class.
         """
         model = lookup_model_by_kind(self.kind)
         if model is None:
@@ -73,9 +79,6 @@ class Key:
 
     def delete(self):
         """Delete the entity represented by this Key from Datastore.
-
-        Returns:
-          None
         """
         return delete_multi([self])
 
@@ -113,6 +116,30 @@ class Key:
 
 class Property:
     """Base class for Datastore model properties.
+
+    The property lifecycle is as follows:
+
+    * :meth:`__init__` is called every time a property is defined on a
+      model class.
+    * :meth:`validate` is called every time a value is assigned to a
+      property on a model instance.
+    * :meth:`prepare_to_load` is called before a property is assigned
+      to a model instance that is being loaded from Datastore.
+    * :meth:`prepare_to_store` is called before a property is
+      persisted from a model instance to Datastore.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
     """
 
     #: The types of values that may be assigned to these types of
@@ -130,26 +157,25 @@ class Property:
 
     @property
     def name_on_entity(self):
-        "The name of this Property inside the Datastore entity."
+        "str: The name of this Property inside the Datastore entity."
         return self._name_on_entity
 
     @property
     def name_on_model(self):
-        "The name of this Property on the Model instance."
+        "str: The name of this Property on the Model instance."
         return self._name_on_model
 
     def validate(self, value):
         """Validates that `value` can be assigned to this Property.
 
         Parameters:
-          value(ob)
+          value: The value to validate.
 
         Raises:
           TypeError: If the type of the assigned value is invalid.
 
         Returns:
-          ob: The potentially-modified value that should be assigned
-          to this Property.
+          The value that should be assigned to the entity.
         """
         if isinstance(value, self._types):
             return value
@@ -163,17 +189,35 @@ class Property:
         else:
             raise TypeError(f"Value of type {classname(value)} assigned to {classname(self)} property.")
 
-    def prepare_to_load(self, ob, value):
+    def prepare_to_load(self, entity, value):
         """Prepare `value` to be loaded into a Model.  Called by the
         model for each Property, value pair contained in the persisted
         data when loading it from an adapter.
+
+        Parameters:
+          entity(Model): The entity to which the value belongs.
+          value: The value being loaded.
+
+        Returns:
+          The value that should be assigned to the entity.
         """
         return value
 
-    def prepare_to_store(self, ob, value):
+    def prepare_to_store(self, entity, value):
         """Prepare `value` for storage.  Called by the Model for each
         Property, value pair it contains before handing the data off
         to an adapter.
+
+        Parameters:
+          entity(Model): The entity to which the value belongs.
+          value: The value being stored.
+
+        Raises:
+          RuntimeError: If this property is required but no value was
+            assigned to it.
+
+        Returns:
+          The value that should be persisted.
         """
         if value is None and not self.optional:
             raise RuntimeError(f"Property {self.name_on_model} requires a value.")
@@ -278,13 +322,17 @@ class model(type):
 
 class Model(metaclass=model):
     """Base class for Datastore models.
+
+    Attributes:
+      key(Key): The Datastore Key for this entity.  If the entity was
+        never stored then the Key is going to be incomplete.
     """
 
-    def __init__(self, *, key=None, **params):
+    def __init__(self, *, key=None, **properties):
         self.key = key or Key(self._kind)
 
         self._data = {}
-        for name, value in params.items():
+        for name, value in properties.items():
             if name not in self._properties:
                 raise TypeError(f"{classname(self)}() does not take a {name!r} parameter.")
 
@@ -385,15 +433,12 @@ def delete_multi(keys):
     respective keys.
 
     Parameters:
-      keys(Key list)
+      keys(list[anom.Key]): The list of keys whose entities to delete.
 
     Raises:
       RuntimeError: If the given set of keys have models that use
         a disparate set of adapters or if any of the keys are
         incomplete.
-
-    Returns:
-      None
     """
     adapter, _ = _collect_models_and_adapter(keys)
     return adapter.delete_multi(keys)
@@ -403,7 +448,7 @@ def get_multi(keys):
     """Get a set of entities from Datastore by their respective keys.
 
     Parameters:
-      keys(Key list)
+      keys(list[anom.Key]): The list of keys whose entities to get.
 
     Raises:
       RuntimeError: If the given set of keys have models that use
@@ -411,7 +456,7 @@ def get_multi(keys):
         incomplete.
 
     Returns:
-      Model list: Entities that do not exist are going to be None
+      list[Model]: Entities that do not exist are going to be None
       in the result list.  The order of results matches the order
       of the input keys.
     """
@@ -432,15 +477,14 @@ def put_multi(entities):
     """Persist a set of entities to Datastore.
 
     Parameters:
-      entities(Model list)
+      entities(list[Model]): The list of entities to persist.
 
     Raises:
-      RuntimeError: If the given set of keys have models that use
-        a disparate set of adapters or if any of the keys are
-        incomplete.
+      RuntimeError: If the given set of models use a disparate set of
+        adapters.
 
     Returns:
-      Model list: The list of persisted entitites.
+      list[Model]: The list of persisted entitites.
     """
     adapter, requests = None, []
     for entity in entities:

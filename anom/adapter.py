@@ -6,12 +6,22 @@ _adapter = None
 
 def get_adapter():
     """Get the current global Adapter instance.
+
+    Returns:
+      Adapter: Or ``None`` if there is no global adapter instance.
     """
     return _adapter
 
 
 def set_adapter(adapter):
     """Set the global Adapter instance.
+
+    Parameters:
+      adapter(Adapter): The instance to set as the global adapter.
+        Model-specific adapters will not be replaced.
+
+    Returns:
+      Adapter: The input adapter.
     """
     global _adapter
     _adapter = adapter
@@ -22,19 +32,22 @@ class PutRequest(namedtuple("PutRequest", ("key", "unindexed", "properties"))):
     """Represents requests to persist an individual Models.
 
     Parameters:
-      key(Key)
-      unindexed(str list)
-      properties(iterable)
+      key(anom.Key): A datastore Key.
+      unindexed(list[str]): A list of properties that should not be indexed.
+      properties(iter[tuple[str, Property]]): An iterable representing
+        the properties that should be stored by this put.
     """
 
 
 class Adapter:
-    """Base class for Datastore adapters.  Adapters determine your
-    :class:`.model.Model<Models>` interact with the Datastore.
+    """Abstract base class for Datastore adapters.  Adapters determine
+    how your :class:`Models<Model>` interact with the Datastore.
 
     Parameters:
-      project(str)
-      namespace(str)
+      project(str): The project this Adapter should connect to.
+      namespace(str): The namespace inside which this Adapter should
+        operate by default.  Individual Datastore Keys may specify
+        their own namespaces and override this.
     """
 
     def __init__(self, *, project=None, namespace=None):
@@ -46,7 +59,7 @@ class Adapter:
         respective keys.
 
         Parameters:
-          keys(Key list)
+          keys(list[anom.Key]): A list of datastore Keys to delete.
         """
         raise NotImplementedError
 
@@ -55,12 +68,12 @@ class Adapter:
         respective keys.
 
         Parameters:
-          keys(Key list)
+          keys(list[anom.Key]): A list of datastore Keys to get.
 
         Returns:
-          dict list: A list of dictionaries of data that can be loaded
-          into individual Models.  Entries for Keys that cannot not be
-          found are going to be None.
+          list[dict]: A list of dictionaries of data that can be loaded
+          into individual Models.  Entries for Keys that cannot be
+          found are going to be ``None``.
         """
         raise NotImplementedError
 
@@ -68,9 +81,11 @@ class Adapter:
         """Store multiple entities into the Datastore.
 
         Parameters:
-          requests(PutRequest list)
+          requests(list[PutRequest]): A list of datastore requets to
+            persist a set of entities.
 
         Returns:
-          Key list: The list of complete keys for each stored model.
+          list[anom.Key]: The list of completed keys for each stored
+          entity.
         """
         raise NotImplementedError

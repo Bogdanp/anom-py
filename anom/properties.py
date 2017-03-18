@@ -31,7 +31,7 @@ class Compressable(Blob):
       compressed(bool): Whether or not values belonging to this
         Property should be stored gzipped in Datastore.
       compression_level(int): The amount of compression to apply.
-        See :module:`zlib` for details.
+        See :func:`zlib.compress` for details.
     """
 
     def __init__(self, *, compressed=False, compression_level=-1, **options):
@@ -43,17 +43,17 @@ class Compressable(Blob):
         self.compressed = compressed
         self.compression_level = compression_level
 
-    def prepare_to_load(self, ob, value):
+    def prepare_to_load(self, entity, value):
         if value is None:
             return value
 
         if self.compressed:
             value = zlib.decompress(value)
 
-        return super().prepare_to_load(ob, value)
+        return super().prepare_to_load(entity, value)
 
-    def prepare_to_store(self, ob, value):
-        value = super().prepare_to_store(ob, value)
+    def prepare_to_store(self, entity, value):
+        value = super().prepare_to_store(entity, value)
         if self.compressed and value is not None:
             value = zlib.compress(value, level=self.compression_level)
 
@@ -64,7 +64,8 @@ class Encodable:
     """Mixins for string properties that have an encoding.
 
     Parameters:
-      encoding(str)
+      encoding(str): The encoding to use when persisting this Property
+        to Datastore.  Defaults to ``utf-8``.
     """
 
     def __init__(self, *, encoding="utf-8", **options):
@@ -72,21 +73,34 @@ class Encodable:
 
         self.encoding = encoding
 
-    def prepare_to_load(self, ob, value):
+    def prepare_to_load(self, entity, value):
         if value is None:
             return value
 
-        return super().prepare_to_load(ob, value).decode(self.encoding)
+        return super().prepare_to_load(entity, value).decode(self.encoding)
 
-    def prepare_to_store(self, ob, value):
+    def prepare_to_store(self, entity, value):
         if value is not None:
             value = value.encode(self.encoding)
 
-        return super().prepare_to_store(ob, value)
+        return super().prepare_to_store(entity, value)
 
 
 class Bool(Property):
     """A Property for boolean values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
     """
 
     _types = (bool,)
@@ -94,6 +108,23 @@ class Bool(Property):
 
 class Bytes(Compressable, Property):
     """A Property for bytestring values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+      compressed(bool, optional): Whether or not this property should
+        be compressed before being persisted.
+      compression_level(int, optional): The amount of compression to
+        apply when compressing values.
     """
 
     _types = (bytes,)
@@ -101,6 +132,24 @@ class Bytes(Compressable, Property):
 
 class DateTime(Property):
     """A Property for :class:`datetime.datetime` values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+      auto_now_add(bool, optional): Whether or not to set this
+        property's value to the current time the first time it's
+        stored.
+      auto_now(bool, optional): Whether or not this property's value
+        should be set to the current time every time it is stored.
     """
 
     _types = (datetime,)
@@ -117,16 +166,16 @@ class DateTime(Property):
     def _current_value(self):
         return datetime.now(tz.tzlocal())
 
-    def prepare_to_store(self, ob, value):
+    def prepare_to_store(self, entity, value):
         if value is None and self.auto_now_add:
-            value = ob._data[self.name_on_entity] = self._current_value()
+            value = entity._data[self.name_on_entity] = self._current_value()
         elif self.auto_now:
-            value = ob._data[self.name_on_entity] = self._current_value()
+            value = entity._data[self.name_on_entity] = self._current_value()
 
         if value is not None:
-            value = ob._data[self.name_on_entity] = value.astimezone(tz.tzutc())
+            value = entity._data[self.name_on_entity] = value.astimezone(tz.tzutc())
 
-        return super().prepare_to_store(ob, value)
+        return super().prepare_to_store(entity, value)
 
     def validate(self, value):
         value = super().validate(value)
@@ -137,6 +186,19 @@ class DateTime(Property):
 
 class Float(Property):
     """A Property for floating point values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
     """
 
     _types = (float,)
@@ -144,6 +206,19 @@ class Float(Property):
 
 class Integer(Property):
     """A Property for integer values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
     """
 
     _types = (int,)
@@ -151,25 +226,55 @@ class Integer(Property):
 
 class Json(Compressable, Property):
     """A Property for values that should be stored as JSON.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+      compressed(bool, optional): Whether or not this property should
+        be compressed before being persisted.
+      compression_level(int, optional): The amount of compression to
+        apply when compressing values.
     """
 
     _types = (bool, bytes, datetime, float, int, str)
 
-    def prepare_to_load(self, ob, value):
+    def prepare_to_load(self, entity, value):
         if value is not None:
             value = json.loads(value)
 
-        return super().prepare_to_load(ob, value)
+        return super().prepare_to_load(entity, value)
 
-    def prepare_to_store(self, ob, value):
+    def prepare_to_store(self, entity, value):
         if value is not None:
             value = json.dumps(value, separators=(",", ":"))
 
-        return super().prepare_to_store(ob, value)
+        return super().prepare_to_store(entity, value)
 
 
 class Key(Property):
     """A Property for :class:`.DSKey` values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
     """
 
     _types = (DSKey,)
@@ -186,6 +291,21 @@ class Key(Property):
 
 class String(Encodable, Property):
     """A Property for indexable string values.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+      encoding(str): The encoding to use when persisting this Property
+        to Datastore.  Defaults to ``utf-8``.
     """
 
     _types = (str,)
@@ -208,6 +328,25 @@ class String(Encodable, Property):
 
 class Text(Compressable, Encodable, Property):
     """A Property for long string values that are never indexed.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+      compressed(bool, optional): Whether or not this property should
+        be compressed before being persisted.
+      compression_level(int, optional): The amount of compression to
+        apply when compressing values.
+      encoding(str): The encoding to use when persisting this Property
+        to Datastore.  Defaults to ``utf-8``.
     """
 
     _types = (str,)

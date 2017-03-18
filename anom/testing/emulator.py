@@ -26,7 +26,7 @@ class Emulator:
       consistency(float): A value between 0.0 and 1.0 representing the
         percentage of datastore requests that should succeed.
 
-    Example:
+    Example::
 
       from anom.testing import Emulator
 
@@ -60,7 +60,7 @@ class Emulator:
 
         Returns:
           dict: A dictionary of env vars that can be used to access
-            the Datastore emulator.
+          the Datastore emulator.
         """
         try:
             self._running = True
@@ -78,8 +78,8 @@ class Emulator:
         """Terminate the emulator process.
 
         Returns:
-          int: The process return code or None if the process hasn't
-          been started or if it has already been terminated.
+          int: The process return code or None if the process isn't
+          currently running.
         """
         self._running = False
 

@@ -1,22 +1,23 @@
 from google.cloud import datastore
+from threading import local
 
 from .. import Adapter, Key
 
 
 class DatastoreAdapter(Adapter):
-    """A Google Cloud Datastore adapter based on :package:`google.cloud.datastore`.
+    """A Google Cloud Datastore adapter based on :mod:`google.cloud.datastore`.
     """
+
+    _state = local()
 
     @property
     def client(self):
-        """The underlying datastore client for this adapter instance.
-
-        Returns:
-          datastore.Client
+        """datastore.Client: The underlying datastore client for this
+        adapter instance.  This property is thread-local.
         """
-        client = getattr(self, "_client", None)
+        client = getattr(self._state, "client", None)
         if client is None:
-            client = self._client = datastore.Client(
+            client = self._state.client = datastore.Client(
                 project=self.project,
                 namespace=self.namespace,
             )
