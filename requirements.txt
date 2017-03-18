@@ -1,0 +1,2 @@
+google-cloud-datastore==0.23.0
+python-dateutil==2.6.0

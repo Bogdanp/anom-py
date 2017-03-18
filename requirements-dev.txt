@@ -1,0 +1,9 @@
+-r requirements.txt
+
+# Misc
+bumpversion
+
+# Testing
+pytest
+pytest-cov
+pytest-xdist
