@@ -26,12 +26,6 @@ class Key:
       path(int or str): The id or name of this key.
       parent(anom.Key, optional): This key's ancestor.
       namespace(str, optional): This key's namespace.
-
-    Attributes:
-      is_complete(bool): Whether or not this key has an id.
-      id_or_name(int or str): This key's id.
-      int_id(int): This key's numeric id.
-      str_id(str): This key's string id.
     """
 
     def __init__(self, kind, *path, parent=None, namespace=None):
@@ -51,19 +45,33 @@ class Key:
         self.parent = parent
         self.namespace = namespace
 
-        self.is_complete = len(self.path) % 2 == 0
-        self.id_or_name = None
-        self.int_id = None
-        self.str_id = None
+    @property
+    def is_complete(self):
+        "bool: Whether or not this key has an id."
+        return len(self.path) % 2 == 0
 
-        if self.is_complete:
-            self.id_or_name = self.path[-1]
+    @property
+    def id_or_name(self):
+        "id or str: This key's id."
+        if not self.is_complete:
+            return None
+        return self.path[-1]
 
-        if self.id_or_name is not None:
-            if isinstance(self.id_or_name, int):
-                self.int_id = self.id_or_name
-            else:
-                self.str_id = self.id_or_name
+    @property
+    def int_id(self):
+        "int: This key's numeric id."
+        id_or_name = self.id_or_name
+        if id_or_name is not None and isinstance(id_or_name, int):
+            return id_or_name
+        return None
+
+    @property
+    def str_id(self):
+        "str: This key's numeric id."
+        id_or_name = self.id_or_name
+        if id_or_name is not None and isinstance(id_or_name, str):
+            return id_or_name
+        return None
 
     def get_model(self):
         """Get the model class for this Key.
