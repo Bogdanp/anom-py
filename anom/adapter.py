@@ -8,8 +8,13 @@ def get_adapter():
     """Get the current global Adapter instance.
 
     Returns:
-      Adapter: Or ``None`` if there is no global adapter instance.
+      Adapter: The global adapter.  If no global adapter was set, this
+      instantiates a :class:`DatastoreAdapter` and makes it the
+      default.
     """
+    if _adapter is None:
+        from .adapters import DatastoreAdapter
+        return set_adapter(DatastoreAdapter())
     return _adapter
 
 

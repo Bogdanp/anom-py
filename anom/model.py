@@ -288,10 +288,7 @@ class Property:
 
 class _adapter:
     def __get__(self, ob, obtype):
-        adapter = get_adapter()
-        if adapter is None:
-            raise RuntimeError("No adapter set.")
-        return adapter
+        return get_adapter()
 
 
 class model(type):

@@ -17,7 +17,7 @@ def emulator():
     emulator.terminate()
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def adapter(emulator):
     old_adapter = get_adapter()
     adapter = set_adapter(adapters.DatastoreAdapter())

@@ -5,33 +5,33 @@ from anom import Key, put_multi
 from .models import Person
 
 
-def test_key_delete_deletes_nonexistent_entities(adapter):
+def test_key_delete_deletes_nonexistent_entities():
     assert Key("Person", 123).delete() is None
 
 
-def test_key_delete_deletes_entities(adapter, person):
+def test_key_delete_deletes_entities(person):
     person.key.delete()
     assert person.key.get() is None
 
 
-def test_model_delete_deletes_entities(adapter, person):
+def test_model_delete_deletes_entities(person):
     person.delete()
     assert person.key.get() is None
 
 
-def test_model_delete_is_idempotent(adapter, person):
+def test_model_delete_is_idempotent(person):
     for i in range(2):
         assert person.key.delete() is None
     assert person.key.get() is None
 
 
-def test_model_put_requires_fields_that_are_not_optional_to_be_set(adapter):
+def test_model_put_requires_fields_that_are_not_optional_to_be_set():
     with pytest.raises(RuntimeError):
         person = Person()
         person.put()
 
 
-def test_key_properties_are_converted_to_and_from_datastore_keys(adapter, person):
+def test_key_properties_are_converted_to_and_from_datastore_keys(person):
     child = Person(email="child@example.com", first_name="Child", parent=person)
     child.put()
 
@@ -39,7 +39,7 @@ def test_key_properties_are_converted_to_and_from_datastore_keys(adapter, person
     assert child.parent == person.key
 
 
-def test_basic_crud(adapter):
+def test_basic_crud():
     people = []
     for i in range(10):
         people.append(Person(email=f"{i}@example.com", first_name=f"Person {1}"))

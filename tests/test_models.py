@@ -10,9 +10,8 @@ def test_constructor_params_must_be_valid_properties():
         Person(name="Jim")
 
 
-def test_model_adapter_fails_if_no_adapter_was_set():
-    with pytest.raises(RuntimeError):
-        Person._adapter
+def test_model_adapter_instantiates_a_default_adapter_if_none_was_set():
+    assert Person._adapter
 
 
 def test_model_delete_fails_if_the_entity_was_never_saved():

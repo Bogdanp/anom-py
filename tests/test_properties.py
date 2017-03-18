@@ -147,7 +147,7 @@ def test_tz_aware_datetimes_are_not_converted():
     assert prop.validate(now) == now
 
 
-def test_datetimes_can_be_set_on_create(adapter):
+def test_datetimes_can_be_set_on_create():
     user = models.User(email="user@example.com", password="password")
     assert not user.created_at
     assert not user.updated_at
@@ -157,7 +157,7 @@ def test_datetimes_can_be_set_on_create(adapter):
     assert user.updated_at
 
 
-def test_datetimes_can_update_on_every_put(adapter):
+def test_datetimes_can_update_on_every_put():
     user = models.User(email="user@example.com", password="password")
     assert not user.created_at
     assert not user.updated_at

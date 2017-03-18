@@ -62,7 +62,7 @@ def test_keys_can_be_not_equal():
     assert Key("Foo", 123, namespace="foos") != Key("Foo", 123, parent=Key("Bar", 1))
 
 
-def test_keys_can_get_multiple_entities_at_once(adapter, person):
+def test_keys_can_get_multiple_entities_at_once(person):
     entities = get_multi([person.key, Key("Person", "nonexistent")])
     assert entities == [person, None]
 
