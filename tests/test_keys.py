@@ -85,3 +85,12 @@ def test_keys_get_multi_fails_unknown_kind():
 
 def test_keys_can_be_constructed_from_models():
     assert Key(models.Person) == Key("Person")
+
+
+def test_keys_are_hashable():
+    entities = {}
+    for i in range(10):
+        entities[Key("Person", i)] = i
+
+    for i in range(10):
+        assert entities[Key("Person", i)] == i
