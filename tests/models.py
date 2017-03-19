@@ -52,3 +52,7 @@ class ModelWithCustomPropertyName(Model):
 
 class ModelWithKeyProperty(Model):
     k = props.Key()
+
+
+class ModelWithRestrictedKeyProperty(Model):
+    k = props.Key(kind=Person)

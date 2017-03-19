@@ -216,3 +216,25 @@ def test_key_properties_can_be_assigned_entities(person):
     entity = models.ModelWithKeyProperty()
     entity.k = person
     assert entity.k == person.key
+
+
+def test_key_properties_can_be_restricted_by_kind():
+    assert props.Key(kind="Person").kind == "Person"
+    assert props.Key(kind=models.Person).kind == "Person"
+
+
+def test_restricted_key_properties_can_only_be_assigned_keys_of_that_kind(person):
+    entity = models.ModelWithRestrictedKeyProperty()
+    entity.k = person.key
+
+    with pytest.raises(ValueError):
+        entity.k = Key("Foo", 1)
+
+
+def test_keys_are_converted_to_and_from_datastore(person):
+    child = models.Person(email="child@example.com", first_name="Child", parent=person)
+    child.put()
+    assert child.parent == person.key
+
+    child = child.key.get()
+    assert child.parent == person.key

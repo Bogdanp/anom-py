@@ -1,10 +1,11 @@
+# TODO(bogdan): Add support for computed, msgpack and pickle properties.
 import json
 import zlib
 
 from datetime import datetime
 from dateutil import tz
 
-from .model import Key as DSKey, Model, Property
+from .model import Key as DSKey, model, Model, Property
 
 
 #: The maximum length of indexed properties.
@@ -268,7 +269,8 @@ class Json(Compressable, Property):
         apply when compressing values.
     """
 
-    _types = (bool, bytes, datetime, float, int, str)
+    # TODO(bogdan): Add support for `datetime` and `Model`.
+    _types = (bool, bytes, float, int, str)
 
     def prepare_to_load(self, entity, value):
         if value is not None:
@@ -290,6 +292,8 @@ class Key(Property):
       name(str, optional): The name of this property on the Datastore
         entity.  Defaults to the name of this property on the model.
       default(object, optional): The property's default value.
+      kind(str or model, optional): The kinds of keys that may be
+        assigned to this property.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
       optional(bool, optional): Whether or not this property is
@@ -302,13 +306,26 @@ class Key(Property):
 
     _types = (DSKey,)
 
+    def __init__(self, *, kind=None, **options):
+        super().__init__(**options)
+
+        if isinstance(kind, model):
+            self.kind = kind._kind
+        else:
+            self.kind = kind
+
     def validate(self, value):
         if value is not None and isinstance(value, Model):
             value = value.key
 
         value = super().validate(value)
-        if value is not None and not value.is_complete:
-            raise ValueError("Cannot assign incomplete Keys to Key properties.")
+        if value is not None:
+            if not value.is_complete:
+                raise ValueError("Cannot assign incomplete Keys to Key properties.")
+
+            elif self.kind and self.kind != value.kind:
+                raise ValueError(f"Property {self.name_on_model} is cannot be assigned keys of kind {value.kind}.")
+
         return value
 
 
