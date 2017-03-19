@@ -2,7 +2,7 @@ from threading import RLock
 from weakref import WeakValueDictionary
 
 from .adapter import PutRequest, get_adapter
-from .query import PropertyFilter, PropertyOrder
+from .query import PropertyFilter, Query
 
 #: The set of known models.  This is used to look up model classes at
 #: runtime by their kind.
@@ -153,8 +153,7 @@ class Property:
         properties default to an empty list.
     """
 
-    #: The types of values that may be assigned to these types of
-    #: Properties.
+    #: The types of values that may be assigned to this property.
     _types = ()
 
     def __init__(self, *, name=None, default=None, indexed=False, optional=False, repeated=False):
@@ -176,6 +175,16 @@ class Property:
         "str: The name of this Property on the Model instance."
         return self._name_on_model
 
+    @property
+    def is_none(self):
+        "PropertyFilter: A filter that checks if this value is None."
+        if not self.optional:
+            raise TypeError("Required properties cannot be compared against None.")
+        return self == None  # noqa
+
+    #: Alias of is_none.
+    is_null = is_none
+
     def validate(self, value):
         """Validates that `value` can be assigned to this Property.
 
@@ -194,7 +203,7 @@ class Property:
         elif self.optional and value is None:
             return value
 
-        elif self.repeated and isinstance(value, list) and all(isinstance(x, self._types) for x in value):
+        elif self.repeated and isinstance(value, (tuple, list)) and all(isinstance(x, self._types) for x in value):
             return value
 
         else:
@@ -263,17 +272,11 @@ class Property:
 
     def _build_filter(self, op, value):
         if not self.indexed:
-            raise RuntimeError(f"{self.name_on_model} is not indexed.")
+            raise TypeError(f"{self.name_on_model} is not indexed.")
         return PropertyFilter(self.name_on_entity, op, self.validate(value))
 
-    def __contains__(self, value):
-        if not self.repeated:
-            raise RuntimeError(f"{self.name_on_model} is not a repeated property.")
-
-        return self._build_filter("==", value)
-
     def __eq__(self, value):
-        return self._build_filter("==", value)
+        return self._build_filter("=", value)
 
     def __ne__(self, value):
         return self._build_filter("!=", value)
@@ -291,10 +294,10 @@ class Property:
         return self._build_filter(">", value)
 
     def __neg__(self):
-        return PropertyOrder(self.name_on_entity, "desc")
+        return "-" + self.name_on_entity
 
     def __pos__(self):
-        return PropertyOrder(self.name_on_entity, "asc")
+        return self.name_on_entity
 
 
 class _adapter:
@@ -334,6 +337,11 @@ class Model(metaclass=model):
     Attributes:
       key(anom.Key): The Datastore Key for this entity.  If the entity
         was never stored then the Key is going to be incomplete.
+
+    Note:
+      Hooks are only called when dealing with individual entities via
+      their keys.  They *do not* run when entities are loaded from a
+      query.
     """
 
     def __init__(self, *, key=None, **properties):
@@ -395,7 +403,7 @@ class Model(metaclass=model):
         """A hook that runs before an entity is deleted.  Raising an
         exception here will prevent the entity from being deleted.
 
-        Parameter:
+        Parameters:
           key(anom.Key): The datastore Key of the entity being deleted.
         """
 
@@ -403,7 +411,7 @@ class Model(metaclass=model):
     def post_delete_hook(cls, key):
         """A hook that runs after an entity has been deleted.
 
-        Parameter:
+        Parameters:
           key(anom.Key): The datastore Key of the entity being deleted.
         """
 
@@ -429,6 +437,19 @@ class Model(metaclass=model):
         """Persist this entity to Datastore.
         """
         return put_multi([self])[0]
+
+    @classmethod
+    def query(cls, **options):
+        """Return a new query for this Model.
+
+        Parameters:
+          \**options(dict): Parameters to pass to the :class:`Query`
+            constructor.
+
+        Returns:
+          Query: The new query.
+        """
+        return Query(cls, **options)
 
     def __repr__(self):
         constructor = type(self).__name__
@@ -473,7 +494,7 @@ def delete_multi(keys):
     respective keys.
 
     Note:
-      This uses the adapter that is tied to the first Key in the list.
+      This uses the adapter that is tied to the first model in the list.
       If the keys have disparate adapters this function may behave in
       unexpected ways.
 
@@ -509,9 +530,9 @@ def get_multi(keys):
     """Get a set of entities from Datastore by their respective keys.
 
     Note:
-      This uses the adapter that is tied to the first Key in the list.
-      If the keys have disparate adapters this function may behave in
-      unexpected ways.
+      This uses the adapter that is tied to the first model in the
+      list.  If the keys have disparate adapters this function may
+      behave in unexpected ways.
 
     Parameters:
       keys(list[anom.Key]): The list of keys whose entities to get.

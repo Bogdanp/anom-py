@@ -10,6 +10,17 @@ def test_constructor_params_must_be_valid_properties():
         Person(name="Jim")
 
 
+def test_model_delete_deletes_entities(person):
+    person.delete()
+    assert person.key.get() is None
+
+
+def test_model_delete_is_idempotent(person):
+    for i in range(2):
+        assert person.key.delete() is None
+    assert person.key.get() is None
+
+
 def test_model_adapter_instantiates_a_default_adapter_if_none_was_set():
     assert Person._adapter
 
@@ -18,6 +29,12 @@ def test_model_delete_fails_if_the_entity_was_never_saved():
     with pytest.raises(RuntimeError):
         person = Person()
         person.delete()
+
+
+def test_model_put_requires_fields_that_are_not_optional_to_be_set():
+    with pytest.raises(RuntimeError):
+        person = Person()
+        person.put()
 
 
 def test_model_instances_can_be_equal():
@@ -45,7 +62,8 @@ def test_models_cannot_have_overlapping_kinds():
 def test_model_reprs_can_be_used_to_rebuild_them():
     assert repr(Person(email="foo@example.com")) == \
         "Person(key=Key('Person', parent=None, namespace=None), email='fo" \
-        "o@example.com', first_name=None, last_name=None, parent=None)"
+        "o@example.com', first_name=None, last_name=None, parent=None, " \
+        "created_at=None)"
 
 
 def test_models_can_get_entities_by_id(person):

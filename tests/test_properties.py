@@ -177,3 +177,42 @@ def test_datetimes_can_update_on_every_put():
 def test_datetimes_cannot_be_both_auto_and_repeated():
     with pytest.raises(TypeError):
         props.DateTime(auto_now_add=True, repeated=True)
+
+
+def test_unindexed_properties_cant_be_filtered():
+    with pytest.raises(TypeError):
+        models.ModelWithInteger.x == "abc"
+
+
+def test_properties_cant_be_filtered_against_values_of_invalid_types():
+    with pytest.raises(TypeError):
+        models.ModelWithIndexedInteger.x == "abc"
+
+
+def test_properties_can_be_filtered():
+    assert (models.ModelWithIndexedInteger.x == 1) == ("x", "=", 1)
+    assert (models.ModelWithIndexedInteger.x != 1) == ("x", "!=", 1)
+    assert (models.ModelWithIndexedInteger.x >= 1) == ("x", ">=", 1)
+    assert (models.ModelWithIndexedInteger.x <= 1) == ("x", "<=", 1)
+    assert (models.ModelWithIndexedInteger.x > 1) == ("x", ">", 1)
+    assert (models.ModelWithIndexedInteger.x < 1) == ("x", "<", 1)
+
+
+def test_bools_can_be_filtered_against_true_and_false():
+    assert models.ModelWithIndexedBool.active.is_true == ("active", "=", True)
+    assert models.ModelWithIndexedBool.active.is_false == ("active", "=", False)
+
+
+def test_properties_can_be_filtered_against_none():
+    assert models.ModelWithOptionalIndexedInteger.x.is_null == ("x", "=", None)
+
+
+def test_required_properties_cant_be_filtered_against_none():
+    with pytest.raises(TypeError):
+        models.ModelWithIndexedInteger.x.is_null
+
+
+def test_key_properties_can_be_assigned_entities(person):
+    entity = models.ModelWithKeyProperty()
+    entity.k = person
+    assert entity.k == person.key

@@ -3,6 +3,7 @@ API Reference
 
 .. module:: anom
 
+
 Functions
 ---------
 
@@ -14,11 +15,16 @@ Functions
 .. autofunction:: lookup_model_by_kind
 
 
-Models and Keys
----------------
+Keys
+----
 
 .. autoclass:: Key
    :members:
+
+
+Models
+------
+
 .. autoclass:: Model
    :members:
 
@@ -29,16 +35,14 @@ Properties
 .. autoclass:: Property
    :members:
 
-
-Property mixins
+Property Mixins
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: anom.properties.Blob
 .. autoclass:: anom.properties.Compressable
 .. autoclass:: anom.properties.Encodable
 
-
-Built-in properties
+Built-in Properties
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: anom.properties.Bool
@@ -52,28 +56,43 @@ Built-in properties
 .. autoclass:: anom.properties.Text
 
 
+Queries
+-------
+
+.. autoclass:: Query
+   :members:
+.. autoclass:: Resultset
+.. autoclass:: Pages
+
+
+Query Internals
+^^^^^^^^^^^^^^^
+
+.. autoclass:: anom.query.QueryOptions
+.. autoclass:: anom.query.PropertyFilter
+
+
 Adapters
 --------
 
 .. autoclass:: anom.Adapter
    :members:
 
-
-Built-in adapters
+Built-in Adapters
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: anom.adapters.DatastoreAdapter
    :members:
 
-
-Adapter internals
+Adapter Internals
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: anom.adapter.PutRequest
+.. autoclass:: anom.adapter.QueryResponse
 
 
-Testing utilities
------------------
+Testing
+-------
 
 .. autoclass:: anom.testing.Emulator
    :members:

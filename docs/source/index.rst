@@ -4,15 +4,54 @@
 anom
 ====
 
+**anom** is an object mapper for `Google Cloud Datastore`_ heavily
+inspired by `ndb`_ with a focus on simplicity, correctness and
+performance.
+
+Here's what it looks like:
+
+::
+
+   from anom import Model, props
+
+   class Greeting(Model):
+     email = props.String(indexed=True, optional=True)
+     content = props.Text()
+     created_at = props.DateTime(auto_now_add=True)
+     updated_at = props.DateTime(auto_now=True)
+
+   greeting = Greeting(content="Hi!")
+   greeting.put()
+
+anom is licensed under the 3-clause BSD license and it officially
+supports Python 3.6 and later.
+
+
+User Guide
+----------
+
+This part of the documentation is focused primarily on teaching you
+how to use anom.
+
 .. toctree::
    :maxdepth: 2
+
+   installation
+   quickstart
+   advanced
+
+
+API Reference
+-------------
+
+This part of the documentation is focused on detailing the various
+bits and pieces of the anom developer interface.
+
+.. toctree::
+   :maxdepth: 3
 
    reference
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. _Google Cloud Datastore: https://cloud.google.com/datastore/docs/
+.. _ndb: https://cloud.google.com/appengine/docs/standard/python/ndb/

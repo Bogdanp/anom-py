@@ -27,7 +27,7 @@ def test_keys_are_hierarchical():
 
 def test_keys_parents_must_be_complete():
     with pytest.raises(ValueError):
-        assert Key("Person", 123, parent=Key("Organization"))
+        Key("Person", 123, parent=Key("Organization"))
 
 
 def test_keys_can_have_numeric_ids():
@@ -66,6 +66,23 @@ def test_keys_can_be_not_equal():
     assert Key("Foo", 123) != Key("Foo", 124)
     assert Key("Foo", 123, parent=Key("Bar", 1)) != Key("Foo", 123, parent=Key("Bar", 2))
     assert Key("Foo", 123, namespace="foos") != Key("Foo", 123, parent=Key("Bar", 1))
+
+
+def test_key_delete_deletes_nonexistent_entities():
+    assert Key("Person", 123).delete() is None
+
+
+def test_key_delete_deletes_entities(person):
+    person.key.delete()
+    assert person.key.get() is None
+
+
+def test_keys_can_get_single_entities(person):
+    assert person.key.get() == person
+
+
+def test_keys_can_fail_to_get_single_entities():
+    assert Key(models.Person, "nonexistent").get() is None
 
 
 def test_keys_can_get_multiple_entities_at_once(person):

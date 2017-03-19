@@ -2,6 +2,7 @@ from google.cloud import datastore
 from threading import local
 
 from .. import Adapter, Key
+from ..adapter import QueryResponse
 
 
 class DatastoreAdapter(Adapter):
@@ -56,6 +57,38 @@ class DatastoreAdapter(Adapter):
         entities = [self._prepare_to_store(*request) for request in requests]
         self.client.put_multi(entities)
         return [self._convert_key_from_datastore(entity.key) for entity in entities]
+
+    def query(self, query, options):
+        ancestor = None
+        if query.ancestor:
+            ancestor = self._convert_key_to_datastore(query.ancestor)
+
+        query = self.client.query(
+            kind=query.kind,
+            ancestor=ancestor,
+            namespace=query.namespace,
+            projection=query.projection,
+            filters=query.filters,
+            order=query.orders,
+        )
+        if options.keys_only:
+            query.keys_only()
+
+        result_iterator = query.fetch(
+            limit=options.batch_size,
+            offset=options.offset,
+            start_cursor=options.cursor,
+        )
+
+        entities = []
+        for entity in result_iterator:
+            key, data = self._convert_key_from_datastore(entity.key), None
+            if not options.keys_only:
+                data = entity
+
+            entities.append((key, data))
+
+        return QueryResponse(entities=entities, cursor=result_iterator.next_page_token)
 
     def _convert_key_to_datastore(self, anom_key):
         return self.client.key(*anom_key.path, namespace=anom_key.namespace)

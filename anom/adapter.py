@@ -9,8 +9,8 @@ def get_adapter():
 
     Returns:
       Adapter: The global adapter.  If no global adapter was set, this
-      instantiates a :class:`DatastoreAdapter` and makes it the
-      default.
+      instantiates a :class:`adapters.DatastoreAdapter` and makes it
+      the default.
     """
     if _adapter is None:
         from .adapters import DatastoreAdapter
@@ -34,13 +34,22 @@ def set_adapter(adapter):
 
 
 class PutRequest(namedtuple("PutRequest", ("key", "unindexed", "properties"))):
-    """Represents requests to persist an individual Models.
+    """Represents requests to persist individual Models.
 
     Parameters:
       key(anom.Key): A datastore Key.
       unindexed(list[str]): A list of properties that should not be indexed.
       properties(iter[tuple[str, Property]]): An iterable representing
         the properties that should be stored by this put.
+    """
+
+
+class QueryResponse(namedtuple("QueryResponse", ("entities", "cursor"))):
+    """Represents query responses from Datastore.
+
+    Parameters:
+      entities(list[tuple[anom.Key, dict]]): The list of results.
+      cursor(str): The cursor that points to the next page of results.
     """
 
 
@@ -92,5 +101,18 @@ class Adapter:
         Returns:
           list[anom.Key]: The list of completed keys for each stored
           entity.
+        """
+        raise NotImplementedError
+
+    def query(self, query, options):  # pragma: no cover
+        """Run a query against the datastore.
+
+        Parameters:
+          query(Query): The query to run.
+          options(QueryOptions): Options that determine how the data
+            should be fetched.
+
+        Returns:
+          QueryResponse: The query response from Datastore.
         """
         raise NotImplementedError

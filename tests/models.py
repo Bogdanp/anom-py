@@ -15,10 +15,23 @@ class Person(Model):
     first_name = props.String()
     last_name = props.String(optional=True)
     parent = props.Key(optional=True)
+    created_at = props.DateTime(auto_now_add=True, indexed=True)
+
+
+class ModelWithIndexedBool(Model):
+    active = props.Bool(indexed=True)
 
 
 class ModelWithInteger(Model):
     x = props.Integer()
+
+
+class ModelWithIndexedInteger(Model):
+    x = props.Integer(indexed=True)
+
+
+class ModelWithOptionalIndexedInteger(Model):
+    x = props.Integer(indexed=True, optional=True)
 
 
 class ModelWithDefaulInteger(Model):
@@ -29,5 +42,13 @@ class ModelWithRepeatedInteger(Model):
     xs = props.Integer(repeated=True)
 
 
+class ModelWithRepeatedIndexedInteger(Model):
+    xs = props.Integer(indexed=True, repeated=True)
+
+
 class ModelWithCustomPropertyName(Model):
     x = props.Integer(name="y")
+
+
+class ModelWithKeyProperty(Model):
+    k = props.Key()
