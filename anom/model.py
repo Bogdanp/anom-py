@@ -375,24 +375,31 @@ class Model(metaclass=model):
         """
         return Key(cls, id_or_name, parent=parent, namespace=namespace).get()
 
-    def pre_delete_hook(self):
+    @classmethod
+    def pre_delete_hook(cls, key):
         """A hook that runs before this entity is deleted.  Raising an
         exception here will prevent the entity from being deleted.
+
+        Parameter:
+          key(anom.Key): The datastore Key of the entity being deleted.
         """
 
-    def post_delete_hook(self):
+    @classmethod
+    def post_delete_hook(cls, key):
         """A hook that runs after this entity is deleted.
+
+        Parameter:
+          key(anom.Key): The datastore Key of the entity being deleted.
         """
 
     def delete(self):
         """Delete this entity from Datastore.
-        """
-        if not self.key.is_complete:
-            raise RuntimeError("Entity has an incomplete Key and cannot be deleted.")
 
-        self.pre_delete_hook()
-        self._adapter.delete_multi([self.key])
-        self.post_delete_hook()
+        Raises:
+          RuntimeError: If this entity was never stored (i.e. if its
+            key is incomplete).
+        """
+        return delete_multi([self.key])
 
     def pre_put_hook(self):
         """A hook that runs before this entity is persisted.  Raising
@@ -458,8 +465,15 @@ def delete_multi(keys):
         a disparate set of adapters or if any of the keys are
         incomplete.
     """
-    adapter, _ = _collect_models_and_adapter(keys)
-    return adapter.delete_multi(keys)
+    adapter, models_by_kind = _collect_models_and_adapter(keys)
+    for key in keys:
+        model = models_by_kind[key.kind]
+        model.pre_delete_hook(key)
+
+    adapter.delete_multi(keys)
+    for key in keys:
+        model = models_by_kind[key.kind]
+        model.post_delete_hook(key)
 
 
 def get_multi(keys):
@@ -510,8 +524,8 @@ def put_multi(entities):
             raise RuntimeError("Cannot run put_multi across multiple Adapters.")
 
         adapter = entity._adapter
-        entity.pre_put_hook()
         requests.append(PutRequest(entity.key, entity._unindexed, entity))
+        entity.pre_put_hook()
 
     keys = adapter.put_multi(requests)
     for key, entity in zip(keys, entities):
