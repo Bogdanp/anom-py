@@ -472,6 +472,11 @@ def delete_multi(keys):
     """Delete a set of entitites from Datastore by their
     respective keys.
 
+    Note:
+      This uses the adapter that is tied to the first Key in the list.
+      If the keys have disparate adapters this function may behave in
+      unexpected ways.
+
     Parameters:
       keys(list[anom.Key]): The list of keys whose entities to delete.
 
@@ -480,19 +485,33 @@ def delete_multi(keys):
         a disparate set of adapters or if any of the keys are
         incomplete.
     """
-    adapter, models_by_kind = _collect_models_and_adapter(keys)
+    if not keys:
+        return
+
+    adapter = None
     for key in keys:
-        model = models_by_kind[key.kind]
+        if not key.is_complete:
+            raise RuntimeError(f"Key {key!r} is incomplete.")
+
+        model = key.get_model()
+        if adapter is None:
+            adapter = key.get_model()._adapter
+
         model.pre_delete_hook(key)
 
     adapter.delete_multi(keys)
     for key in keys:
-        model = models_by_kind[key.kind]
+        model = _known_models[key.kind]  # Micro-optimization, avoids calling get_model
         model.post_delete_hook(key)
 
 
 def get_multi(keys):
     """Get a set of entities from Datastore by their respective keys.
+
+    Note:
+      This uses the adapter that is tied to the first Key in the list.
+      If the keys have disparate adapters this function may behave in
+      unexpected ways.
 
     Parameters:
       keys(list[anom.Key]): The list of keys whose entities to get.
@@ -507,9 +526,18 @@ def get_multi(keys):
       in the result list.  The order of results matches the order
       of the input keys.
     """
-    adapter, models_by_kind = _collect_models_and_adapter(keys)
+    if not keys:
+        return []
+
+    adapter = None
     for key in keys:
-        model = models_by_kind[key.kind]
+        if not key.is_complete:
+            raise RuntimeError(f"Key {key!r} is incomplete.")
+
+        model = key.get_model()
+        if adapter is None:
+            adapter = key.get_model()._adapter
+
         model.pre_get_hook(key)
 
     entities_data, entities = adapter.get_multi(keys), []
@@ -518,7 +546,7 @@ def get_multi(keys):
             entities.append(None)
             continue
 
-        model = models_by_kind[key.kind]
+        model = _known_models[key.kind]  # Micro-optimization, avoids calling get_model
         entity = model._load(key, entity_data)
         entities.append(entity)
         entity.post_get_hook()
@@ -528,6 +556,11 @@ def get_multi(keys):
 
 def put_multi(entities):
     """Persist a set of entities to Datastore.
+
+    Note:
+      This uses the adapter that is tied to the first Entity in the
+      list.  If the entities have disparate adapters this function may
+      behave in unexpected ways.
 
     Parameters:
       entities(list[Model]): The list of entities to persist.
@@ -539,10 +572,13 @@ def put_multi(entities):
     Returns:
       list[Model]: The list of persisted entitites.
     """
+    if not entities:
+        return []
+
     adapter, requests = None, []
     for entity in entities:
-        if adapter is not None and adapter != entity._adapter:
-            raise RuntimeError("Cannot run put_multi across multiple Adapters.")
+        if adapter is None:
+            adapter = entity._adapter
 
         adapter = entity._adapter
         requests.append(PutRequest(entity.key, entity._unindexed, entity))
@@ -554,20 +590,3 @@ def put_multi(entities):
         entity.post_put_hook()
 
     return entities
-
-
-def _collect_models_and_adapter(keys):
-    adapter, models_by_kind = None, {}
-    for key in keys:
-        if not key.is_complete:
-            raise RuntimeError(f"Key {key!r} is incomplete.")
-
-        if key not in models_by_kind:
-            model = key.get_model()
-            if adapter is not None and adapter != model._adapter:
-                raise RuntimeError("Cannot run {delete,get}_multi across multiple Adapters.")
-
-            adapter = model._adapter
-            models_by_kind[key.kind] = model
-
-    return adapter, models_by_kind
