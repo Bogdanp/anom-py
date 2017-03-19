@@ -361,6 +361,21 @@ class Model(metaclass=model):
         return instance
 
     @classmethod
+    def pre_get_hook(cls, key):
+        """A hook that runs before an entity is loaded from Datastore.
+        Raising an exception here will prevent the entity from being
+        loaded.
+
+        Parameters:
+          key(anom.Key): The datastore Key of the entity being loaded.
+        """
+
+    def post_get_hook(self):
+        """A hook that runs after an entity has been loaded from
+        Datastore.
+        """
+
+    @classmethod
     def get(cls, id_or_name, *, parent=None, namespace=None):
         """Get an entity by id.
 
@@ -377,7 +392,7 @@ class Model(metaclass=model):
 
     @classmethod
     def pre_delete_hook(cls, key):
-        """A hook that runs before this entity is deleted.  Raising an
+        """A hook that runs before an entity is deleted.  Raising an
         exception here will prevent the entity from being deleted.
 
         Parameter:
@@ -386,7 +401,7 @@ class Model(metaclass=model):
 
     @classmethod
     def post_delete_hook(cls, key):
-        """A hook that runs after this entity is deleted.
+        """A hook that runs after an entity has been deleted.
 
         Parameter:
           key(anom.Key): The datastore Key of the entity being deleted.
@@ -407,7 +422,7 @@ class Model(metaclass=model):
         """
 
     def post_put_hook(self):
-        """A hook that runs after this entity is persisted.
+        """A hook that runs after this entity has been persisted.
         """
 
     def put(self):
@@ -493,6 +508,10 @@ def get_multi(keys):
       of the input keys.
     """
     adapter, models_by_kind = _collect_models_and_adapter(keys)
+    for key in keys:
+        model = models_by_kind[key.kind]
+        model.pre_get_hook(key)
+
     entities_data, entities = adapter.get_multi(keys), []
     for key, entity_data in zip(keys, entities_data):
         if entity_data is None:
@@ -500,7 +519,9 @@ def get_multi(keys):
             continue
 
         model = models_by_kind[key.kind]
-        entities.append(model._load(key, entity_data))
+        entity = model._load(key, entity_data)
+        entities.append(entity)
+        entity.post_get_hook()
 
     return entities
 
