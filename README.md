@@ -19,7 +19,8 @@ greeting = Greeting(content="Hi!")
 greeting.put()
 ```
 
-anom officially supports Python 3.6 and later.
+anom is licensed under the 3-clause BSD license and it officially
+supports Python 3.6 and later.
 
 ## Installation
 
