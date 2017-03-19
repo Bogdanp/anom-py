@@ -15,11 +15,12 @@ Here's what it looks like:
 ``` python
 from anom import Model, props
 
+
 class Greeting(Model):
   email = props.String(indexed=True, optional=True)
   message = props.Text()
-  created_at = props.DateTime(auto_now_add=True)
-  updated_at = props.DateTime(auto_now=True)
+  created_at = props.DateTime(indexed=True, auto_now_add=True)
+  updated_at = props.DateTime(indexed=True, auto_now=True)
 
 greeting = Greeting(message="Hi!")
 greeting.put()
