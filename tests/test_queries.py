@@ -91,7 +91,7 @@ def test_pages_can_tell_if_there_are_more_pages(people):
     pages = Person.query().paginate(page_size=10)
     assert pages.has_more
 
-    for page in pages:
+    for _ in pages:
         assert pages.has_more
     assert not pages.has_more
 

@@ -16,7 +16,7 @@ def test_model_delete_deletes_entities(person):
 
 
 def test_model_delete_is_idempotent(person):
-    for i in range(2):
+    for _ in range(2):
         assert person.key.delete() is None
     assert person.key.get() is None
 
