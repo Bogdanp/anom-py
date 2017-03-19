@@ -13,6 +13,12 @@ def test_keys_can_be_complete():
     assert Key("Person", 123).is_complete
 
 
+def test_incomplete_keys_dont_have_an_id():
+    assert Key("Person").id_or_name is None
+    assert Key("Person").int_id is None
+    assert Key("Person").str_id is None
+
+
 def test_keys_are_hierarchical():
     assert Key("Person", 123, parent=Key("Organization", 1)).path == (
         "Organization", 1, "Person", 123
