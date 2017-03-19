@@ -33,6 +33,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
     'sphinxcontrib.napoleon',
 ]
 

@@ -16,15 +16,20 @@ Here's what it looks like:
 
    class Greeting(Model):
      email = props.String(indexed=True, optional=True)
-     content = props.Text()
+     message = props.Text()
      created_at = props.DateTime(auto_now_add=True)
      updated_at = props.DateTime(auto_now=True)
 
-   greeting = Greeting(content="Hi!")
+   greeting = Greeting(message="Hi!")
    greeting.put()
 
 anom is licensed under the 3-clause BSD license and it officially
 supports Python 3.6 and later.
+
+.. warning::
+
+   anom is under heavy development and is currently not ready for
+   prodution use.
 
 
 User Guide

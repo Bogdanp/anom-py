@@ -146,7 +146,7 @@ class Property:
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
       optional(bool, optional): Whether or not this property is
-        optional.  Defaults to ``False``.  Required but empty values
+        optional.  Defaults to ``False``.  Required-but-empty values
         cause models to raise an exception before data is persisted.
       repeated(bool, optional): Whether or not this property is
         repeated.  Defaults to ``False``.  Optional repeated
