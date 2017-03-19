@@ -11,6 +11,6 @@ install:
   - gcloud -q config set project anom-ci
   - pip install -r requirements-dev.txt coveralls
 script:
-  - py.test
+  - py.test -sv
 after_success:
   - coveralls
