@@ -17,11 +17,11 @@ from anom import Model, props
 
 class Greeting(Model):
   email = props.String(indexed=True, optional=True)
-  content = props.Text()
+  message = props.Text()
   created_at = props.DateTime(auto_now_add=True)
   updated_at = props.DateTime(auto_now=True)
 
-greeting = Greeting(content="Hi!")
+greeting = Greeting(message="Hi!")
 greeting.put()
 ```
 
