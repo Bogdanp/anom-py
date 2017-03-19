@@ -49,4 +49,4 @@ def test_model_reprs_can_be_used_to_rebuild_them():
 
 
 def test_models_can_get_entities_by_id(person):
-    assert Person.get_by_id(person.key.int_id) == person
+    assert Person.get(person.key.int_id) == person

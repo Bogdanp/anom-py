@@ -361,7 +361,7 @@ class Model(metaclass=model):
         return instance
 
     @classmethod
-    def get_by_id(cls, id_or_name, *, parent=None, namespace=None):
+    def get(cls, id_or_name, *, parent=None, namespace=None):
         """Get an entity by id.
 
         Parameters:
