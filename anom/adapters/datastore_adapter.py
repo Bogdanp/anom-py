@@ -84,7 +84,7 @@ class DatastoreAdapter(Adapter):
         for entity in result_iterator:
             key, data = self._convert_key_from_datastore(entity.key), None
             if not options.keys_only:
-                data = entity
+                data = self._prepare_to_load(entity)
 
             entities.append((key, data))
 

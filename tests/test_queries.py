@@ -102,3 +102,9 @@ def test_pages_can_be_paginated_manually(people):
     page_2 = next(people_query.paginate(page_size=2, cursor=page_1.cursor))
     assert list(page_1) == people[:2]
     assert list(page_2) == people[2:4]
+
+
+def test_queries_preprocess_keys(person):
+    child = Person(email="child@example.com", first_name="Child", parent=person).put()
+    child = Person.query().where(Person.email == "child@example.com").get()
+    assert child.parent == person.key
