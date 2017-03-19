@@ -1,5 +1,11 @@
 # anom
 
+[![Build Status](https://travis-ci.org/Bogdanp/anom-py.svg?branch=master)](https://travis-ci.org/Bogdanp/anom-py)
+[![Coverage Status](https://coveralls.io/repos/github/Bogdanp/anom-py/badge.svg?branch=master)](https://coveralls.io/github/Bogdanp/anom-py?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a4d2fc43036b4277bf196de6f1766fd7)](https://www.codacy.com/app/bogdan/anom-py?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bogdanp/anom-py&amp;utm_campaign=Badge_Grade)
+[![PyPI version](https://badge.fury.io/py/anom.svg)](https://badge.fury.io/py/anom)
+[![Documentation Status](https://readthedocs.org/projects/anom/badge/?version=latest)](http://anom.readthedocs.io/en/latest/?badge=latest)
+
 **anom** is an object mapper for [Google Cloud Datastore][gcd] heavily
 inspired by [ndb][ndb] with a focus on simplicity, correctness and
 performance.

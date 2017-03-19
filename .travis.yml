@@ -1,0 +1,20 @@
+sudo: false
+language: python
+python:
+  - "3.6"
+cache:
+  directories:
+    - "$HOME/google-cloud-sdk/"
+env:
+  - PATH=$PATH:${HOME}/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1
+before_install:
+  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
+       curl https://sdk.cloud.google.com | bash;
+    fi
+install:
+  - gcloud -q components update cloud-datastore-emulator
+  - pip install -r requirements-dev.txt coveralls
+script:
+  - py.test
+after_success:
+  - coveralls
