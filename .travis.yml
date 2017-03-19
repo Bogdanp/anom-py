@@ -8,6 +8,7 @@ before_install:
 install:
   - gcloud -q components update beta
   - gcloud -q components update cloud-datastore-emulator
+  - gcloud -q config set project anom-ci
   - pip install -r requirements-dev.txt coveralls
 script:
   - py.test
