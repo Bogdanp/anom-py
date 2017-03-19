@@ -83,7 +83,7 @@ class Key:
         Returns:
           type: A Model class.
         """
-        model = lookup_model_by_kind(self.kind)
+        model = _known_models.get(self.kind)
         if model is None:
             raise RuntimeError(f"There is no Model class for kind {self.kind!r}.")
         return model
