@@ -6,6 +6,7 @@ env:
 before_install:
   - curl https://sdk.cloud.google.com | bash
 install:
+  - gcloud -q components update beta
   - gcloud -q components update cloud-datastore-emulator
   - pip install -r requirements-dev.txt coveralls
 script:
