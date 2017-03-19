@@ -2,7 +2,7 @@ language: python
 python:
   - "3.6"
 env:
-  - PATH=$PATH:${HOME}/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  - PATH=$PATH:${HOME}/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1 CLOUDSDK_PYTHON=$(which python2)
 before_install:
   - curl https://sdk.cloud.google.com | bash
 install:
