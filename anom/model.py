@@ -268,7 +268,7 @@ class Property:
         ob._data[self.name_on_entity] = self.validate(value)
 
     def __delete__(self, ob):
-        ob._data[self.name_on_entity] = None
+        del ob._data[self.name_on_entity]
 
     def _build_filter(self, op, value):
         if not self.indexed:
