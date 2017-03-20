@@ -66,10 +66,7 @@ class QueryOptions(dict):
     @property
     def cursor(self):
         "bytes: The url-safe cursor for a query."
-        cursor = self.get("cursor")
-        if cursor is None:
-            return b""
-        return cursor
+        return self.get("cursor", b"")
 
     @cursor.setter
     def cursor(self, value):
@@ -181,6 +178,17 @@ class Pages:
         "bool: Whether or not there are more pages."
         return self._resultset.has_more
 
+    def fetch_next_page(self):
+        """Fetch the next Page of results.
+
+        Returns:
+          Page: The next page of results.
+        """
+        for page in self:
+            return page
+        else:
+            return Page(self._resultset.cursor, iter(()))
+
     def __iter__(self):
         return self
 
@@ -231,8 +239,8 @@ class Query(namedtuple("Query", (
 
       Or get individual pages of results::
 
-        page_1 = next(people_query.paginate(page_size=10))
-        page_2 = next(people_query.paginate(page_size=10, cursor=page_1.cursor))
+        page_1 = people_query.paginate(page_size=10).fetch_next_page()
+        page_2 = people_query.paginate(page_size=10, cursor=page_1.cursor).fetch_next_page()
 
     """
 

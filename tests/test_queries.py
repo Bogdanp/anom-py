@@ -98,8 +98,8 @@ def test_pages_can_tell_if_there_are_more_pages(people):
 
 def test_pages_can_be_paginated_manually(people):
     people_query = Person.query()
-    page_1 = next(people_query.paginate(page_size=2))
-    page_2 = next(people_query.paginate(page_size=2, cursor=page_1.cursor))
+    page_1 = people_query.paginate(page_size=2).fetch_next_page()
+    page_2 = people_query.paginate(page_size=2, cursor=page_1.cursor).fetch_next_page()
     assert list(page_1) == people[:2]
     assert list(page_2) == people[2:4]
 
