@@ -20,7 +20,7 @@ def index():
     return _index_template.render(page=page)
 
 
-@post("/sign", methods=("POST",))
+@post("/sign")
 def sign():
     author = request.forms.get("author")
     message = request.forms.get("message")
@@ -31,7 +31,7 @@ def sign():
     return redirect("/")
 
 
-@post("/delete/<entry_id:int>", methods=("POST",))
+@post("/delete/<entry_id:int>")
 def delete(entry_id):
     entry = GuestbookEntry.get(entry_id)
     if not entry:
