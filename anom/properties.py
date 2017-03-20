@@ -5,7 +5,7 @@ import zlib
 from datetime import datetime
 from dateutil import tz
 
-from .model import Key as DSKey, model, Model, Property
+from .model import Key as ModelKey, model, Model, Property, classname
 
 
 #: The maximum length of indexed properties.
@@ -18,8 +18,7 @@ class Blob:
 
     def __init__(self, **options):
         if options.get("indexed"):
-            classname = type(self).__name__
-            raise TypeError(f"{classname} properties cannot be indexed.")
+            raise TypeError(f"{classname(self)} properties cannot be indexed.")
 
         super().__init__(**options)
 
@@ -45,20 +44,16 @@ class Compressable(Blob):
         self.compression_level = compression_level
 
     def prepare_to_load(self, entity, value):
-        if value is None:
-            return value
-
-        if self.compressed:
+        if value is not None and self.compressed:
             value = zlib.decompress(value)
 
         return super().prepare_to_load(entity, value)
 
     def prepare_to_store(self, entity, value):
-        value = super().prepare_to_store(entity, value)
-        if self.compressed and value is not None:
+        if value is not None and self.compressed:
             value = zlib.compress(value, level=self.compression_level)
 
-        return value
+        return super().prepare_to_store(entity, value)
 
 
 class Encodable:
@@ -75,15 +70,14 @@ class Encodable:
         self.encoding = encoding
 
     def prepare_to_load(self, entity, value):
-        if value is None:
-            return value
-
         value = super().prepare_to_load(entity, value)
-        if isinstance(value, str):
-            # BUG(gcloud): Projections seem to cause bytes to be loaded as strings.
-            return value
 
-        return value.decode(self.encoding)
+        # BUG(gcloud): Projections seem to cause bytes to be
+        # loaded as strings so this instance check is required.
+        if value is not None and isinstance(value, bytes):
+            value = value.decode(self.encoding)
+
+        return value
 
     def prepare_to_store(self, entity, value):
         if value is not None:
@@ -304,7 +298,7 @@ class Key(Property):
         properties default to an empty list.
     """
 
-    _types = (DSKey,)
+    _types = (Model, ModelKey,)
 
     def __init__(self, *, kind=None, **options):
         super().__init__(**options)
@@ -315,11 +309,12 @@ class Key(Property):
             self.kind = kind
 
     def validate(self, value):
-        if value is not None and isinstance(value, Model):
-            value = value.key
-
         value = super().validate(value)
+
         if value is not None:
+            if isinstance(value, Model):
+                value = value.key
+
             if not value.is_complete:
                 raise ValueError("Cannot assign incomplete Keys to Key properties.")
 
@@ -366,7 +361,7 @@ class String(Encodable, Property):
         return value
 
 
-class Text(Compressable, Encodable, Property):
+class Text(Encodable, Compressable, Property):
     """A Property for long string values that are never indexed.
 
     Parameters:
