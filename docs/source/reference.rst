@@ -65,7 +65,11 @@ Queries
 .. autoclass:: Query
    :members:
 .. autoclass:: Resultset
+   :members:
 .. autoclass:: Pages
+   :members:
+.. autoclass:: Page
+   :members:
 
 
 Query Internals
