@@ -46,7 +46,7 @@ they are left unindexed.
 Next up, we define our index route:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
-   :lines: 11-47
+   :lines: 15-20
 
 We paginate over the guestbook entry items one item per page for
 convenience when testing and we make it possible to pass in a
@@ -57,14 +57,14 @@ first page of results.
 Then we define a route to create new entries:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
-   :lines: 50-59
+   :lines: 23-31
 
-And one to delete existing ones:
+And a route to delete existing entries:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
-   :lines: 62-69
+   :lines: 34-41
 
 Finally, we run the server:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
-   :lines: 72
+   :lines: 44
