@@ -79,7 +79,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+# pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -96,7 +96,18 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'logo_name': True,
+    'code_font_family': '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace',
+    'code_font_size': '0.8em',
+    'fixed_sidebar': True,
+    'github_banner': True,
+    'github_button': True,
+    'github_type': 'star',
+    'github_user': 'Bogdanp',
+    'github_repo': 'anom-py',
+    'gratipay_user': 'Bogdanp',
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

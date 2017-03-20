@@ -4,7 +4,20 @@
 anom: an om for Cloud Datastore
 ===============================
 
-Release v\ |release|. (:doc:`changelog`)
+Release v\ |release|. (:doc:`installation`, :doc:`changelog`)
+
+.. image:: https://img.shields.io/badge/license-BSD--3-blue.svg
+   :target: license.html
+.. image:: https://travis-ci.org/Bogdanp/anom-py.svg?branch=master
+   :target: https://travis-ci.org/Bogdanp/anom-py
+.. image:: https://coveralls.io/repos/github/Bogdanp/anom-py/badge.svg?branch=master
+   :target: https://coveralls.io/github/Bogdanp/anom-py?branch=master
+.. image:: https://api.codacy.com/project/badge/Grade/a4d2fc43036b4277bf196de6f1766fd7
+   :target: https://www.codacy.com/app/bogdan/anom-py?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bogdanp/anom-py&amp;utm_campaign=Badge_Grade
+.. image:: https://badge.fury.io/py/anom.svg
+   :target: https://badge.fury.io/py/anom
+.. image:: https://img.shields.io/badge/Say%20Thanks!-%F0%9F%A6%89-1EAEDB.svg
+   :target: https://saythanks.io/to/Bogdanp
 
 **anom** is an object mapper for `Google Cloud Datastore`_ heavily
 inspired by `ndb`_ with a focus on simplicity, correctness and
