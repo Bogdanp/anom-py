@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 
 import anom  # noqa
+import alabaster  # noqa
 
 
 # -- General configuration ------------------------------------------------
@@ -38,6 +39,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
     'sphinxcontrib.napoleon',
+    'alabaster',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -114,6 +116,15 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # -- Options for HTMLHelp output ------------------------------------------
 
