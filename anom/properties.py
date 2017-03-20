@@ -1,11 +1,11 @@
-# TODO(bogdan): Add support for computed, msgpack and pickle properties.
+# TODO(bogdan): Add support for msgpack and pickle properties.
 import json
 import zlib
 
 from datetime import datetime
 from dateutil import tz
 
-from .model import Key as ModelKey, model, Model, Property, classname
+from .model import Key as ModelKey, model, Model, NotFound, Property, Skip, classname
 
 
 #: The maximum length of indexed properties.
@@ -138,6 +138,67 @@ class Bytes(Compressable, Property):
     """
 
     _types = (bytes,)
+
+
+class Computed(Property):
+    """A Property for values that should be computed dinamically based
+    on the state of the entity.  Values on an entity are only computed
+    the first time computed properties are accessed on that entity and
+    they are re-computed every time the entity is loaded from
+    Datastore.
+
+    Computed properties cannot be assigned to and their "cache" can be
+    busted by deleting them::
+
+      del an_entity.a_property
+
+    Warning:
+
+      Computed properties are **indexed** and **optional** by default
+      for convenience.  This is different from all other built-in
+      properties.
+
+    Parameters:
+      fn(callable): The function to use when computing the data.
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``True``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``True``.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.
+    """
+
+    _types = (object,)
+
+    def __init__(self, fn, **options):
+        # Computed properties are/should mainly be used for filtering
+        # purposes, so it makes sense for them to default to being
+        # both optional and indexed for convenience.
+        options.setdefault("indexed", True)
+        options.setdefault("optional", True)
+
+        super().__init__(**options)
+
+        self.fn = fn
+
+    def __get__(self, ob, obtype):
+        if ob is None:
+            return self
+
+        value = ob._data.get(self.name_on_entity, NotFound)
+        if value is NotFound:
+            value = ob._data[self.name_on_entity] = self.fn(ob)
+
+        return value
+
+    def __set__(self, ob, value):
+        raise AttributeError("Can't set attribute.")
+
+    def prepare_to_load(self, entity, value):
+        return Skip
 
 
 class DateTime(Property):

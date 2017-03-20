@@ -129,6 +129,7 @@ Property                              Description
 =================================  ============================================================
 :class:`anom.properties.Bool`      Stores :class:`bool` values.
 :class:`anom.properties.Bytes`     Stores blobs of binary data (:class:`bytes`). Never indexed.
+:class:`anom.properties.Computed`  Stores values computed by arbitrary functions.
 :class:`anom.properties.DateTime`  Stores :class:`datetime.datetime` values.
 :class:`anom.properties.Float`     Stores :class:`float` values.
 :class:`anom.properties.Integer`   Stores :class:`int` values.

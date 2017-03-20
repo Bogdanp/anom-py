@@ -2,13 +2,16 @@ import inspect
 import json
 import pytest
 
-from anom import Key, Property, props
+from anom import Key, Model, Property, props
 from datetime import datetime
 from dateutil.tz import tzlocal, tzutc
 
 from . import models
 
-all_properties = inspect.getmembers(props, lambda x: inspect.isclass(x) and issubclass(x, Property))
+all_properties = inspect.getmembers(props, lambda x: (
+    inspect.isclass(x) and issubclass(x, Property) and
+    x is not props.Computed
+))
 blob_properties = (props.Bytes, props.Json, props.Text)
 encodable_properties = (props.String, props.Text)
 
@@ -238,3 +241,82 @@ def test_keys_are_converted_to_and_from_datastore(person):
 
     child = child.key.get()
     assert child.parent == person.key
+
+
+def test_computed_properties_are_computed_lazily():
+    entity = models.ModelWithComputedProperty()
+    entity.s = "hello"
+    assert entity.c == "HELLO"
+
+
+def test_computed_properties_cant_be_set():
+    with pytest.raises(AttributeError):
+        entity = models.ModelWithComputedProperty()
+        entity.c = "HELLO"
+
+
+def test_computed_properties_are_only_computed_once():
+    calls = []
+
+    def f(ob):
+        calls.append(1)
+        return 42
+
+    class ModelWithComputedProperty1(Model):
+        c = props.Computed(f)
+
+    e = ModelWithComputedProperty1()
+    assert e.c == 42
+    assert e.c == 42
+    assert sum(calls) == 1
+
+
+def test_computed_properties_are_stored():
+    class ModelWithComputedProperty2(Model):
+        c = props.Computed(lambda s: 42)
+
+    entity = ModelWithComputedProperty2().put()
+
+    try:
+        queried_entity = ModelWithComputedProperty2.query().where(ModelWithComputedProperty2.c == 42).get()
+        assert entity == queried_entity
+    finally:
+        entity.delete()
+
+
+def test_computed_properties_are_always_computed():
+    calls = []
+
+    def f(ob):
+        calls.append(1)
+
+    class ModelWithComputedProperty3(Model):
+        c = props.Computed(f)
+
+    entity_1 = ModelWithComputedProperty3().put()
+
+    try:
+        entity_2 = entity_1.key.get()
+        assert entity_1 == entity_2
+        assert sum(calls) == 2
+    finally:
+        entity_1.delete()
+
+
+def test_computed_properties_cache_can_be_busted():
+    calls = []
+
+    def f(ob):
+        calls.append(1)
+        return 42
+
+    class ModelWithComputedProperty4(Model):
+        c = props.Computed(f)
+
+    entity_1 = ModelWithComputedProperty4()
+    assert entity_1.c == 42
+    assert sum(calls) == 1
+
+    del entity_1.c
+    assert entity_1.c == 42
+    assert sum(calls) == 2

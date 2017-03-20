@@ -56,3 +56,12 @@ class ModelWithKeyProperty(Model):
 
 class ModelWithRestrictedKeyProperty(Model):
     k = props.Key(kind=Person)
+
+
+class ModelWithComputedProperty(Model):
+    s = props.String()
+
+    def __compute(self):
+        return self.s.upper() if self.s else None
+
+    c = props.Computed(__compute)

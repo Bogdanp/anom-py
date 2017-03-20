@@ -12,6 +12,10 @@ _known_models_lock = RLock()
 #: Canary value for unset properties.
 NotFound = type("NotFound", (object,), {})()
 
+#: Canary value for properties that should be skipped when loading
+#: entities from Datastore.
+Skip = type("Skip", (object,), {})()
+
 
 def classname(ob):
     "Returns the name of ob's class."
@@ -364,7 +368,9 @@ class Model(metaclass=model):
         instance.key = key
 
         for name, prop in instance._properties.items():
-            setattr(instance, name, prop.prepare_to_load(instance, data.get(name)))
+            value = prop.prepare_to_load(instance, data.get(name))
+            if value is not Skip:
+                setattr(instance, name, value)
 
         return instance
 

@@ -34,6 +34,8 @@ Properties
 
 .. autoclass:: Property
    :members:
+.. autoclass:: anom.model.NotFound
+.. autoclass:: anom.model.Skip
 
 Property Mixins
 ^^^^^^^^^^^^^^^
@@ -47,6 +49,7 @@ Built-in Properties
 
 .. autoclass:: anom.properties.Bool
 .. autoclass:: anom.properties.Bytes
+.. autoclass:: anom.properties.Computed
 .. autoclass:: anom.properties.DateTime
 .. autoclass:: anom.properties.Float
 .. autoclass:: anom.properties.Integer
