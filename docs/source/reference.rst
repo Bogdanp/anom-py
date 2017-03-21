@@ -34,6 +34,10 @@ Properties
 
 .. autoclass:: Property
    :members:
+
+Property Internals
+^^^^^^^^^^^^^^^^^^
+
 .. autoclass:: anom.model.NotFound
 .. autoclass:: anom.model.Skip
 

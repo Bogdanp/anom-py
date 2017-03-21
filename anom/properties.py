@@ -123,8 +123,6 @@ class Bytes(Compressable, Property):
       name(str, optional): The name of this property on the Datastore
         entity.  Defaults to the name of this property on the model.
       default(object, optional): The property's default value.
-      indexed(bool, optional): Whether or not this property should be
-        indexed.  Defaults to ``False``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -310,8 +308,6 @@ class Json(Compressable, Property):
       name(str, optional): The name of this property on the Datastore
         entity.  Defaults to the name of this property on the model.
       default(object, optional): The property's default value.
-      indexed(bool, optional): Whether or not this property should be
-        indexed.  Defaults to ``False``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -429,8 +425,6 @@ class Text(Encodable, Compressable, Property):
       name(str, optional): The name of this property on the Datastore
         entity.  Defaults to the name of this property on the model.
       default(object, optional): The property's default value.
-      indexed(bool, optional): Whether or not this property should be
-        indexed.  Defaults to ``False``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.

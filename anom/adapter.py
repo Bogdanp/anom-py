@@ -50,6 +50,7 @@ class QueryResponse(namedtuple("QueryResponse", ("entities", "cursor"))):
     Parameters:
       entities(list[tuple[anom.Key, dict]]): The list of results.
       cursor(str): The cursor that points to the next page of results.
+        This value must be url-safe.
     """
 
 
