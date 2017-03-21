@@ -381,7 +381,7 @@ class Query(namedtuple("Query", (
 
         model = lookup_model_by_kind(self.kind)
         if model is None:
-            raise RuntimeError("There is no Model class for kind {kind!r}.".format(kind=self.kind))
+            raise RuntimeError(f"There is no Model class for kind {self.kind!r}.")
 
         return model._adapter
 

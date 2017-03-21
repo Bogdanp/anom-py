@@ -89,7 +89,7 @@ class Key:
         """
         model = _known_models.get(self.kind)
         if model is None:
-            raise RuntimeError("There is no Model class for kind {kind!r}.".format(kind=self.kind))
+            raise RuntimeError(f"There is no Model class for kind {self.kind!r}.")
         return model
 
     def delete(self):
@@ -107,9 +107,7 @@ class Key:
 
     def __repr__(self):
         path = ", ".join(repr(elem) for elem in self.path)
-        return "Key({path}, parent={parent!r}, namespace={namespace!r})".format(
-            path=path, parent=self.parent, namespace=self.namespace
-        )
+        return f"Key({path}, parent={self.parent!r}, namespace={self.namespace!r})"
 
     def __hash__(self):
         return hash(self.path) + hash(self.parent) + hash(self.namespace)
@@ -213,9 +211,7 @@ class Property:
             return value
 
         else:
-            raise TypeError("Value of type {value_class} assigned to {self_class} property.".format(
-                value_class=classname(value), self_class=classname(self)
-            ))
+            raise TypeError(f"Value of type {classname(value)} assigned to {classname(self)} property.")
 
     def prepare_to_load(self, entity, value):
         """Prepare `value` to be loaded into a Model.  Called by the
@@ -248,7 +244,7 @@ class Property:
           The value that should be persisted.
         """
         if value is None and not self.optional:
-            raise RuntimeError("Property {} requires a value.".format(self.name_on_model))
+            raise RuntimeError(f"Property {self.name_on_model} requires a value.")
         return value
 
     def __set_name__(self, ob, name):
@@ -280,7 +276,7 @@ class Property:
 
     def _build_filter(self, op, value):
         if not self.indexed:
-            raise TypeError("{} is not indexed.".format(self.name_on_model))
+            raise TypeError(f"{self.name_on_model} is not indexed.")
         return PropertyFilter(self.name_on_entity, op, self.validate(value))
 
     def __eq__(self, value):
@@ -329,7 +325,7 @@ class model(type):
 
         with _known_models_lock:
             if kind in _known_models:
-                raise TypeError("Multiple models for kind {!r}.".format(kind))
+                raise TypeError(f"Multiple models for kind {kind!r}.")
 
             _known_models[kind] = model
 
@@ -355,9 +351,7 @@ class Model(metaclass=model):
         self._data = {}
         for name, value in properties.items():
             if name not in self._properties:
-                raise TypeError("{self_class}() does not take a {name!r} parameter.".format(
-                    self_class=classname(self), name=name,
-                ))
+                raise TypeError(f"{classname(self)}() does not take a {name!r} parameter.")
 
             setattr(self, name, value)
 
@@ -463,8 +457,8 @@ class Model(metaclass=model):
     def __repr__(self):
         constructor = type(self).__name__
         properties = ("key",) + tuple(self._properties.keys())
-        props = ", ".join("{name}={value!r}".format(name=name, value=getattr(self, name)) for name in properties)
-        return "{constructor}({props})".format(constructor=constructor, props=props)
+        props = ", ".join(f"{name}={getattr(self, name)!r}" for name in properties)
+        return f"{constructor}({props})"
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
@@ -526,7 +520,7 @@ def delete_multi(keys):
     adapter = None
     for key in keys:
         if not key.is_complete:
-            raise RuntimeError("Key {!r} is incomplete.".format(key))
+            raise RuntimeError(f"Key {key!r} is incomplete.")
 
         model = key.get_model()
         if adapter is None:
@@ -572,7 +566,7 @@ def get_multi(keys):
     adapter = None
     for key in keys:
         if not key.is_complete:
-            raise RuntimeError("Key {!r} is incomplete.".format(key))
+            raise RuntimeError(f"Key {key!r} is incomplete.")
 
         model = key.get_model()
         if adapter is None:

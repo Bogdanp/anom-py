@@ -27,7 +27,7 @@ greeting.put()
 ```
 
 anom is licensed under the 3-clause BSD license and it officially
-supports Python 3.5 and later.
+supports Python 3.6 and later.
 
 ## Installation
 

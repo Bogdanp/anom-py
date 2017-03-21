@@ -1,7 +1,7 @@
 Installation
 ============
 
-anom supports Python versions 3.5 and up and is installable via `pip`_
+anom supports Python versions 3.6 and up and is installable via `pip`_
 or from source.
 
 Via pip

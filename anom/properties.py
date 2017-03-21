@@ -18,7 +18,7 @@ class Blob:
 
     def __init__(self, **options):
         if options.get("indexed"):
-            raise TypeError("{self_class} properties cannot be indexed.".format(self_class=classname(self)))
+            raise TypeError(f"{classname(self)} properties cannot be indexed.")
 
         super().__init__(**options)
 
@@ -376,9 +376,7 @@ class Key(Property):
                 raise ValueError("Cannot assign incomplete Keys to Key properties.")
 
             elif self.kind and self.kind != value.kind:
-                raise ValueError("Property {name} cannot be assigned keys of kind {kind}.".format(
-                    name=self.name_on_model, kind=value.kind
-                ))
+                raise ValueError(f"Property {self.name_on_model} is cannot be assigned keys of kind {value.kind}.")
 
         return value
 
@@ -412,9 +410,9 @@ class String(Encodable, Property):
         if len(value) > _max_indexed_length and \
            len(value.encode(self.encoding)) > _max_indexed_length:
             raise ValueError(
-                "String value is exceeds the maximum allowed length "
-                "for indexed properties. Set indexed to False if the "
-                "value should not be indexed."
+                f"String value is longer than the maximum allowed length "
+                f"({_max_indexed_length}) for indexed properties. Set "
+                f"indexed to False if the value should not be indexed."
             )
 
         return value
