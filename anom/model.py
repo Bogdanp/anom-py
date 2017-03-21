@@ -282,9 +282,6 @@ class Property:
     def __eq__(self, value):
         return self._build_filter("=", value)
 
-    def __ne__(self, value):
-        return self._build_filter("!=", value)
-
     def __le__(self, value):
         return self._build_filter("<=", value)
 

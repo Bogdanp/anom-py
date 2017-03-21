@@ -194,7 +194,6 @@ def test_properties_cant_be_filtered_against_values_of_invalid_types():
 
 def test_properties_can_be_filtered():
     assert (models.ModelWithIndexedInteger.x == 1) == ("x", "=", 1)
-    assert (models.ModelWithIndexedInteger.x != 1) == ("x", "!=", 1)
     assert (models.ModelWithIndexedInteger.x >= 1) == ("x", ">=", 1)
     assert (models.ModelWithIndexedInteger.x <= 1) == ("x", "<=", 1)
     assert (models.ModelWithIndexedInteger.x > 1) == ("x", ">", 1)
