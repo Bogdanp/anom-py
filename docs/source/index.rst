@@ -39,7 +39,7 @@ Here's what it looks like:
    greeting.put()
 
 **anom** is :doc:`licensed<license>` under the 3-clause BSD license
-and it officially supports Python 3.6 and later.
+and it officially supports Python 3.5 and later.
 
 .. warning::
 

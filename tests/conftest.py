@@ -67,7 +67,7 @@ def person_with_ancestor(person):
 def people():
     people = []
     for i in range(1, 21):
-        person = Person(email=f"{i}@example.com", first_name="Person", last_name=str(i))
+        person = Person(email="{}@example.com".format(i), first_name="Person", last_name=str(i))
         person.key = Key(Person, i)
         people.append(person.put())
 
