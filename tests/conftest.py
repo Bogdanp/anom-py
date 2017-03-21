@@ -31,7 +31,8 @@ def person():
         email="john.smith@example.com",
         first_name="John",
         last_name="Smith"
-    ).put()
+    )
+    person.put()
     yield person
     person.delete()
 
@@ -72,4 +73,4 @@ def people():
 
     yield people
 
-    delete_multi(person.key for person in people)
+    delete_multi([person.key for person in people])

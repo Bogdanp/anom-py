@@ -1,4 +1,5 @@
 from anom import Model, props
+from contextlib import contextmanager
 
 
 class User(Model):
@@ -65,3 +66,10 @@ class ModelWithComputedProperty(Model):
         return self.s.upper() if self.s else None
 
     c = props.Computed(__compute)
+
+
+@contextmanager
+def temp_person(**options):
+    person = Person(**options).put()
+    yield person
+    person.delete()

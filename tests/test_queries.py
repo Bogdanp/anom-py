@@ -2,7 +2,7 @@ import pytest
 
 from anom import Query
 
-from .models import Person
+from .models import Person, temp_person
 
 
 def test_queries_can_fail_to_get_single_items():
@@ -110,6 +110,6 @@ def test_pages_fetch_next_page_returns_empty_iterator_if_there_are_no_more_pages
 
 
 def test_queries_preprocess_keys(person):
-    child = Person(email="child@example.com", first_name="Child", parent=person).put()
-    child = Person.query().where(Person.email == "child@example.com").get()
-    assert child.parent == person.key
+    with temp_person(email="child@example.com", first_name="Child", parent=person) as child:
+        child = Person.query().where(Person.email == "child@example.com").get()
+        assert child.parent == person.key

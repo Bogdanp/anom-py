@@ -501,6 +501,11 @@ def delete_multi(keys):
       If the keys have disparate adapters this function may behave in
       unexpected ways.
 
+    Warning:
+      You must pass a **list** and not a generator or some other kind
+      of iterable to this function as it has to iterate over the list
+      of keys multiple times.
+
     Parameters:
       keys(list[anom.Key]): The list of keys whose entities to delete.
 
@@ -536,6 +541,11 @@ def get_multi(keys):
       This uses the adapter that is tied to the first model in the
       list.  If the keys have disparate adapters this function may
       behave in unexpected ways.
+
+    Warning:
+      You must pass a **list** and not a generator or some other kind
+      of iterable to this function as it has to iterate over the list
+      of keys multiple times.
 
     Parameters:
       keys(list[anom.Key]): The list of keys whose entities to get.
@@ -585,6 +595,11 @@ def put_multi(entities):
       This uses the adapter that is tied to the first Entity in the
       list.  If the entities have disparate adapters this function may
       behave in unexpected ways.
+
+    Warning:
+      You must pass a **list** and not a generator or some other kind
+      of iterable to this function as it has to iterate over the list
+      of entities multiple times.
 
     Parameters:
       entities(list[Model]): The list of entities to persist.

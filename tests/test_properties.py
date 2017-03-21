@@ -156,8 +156,11 @@ def test_datetimes_can_be_set_on_create():
     assert not user.updated_at
     user.put()
 
-    assert user.created_at
-    assert user.updated_at
+    try:
+        assert user.created_at
+        assert user.updated_at
+    finally:
+        user.delete()
 
 
 def test_datetimes_can_update_on_every_put():
@@ -166,15 +169,18 @@ def test_datetimes_can_update_on_every_put():
     assert not user.updated_at
     user.put()
 
-    assert user.created_at
-    assert user.created_at
+    try:
+        assert user.created_at
+        assert user.created_at
 
-    previous_created_at = user.created_at
-    previous_updated_at = user.updated_at
-    user.put()
+        previous_created_at = user.created_at
+        previous_updated_at = user.updated_at
+        user.put()
 
-    assert user.created_at == previous_created_at
-    assert user.updated_at != previous_updated_at
+        assert user.created_at == previous_created_at
+        assert user.updated_at != previous_updated_at
+    finally:
+        user.delete()
 
 
 def test_datetimes_cannot_be_both_auto_and_repeated():
@@ -234,12 +240,11 @@ def test_restricted_key_properties_can_only_be_assigned_keys_of_that_kind(person
 
 
 def test_keys_are_converted_to_and_from_datastore(person):
-    child = models.Person(email="child@example.com", first_name="Child", parent=person)
-    child.put()
-    assert child.parent == person.key
+    with models.temp_person(email="child@example.com", first_name="Child", parent=person) as child:
+        assert child.parent == person.key
 
-    child = child.key.get()
-    assert child.parent == person.key
+        child = child.key.get()
+        assert child.parent == person.key
 
 
 def test_computed_properties_are_computed_lazily():
