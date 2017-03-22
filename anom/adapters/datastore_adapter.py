@@ -93,13 +93,8 @@ class DatastoreAdapter(Adapter):
     def _convert_key_to_datastore(self, anom_key):
         return self.client.key(*anom_key.path, namespace=anom_key.namespace)
 
-    def _convert_key_from_datastore(self, ds_key):
-        namespace, key = ds_key.namespace, None
-        for i in range(0, len(ds_key.flat_path), 2):
-            kind, id_or_name = ds_key.flat_path[i:i + 2]
-            key = Key(kind, id_or_name, parent=key, namespace=namespace)
-
-        return key
+    def _convert_key_from_datastore(self, datastore_key):
+        return Key.from_path(*datastore_key.flat_path, namespace=datastore_key.namespace)
 
     def _prepare_to_store(self, key, unindexed, data):
         """Populate an Entity with data from the Model.

@@ -1,3 +1,4 @@
+from collections import namedtuple
 from threading import RLock
 from weakref import WeakValueDictionary
 
@@ -22,44 +23,59 @@ def classname(ob):
     return type(ob).__name__
 
 
-class Key:
+class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
     """A Datastore key.
 
     Parameters:
       kind(str or model): The Datastore kind this key represents.
-      path(int or str): The id or name of this key.
+      id_or_name(int or str): The id or name of this key.
       parent(anom.Key, optional): This key's ancestor.
       namespace(str, optional): This key's namespace.
     """
 
-    def __init__(self, kind, *path, parent=None, namespace=None):
+    def __new__(cls, kind, id_or_name=None, parent=None, namespace=None):
         if isinstance(kind, model):
             kind = kind._kind
 
         if parent and parent.is_partial:
             raise ValueError("Cannot use partial Keys as parents.")
 
-        elif parent:
-            self.path = parent.path + (kind,) + path
+        return super().__new__(cls, kind, id_or_name, parent, namespace)
 
-        else:
-            self.path = (kind,) + path
+    @classmethod
+    def from_path(cls, *path, namespace=None):
+        """Build up a Datastore key from a path.
 
-        self.kind = kind
-        self.parent = parent
-        self.namespace = namespace
+        Parameters:
+          \*path(tuple[str or int]): The path segments.
+          namespace(str): An optional namespace for the key. This is
+            applied to each key in the tree.
+
+        Returns:
+          Key: The Datastore represented by the given path.
+        """
+        parent = None
+        for i in range(0, len(path), 2):
+            parent = cls(*path[i:i + 2], parent=parent, namespace=namespace)
+
+        return parent
+
+    @property
+    def path(self):
+        "tuple: The full Datastore path represented by this key."
+        prefix = ()
+        if self.parent:
+            prefix = self.parent.path
+
+        if self.id_or_name:
+            return prefix + (self.kind, self.id_or_name)
+
+        return prefix + (self.kind,)
 
     @property
     def is_partial(self):
         "bool: ``True`` if this key doesn't have an id yet."
         return len(self.path) % 2 != 0
-
-    @property
-    def id_or_name(self):
-        "id or str: This key's id."
-        if self.is_partial:
-            return None
-        return self.path[-1]
 
     @property
     def int_id(self):
@@ -106,11 +122,10 @@ class Key:
         return get_multi([self])[0]
 
     def __repr__(self):
-        path = ", ".join(repr(elem) for elem in self.path)
-        return f"Key({path}, parent={self.parent!r}, namespace={self.namespace!r})"
+        return f"Key({self.kind!r}, {self.id_or_name!r}, parent={self.parent!r}, namespace={self.namespace!r})"
 
     def __hash__(self):
-        return hash(self.path) + hash(self.parent) + hash(self.namespace)
+        return hash(tuple(self))
 
     def __eq__(self, other):
         if not isinstance(other, Key):
