@@ -37,7 +37,7 @@ pip install anom
 
 ## Documentation
 
-Documentation is available at https://anom.readthedocs.io/en/latest/.
+Documentation is available at https://anom.defn.io.
 
 
 [gcd]: https://cloud.google.com/datastore/docs/
