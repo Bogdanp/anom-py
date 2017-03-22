@@ -75,8 +75,8 @@ and then access their properties as if they were normal class
 attributes (under the hood, that's more or less what they are!)::
 
   >>> greeting.email = "someone@example.com"
-  >>> print(greeting.email)
-  someone@example.com
+  >>> greeting.email
+  "someone@example.com"
   >>> print(greeting.message)
   None
 
@@ -98,7 +98,7 @@ You can get the greeting's automatically-assigned id by accessing
 :attr:`int_id<anom.Key.int_id>` or :attr:`id_or_name<anom.Key.id_or_name>`
 on its key::
 
-  >>> print(greeting.key.int_id)
+  >>> greeting.key.int_id
   1001
 
 You can load entities by id by calling :meth:`get<anom.Model.get>`::

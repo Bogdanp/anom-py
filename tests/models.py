@@ -68,6 +68,10 @@ class ModelWithComputedProperty(Model):
     c = props.Computed(__compute)
 
 
+class ModelWithJsonProperty(Model):
+    j = props.Json()
+
+
 @contextmanager
 def temp_person(**options):
     person = Person(**options).put()

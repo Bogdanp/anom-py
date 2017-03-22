@@ -5,7 +5,8 @@ import zlib
 from datetime import datetime
 from dateutil import tz
 
-from .model import Key as ModelKey, model, Model, NotFound, Property, Skip, classname
+from . import model
+from .model import Property, NotFound, Skip, classname
 
 
 #: The maximum length of indexed properties.
@@ -321,7 +322,7 @@ class Json(Compressable, Property):
     """
 
     # TODO(bogdan): Add support for `datetime` and `Model`.
-    _types = (bool, bytes, float, int, str)
+    _types = (bool, bytes, dict, float, int, str)
 
     def prepare_to_load(self, entity, value):
         if value is not None:
@@ -355,12 +356,12 @@ class Key(Property):
         properties default to an empty list.
     """
 
-    _types = (Model, ModelKey,)
+    _types = (model.Model, model.Key,)
 
     def __init__(self, *, kind=None, **options):
         super().__init__(**options)
 
-        if isinstance(kind, model):
+        if isinstance(kind, model.model):
             self.kind = kind._kind
         else:
             self.kind = kind
@@ -369,7 +370,7 @@ class Key(Property):
         value = super().validate(value)
 
         if value is not None:
-            if isinstance(value, Model):
+            if isinstance(value, model.Model):
                 value = value.key
 
             if value.is_partial:
