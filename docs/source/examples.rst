@@ -33,14 +33,16 @@ from anom and various Bottle functions:
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py
    :name: guestbook-py-imports
-   :lines: 1-2
+   :start-after: [START imports]
+   :end-before: [END imports]
 
 Then we define a ``GuestbookEntry`` model:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py
    :name: guestbook-py-model
-   :lines: 5-8
+   :start-after: [START guestbook-entry-model]
+   :end-before: [END guestbook-entry-model]
 
 ``created_at`` has its ``indexed`` option set to ``True`` so that we
 can sort guestbook entries in descending order when we list them.
@@ -52,7 +54,8 @@ Next up, we define our index route:
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py
    :name: guestbook-py-index
-   :lines: 15-20
+   :start-after: [START index-route]
+   :end-before: [END index-route]
 
 We paginate over the guestbook entry items one item per page for
 convenience when testing and we make it possible to pass in a
@@ -65,21 +68,24 @@ Then we define a route to create new entries:
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py
    :name: guestbook-py-sign
-   :lines: 23-31
+   :start-after: [START sign-route]
+   :end-before: [END sign-route]
 
 And a route to delete existing entries:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py
    :name: guestbook-py-delete
-   :lines: 34-41
+   :start-after: [START delete-route]
+   :end-before: [END delete-route]
 
 Finally, we run the server:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py
    :name: guestbook-py-run
-   :lines: 44
+   :start-after: [START run]
+   :end-before: [END run]
 
 Here is the template we used to render the listing:
 
