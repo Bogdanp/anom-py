@@ -39,8 +39,10 @@ Properties
 Property Internals
 ^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: anom.model.NotFound
-.. autoclass:: anom.model.Skip
+.. autodata:: anom.model.NotFound
+   :annotation:
+.. autodata:: anom.model.Skip
+   :annotation:
 
 Property Mixins
 ^^^^^^^^^^^^^^^
