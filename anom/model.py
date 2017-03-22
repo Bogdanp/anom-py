@@ -52,7 +52,7 @@ class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
             applied to each key in the tree.
 
         Returns:
-          Key: The Datastore represented by the given path.
+          anom.Key: The Datastore represented by the given path.
         """
         parent = None
         for i in range(0, len(path), 2):
@@ -322,6 +322,18 @@ class _adapter:
 
 
 class model(type):
+    """Metaclass of Model classes.
+
+    Attributes:
+      _kind(str): The underlying Datastore kind of this model.
+      _adapter(Adapter): A computed property that returns the adapter
+        for this model class.
+      _properties(dict): A dict of all of the properties defined on
+        this model.
+      _unindexed(tuple): A tuple of all of the names of the unindexed
+        properties on this model.
+    """
+
     def __new__(cls, classname, bases, attrs):
         # Collect all of the properties defined on this model.
         attrs["_adapter"] = _adapter()
@@ -502,7 +514,7 @@ def lookup_model_by_kind(kind):
       kind(str)
 
     Returns:
-      Model: Or None if a model does not exist for the given kind.
+      model: Or None if a model does not exist for the given kind.
     """
     return _known_models.get(kind)
 

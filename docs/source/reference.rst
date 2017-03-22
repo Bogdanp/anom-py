@@ -27,6 +27,7 @@ Models
 
 .. autoclass:: Model
    :members:
+.. autoclass:: anom.model.model
 
 
 Properties
