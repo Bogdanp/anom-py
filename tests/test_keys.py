@@ -5,15 +5,15 @@ from anom import Key, get_multi
 from . import models  # noqa
 
 
-def test_keys_can_be_incomplete():
-    assert not Key("Person").is_complete
+def test_keys_can_be_partial():
+    assert Key("Person").is_partial
 
 
-def test_keys_can_be_complete():
-    assert Key("Person", 123).is_complete
+def test_keys_can_be_full():
+    assert not Key("Person", 123).is_partial
 
 
-def test_incomplete_keys_dont_have_an_id():
+def test_partial_keys_dont_have_an_id():
     assert Key("Person").id_or_name is None
     assert Key("Person").int_id is None
     assert Key("Person").str_id is None
@@ -25,7 +25,7 @@ def test_keys_are_hierarchical():
     )
 
 
-def test_keys_parents_must_be_complete():
+def test_keys_parents_must_not_be_partial():
     with pytest.raises(ValueError):
         Key("Person", 123, parent=Key("Organization"))
 
@@ -90,7 +90,7 @@ def test_keys_can_get_multiple_entities_at_once(person):
     assert entities == [person, None]
 
 
-def test_keys_get_multi_fails_given_incomplete_keys():
+def test_keys_get_multi_fails_given_partial_keys():
     with pytest.raises(RuntimeError):
         get_multi([Key("Person")])
 

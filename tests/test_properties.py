@@ -52,11 +52,11 @@ def test_encodables_avoid_loading_nones():
         assert prop.prepare_to_load(None, None) is None
 
 
-def test_keys_can_be_assigned_complete_keys():
+def test_keys_can_be_assigned_full_keys():
     assert props.Key().validate(Key("Person", 12))
 
 
-def test_keys_cannot_be_assigned_incomplete_keys():
+def test_keys_cannot_be_assigned_partial_keys():
     with pytest.raises(ValueError):
         key = props.Key()
         key.validate(Key("Person"))

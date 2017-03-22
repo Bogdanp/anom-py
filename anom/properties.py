@@ -372,8 +372,8 @@ class Key(Property):
             if isinstance(value, Model):
                 value = value.key
 
-            if not value.is_complete:
-                raise ValueError("Cannot assign incomplete Keys to Key properties.")
+            if value.is_partial:
+                raise ValueError("Cannot assign partial Keys to Key properties.")
 
             elif self.kind and self.kind != value.kind:
                 raise ValueError(f"Property {self.name_on_model} is cannot be assigned keys of kind {value.kind}.")

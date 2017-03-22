@@ -100,7 +100,7 @@ class Adapter:
             persist a set of entities.
 
         Returns:
-          list[anom.Key]: The list of completed keys for each stored
+          list[anom.Key]: The list of full keys for each stored
           entity.
         """
         raise NotImplementedError

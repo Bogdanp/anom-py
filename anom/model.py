@@ -36,8 +36,8 @@ class Key:
         if isinstance(kind, model):
             kind = kind._kind
 
-        if parent and not parent.is_complete:
-            raise ValueError("Cannot use incomplete Keys as parents.")
+        if parent and parent.is_partial:
+            raise ValueError("Cannot use partial Keys as parents.")
 
         elif parent:
             self.path = parent.path + (kind,) + path
@@ -50,14 +50,14 @@ class Key:
         self.namespace = namespace
 
     @property
-    def is_complete(self):
-        "bool: Whether or not this key has an id."
-        return len(self.path) % 2 == 0
+    def is_partial(self):
+        "bool: ``True`` if this key doesn't have an id yet."
+        return len(self.path) % 2 != 0
 
     @property
     def id_or_name(self):
         "id or str: This key's id."
-        if not self.is_complete:
+        if self.is_partial:
             return None
         return self.path[-1]
 
@@ -71,7 +71,7 @@ class Key:
 
     @property
     def str_id(self):
-        "str: This key's numeric id."
+        "str: This key's string id."
         id_or_name = self.id_or_name
         if id_or_name is not None and isinstance(id_or_name, str):
             return id_or_name
@@ -337,7 +337,7 @@ class Model(metaclass=model):
 
     Attributes:
       key(anom.Key): The Datastore Key for this entity.  If the entity
-        was never stored then the Key is going to be incomplete.
+        was never stored then the Key is going to be partial.
 
     Note:
       Hooks are only called when dealing with individual entities via
@@ -423,7 +423,7 @@ class Model(metaclass=model):
 
         Raises:
           RuntimeError: If this entity was never stored (i.e. if its
-            key is incomplete).
+            key is partial).
         """
         return delete_multi([self.key])
 
@@ -512,15 +512,15 @@ def delete_multi(keys):
     Raises:
       RuntimeError: If the given set of keys have models that use
         a disparate set of adapters or if any of the keys are
-        incomplete.
+        partial.
     """
     if not keys:
         return
 
     adapter = None
     for key in keys:
-        if not key.is_complete:
-            raise RuntimeError(f"Key {key!r} is incomplete.")
+        if key.is_partial:
+            raise RuntimeError(f"Key {key!r} is partial.")
 
         model = key.get_model()
         if adapter is None:
@@ -553,7 +553,7 @@ def get_multi(keys):
     Raises:
       RuntimeError: If the given set of keys have models that use
         a disparate set of adapters or if any of the keys are
-        incomplete.
+        partial.
 
     Returns:
       list[Model]: Entities that do not exist are going to be None
@@ -565,8 +565,8 @@ def get_multi(keys):
 
     adapter = None
     for key in keys:
-        if not key.is_complete:
-            raise RuntimeError(f"Key {key!r} is incomplete.")
+        if key.is_partial:
+            raise RuntimeError(f"Key {key!r} is partial.")
 
         model = key.get_model()
         if adapter is None:

@@ -4,6 +4,7 @@ Changelog
 v0.0.5
 ------
 
+* Replaced ``Key.is_complete`` with :attr:`anom.Key.is_partial`.
 * Dropped ``__ne__`` from :class:`anom.Property` as it's not natively
   supported.
 
