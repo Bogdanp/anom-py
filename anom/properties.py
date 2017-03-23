@@ -151,7 +151,7 @@ class Computed(Property):
 
       del an_entity.a_property
 
-    Warning:
+    Note:
 
       Computed properties are **indexed** and **optional** by default
       for convenience.  This is different from all other built-in

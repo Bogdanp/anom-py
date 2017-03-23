@@ -31,6 +31,13 @@ class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
       id_or_name(int or str): The id or name of this key.
       parent(anom.Key, optional): This key's ancestor.
       namespace(str, optional): This key's namespace.
+
+    Attributes:
+      kind(str): This key's kind.
+      id_or_name(int or str or None): This key's integer id or string
+        name.  This is ``None`` for partial keys.
+      parent(anom.Key or None): This key's ancestor.
+      namespace(str or None): This key's namespace.
     """
 
     def __new__(cls, kind, id_or_name=None, parent=None, namespace=None):
