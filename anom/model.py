@@ -124,7 +124,7 @@ class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
         """Get the entity represented by this Key from Datastore.
 
         Returns:
-          Model: Or None if the entity does not exist.
+          Model: The entity or ``None`` if it does not exist.
         """
         return get_multi([self])[0]
 
@@ -521,7 +521,7 @@ def lookup_model_by_kind(kind):
       kind(str)
 
     Returns:
-      model: Or None if a model does not exist for the given kind.
+      model: The model class or None if it does not exist.
     """
     return _known_models.get(kind)
 

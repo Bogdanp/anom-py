@@ -1,5 +1,4 @@
-.. anom documentation master file, created by
-   sphinx-quickstart on Sat Mar 18 19:48:26 2017.
+.. include:: global.rst
 
 anom: an om for Cloud Datastore
 ===============================
@@ -20,7 +19,7 @@ Release v\ |release|. (:doc:`installation`, :doc:`changelog`)
    :target: https://saythanks.io/to/Bogdanp
 
 **anom** is an object mapper for `Google Cloud Datastore`_ heavily
-inspired by `ndb`_ with a focus on simplicity, correctness and
+inspired by ndb_ with a focus on simplicity, correctness and
 performance.
 
 Here's what it looks like:
@@ -55,10 +54,6 @@ Get It Now
 
 Read the :doc:`quickstart` if you're ready to get started or check out
 some of the :doc:`examples`.
-
-
-.. _Google Cloud Datastore: https://cloud.google.com/datastore/docs/
-.. _ndb: https://cloud.google.com/appengine/docs/standard/python/ndb/
 
 
 User Guide

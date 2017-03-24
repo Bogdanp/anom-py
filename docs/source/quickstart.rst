@@ -1,3 +1,5 @@
+.. include:: global.rst
+
 Quickstart
 ==========
 
@@ -16,24 +18,20 @@ For more information see the `official docs`_.
 These steps are *important* since anom will connect to whatever
 Datastore the current environment points to by default.
 
-.. _gcloud: https://cloud.google.com/sdk/
-.. _official docs:
-.. _Datastore Emulator: https://cloud.google.com/datastore/docs/tools/datastore-emulator
-
 
 Models
 ------
 
 Models define how data is shaped in Datastore and where it should be
-stored.  To get started, import :class:`Model<anom.Model>` and
-:mod:`props<anom.properties>` from the :mod:`anom` module::
+stored.  To get started, import |Model| and |props| from the |anom|
+module::
 
   >>> from anom import Model, props
 
 .. note::
 
-   ``anom.props`` is an alias for the :mod:`anom.properties` module
-   for convenience.
+   ``anom.props`` is an alias of the :mod:`anom.properties` module for
+   convenience.
 
 Declaring models is very simple and should come naturally to you if
 you've ever used any other Python ORM::
@@ -65,7 +63,7 @@ This says that ``Greeting`` is a model with 4 properties:
    Even though, in general, you can name properties on a model
    whatever you like, certain names are reserved.  You may not give a
    property a name that would clash with any of the attributes on the
-   :class:`anom.Model` class.
+   |Model| class.
 
 You can instantiate models like you would normal Python classes::
 
@@ -85,23 +83,21 @@ instantiate models::
 
   >>> greeting = Greeting(email="someone@example.com", message="Hi!")
 
-Every entity\ [#]_ has a :class:`Key<anom.Key>` that you can access via
-its :attr:`key<anom.Model.key>` attribute.  Entities that have not yet
-been saved have what are known as partial keys, keys without an id
-assigned to them.
+Every entity\ [#]_ has a |Key| that you can access via its |Model_key|
+attribute.  Entities that have not yet been saved have what are known
+as partial keys, keys without an id assigned to them.
 
-You can store the greeting by calling its :meth:`put<anom.Model.put>`
-method.  Doing so will serialize the entity, store it in Datastore and
-update its key to point to its location in Datastore.
+You can store the greeting by calling its |Model_put| method.  Doing
+so will serialize the entity, store it in Datastore and update its key
+to point to its location in Datastore.
 
 You can get the greeting's automatically-assigned id by accessing
-:attr:`int_id<anom.Key.int_id>` or :attr:`id_or_name<anom.Key.id_or_name>`
-on its key::
+|Key_int_id| or |Key_id_or_name| on its key::
 
   >>> greeting.key.int_id
   1001
 
-You can fetch entities by id by calling :meth:`get<anom.Model.get>`::
+You can fetch entities by id by calling |Model_get|::
 
   >>> same_greeting = Greeting.get_by_id(1001)  # Replace 1001 with whatever id your greeting was assigned
   >>> same_greeting
@@ -112,12 +108,11 @@ Entities can be compared for equality::
   >>> same_greeting == greeting
   True
 
-Finally, to delete an entity, you can call :meth:`delete<anom.Model.delete>`
-on it::
+Finally, you can |Model_delete| entities::
 
   >>> greeting.delete()
 
-Doing so will permanently remove it from Datastore.
+Doing so will permanently remove the Greeting from Datastore.
 
 
 Properties
@@ -179,8 +174,8 @@ additional cost.
 DateTime Properties
 ^^^^^^^^^^^^^^^^^^^
 
-:class:`DateTimes<anom.properties.DateTime>` support the following
-additional set of options:
+|prop_DateTime| properties support the following additional set of
+options:
 
 ================  =========  =========================================================================================================================================
 Option            Default    Description
@@ -192,20 +187,22 @@ Option            Default    Description
 Encodable Properties
 ^^^^^^^^^^^^^^^^^^^^
 
-:class:`String<anom.properties.String>` and :class:`Text<anom.properties.Text>`
-properties have an ``encoding`` option which controls how their values
-should be encoded/decoded before storing/loading them to/from
-Datastore.  The default ``encoding`` is ``utf-8``.
+|prop_String| and |prop_Text| properties have an ``encoding`` option
+which controls how their values should be encoded/decoded before
+storing/loading them to/from Datastore.
+
+The default ``encoding`` is ``utf-8``.
 
 
 Keys
 ----
 
-:class:`Keys<anom.Key>` represent the locations of individual entities
-inside Datastore.  They consist of a Datastore kind, an optional id,
-an optional parent key and an optional namespace.  Keys are immutable
-and they can be stored on individual entities via
-:class:`Key<anom.properties.Key>` properties.
+|Keys| represent the locations of individual entities inside
+Datastore.  They consist of a Datastore kind, an optional id, a parent
+key and a namespace.
+
+Keys are immutable and they can be stored on individual entities via
+|prop_Key| properties.
 
 You can instantiate new keys::
 
@@ -237,9 +234,10 @@ large Models this cost can add up quickly, increasing the time it takes
 for data to become consistent across Datastore and increasing your
 overall Datastore costs.
 
-For this reason, all anom properties except for :class:`Computed<anom.properties.Computed>`
-are *unindexed by default*.  This means that if you want to query a
-property you must decide up front if it's going to be indexed or not.
+For this reason, all anom properties except for |prop_Computed| are
+*unindexed by default*.  This means that if you want to filter on or
+sort by a property you must decide up front if it's going to be
+indexed or not.
 
 Changing a property from unindexed to indexed (or vice-versa) on your
 model **will not** affect the indexing schemes of previously-saved
@@ -278,7 +276,9 @@ to index all of the individual ``False`` values.
 The following conditions are built-in:
 
 * :func:`anom.conditions.is_default`
+* :func:`anom.conditions.is_not_default`
 * :func:`anom.conditions.is_empty`
+* :func:`anom.conditions.is_not_empty`
 * :func:`anom.conditions.is_true`
 * :func:`anom.conditions.is_false`
 * :func:`anom.conditions.is_null`
@@ -297,43 +297,42 @@ anom provides a simple DSL for constructing Datastore queries::
 
   >>> admins_query = admins_query.order_by(-User.created_at)
 
-``admins_query`` is roughly equivalent to the following SQL query::
+``admins_query`` is roughly equivalent to the following SQL query:
+
+.. code-block:: sql
 
   SELECT username FROM User
    WHERE is_admin AND is_enabled
    ORDER BY created_at DESC
 
-You can :meth:`run<anom.Query.run>` queries to get an iterable result
-set::
+You can |Query_run| queries to get an iterable result set::
 
   >>> for admin in admins_query.run():
   ...   print(admin)
 
-Or you can :meth:`get<anom.Query.get>` the first result from a query::
+Or you can |Query_get| the first result from a query::
 
   >>> admin_bob = admins_query.and_where(User.username == "bob").get()
 
-:class:`Queries<anom.Query>` are *immutable objects* and each instance
-method simply returns a new object.  Queries themselves do not execute
-any calls to Datastore until you call :meth:`run<anom.Query.run>`,
-:meth:`paginate<anom.Query.paginate>` or :meth:`get<anom.Query.get>`
+|Queries| are *immutable objects* and each instance method simply
+returns a new object.  Queries themselves do not execute any calls to
+Datastore until you call |Query_get|, |Query_run| or |Query_paginate|
 on them.
 
 Resultsets
 ^^^^^^^^^^
 
-When you run a :class:`Query<anom.Query>` you get back an iterable
-:class:`Resultset<anom.Resultset>` object.  They let you efficiently
-iterate over query results by fetching result data in batches.  Each
-resultset may only be iterated over once.
+When you |Query_run| a |Query| you get back an iterable |Resultset|
+object.  These objects let you efficiently iterate over query results
+by fetching result data in batches.  You may only iterate over a
+|Resultset| once.
 
 Pagination
 ^^^^^^^^^^
 
-When you paginate a :class:`Query<anom.Query>` you get back an
-iterable :class:`Pages<anom.Pages>` object.  These objects let you
-iterate over query results in specific page-sized chunks.  For
-example::
+When you paginate a |Query| you get back an iterable |Pages| object.
+These objects let you iterate over query results in specific
+page-sized chunks.  For example::
 
   >>> all_posts = Posts.query()
   >>> all_pages = all_posts.paginate(page_size=20)
@@ -350,8 +349,8 @@ You can also fetch individual pages::
   >>> page_1 = all_pages.fetch_next_page()
   >>> page_2 = all_pages.fetch_next_page()
 
-Each :class:`Page<anom.Page>` object has a :attr:`cursor<anom.Page.cursor>`
-attribute that represents the Datastore cursor for the next page of results::
+Each |Page| object has a |Page_cursor| attribute that represents the
+Datastore cursor for the next page of results::
 
   >>> pages = all_posts.paginate(page_size=20, cursor=page_2.cursor)
   >>> page_3 = pages.fetch_next_page()
@@ -359,7 +358,19 @@ attribute that represents the Datastore cursor for the next page of results::
 Query Options
 ^^^^^^^^^^^^^
 
-FIXME
+All of the methods that execute queries (i.e. |Query_get|, |Query_run|
+and |Query_paginate|) take the following set of options as keyword
+arguments:
+
+==============  =========  =====================================================================================================
+Option          Default    Description
+==============  =========  =====================================================================================================
+``batch_size``  ``300``    The number of results to fetch per batch.  If ``limit`` is less than this, ``limit`` is used instead.
+``keys_only``   ``False``  Whether or not to fetch only the Keys of the entities that match the query.
+``limit``       ``None``   The maximum number of entities to return.
+``offset``      ``None``   The number of entities to skip.
+``cursor``      ``None``   The start cursor for the query.
+==============  =========  =====================================================================================================
 
 
 Transactions
@@ -370,6 +381,12 @@ FIXME
 
 Adapters
 --------
+
+FIXME
+
+
+Testing
+-------
 
 FIXME
 
