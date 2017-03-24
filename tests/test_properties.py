@@ -2,7 +2,7 @@ import inspect
 import json
 import pytest
 
-from anom import Key, Model, Property, conditions, props
+from anom import Key, Model, Property, props
 from datetime import datetime
 from dateutil.tz import tzlocal, tzutc
 
