@@ -4,7 +4,9 @@ Changelog
 v0.0.5
 ------
 
+* Added support for conditional indexes on properties
 * Replaced ``Key.is_complete`` with :attr:`anom.Key.is_partial`.
+* Dropped ``is_null`` from :class:`anom.Property`
 * Dropped ``__ne__`` from :class:`anom.Property` as it's not natively
   supported.
 

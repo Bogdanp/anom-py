@@ -2,7 +2,7 @@ import inspect
 import json
 import pytest
 
-from anom import Key, Model, Property, props
+from anom import Key, Model, Property, conditions, props
 from datetime import datetime
 from dateutil.tz import tzlocal, tzutc
 
@@ -212,12 +212,12 @@ def test_bools_can_be_filtered_against_true_and_false():
 
 
 def test_properties_can_be_filtered_against_none():
-    assert models.ModelWithOptionalIndexedInteger.x.is_null == ("x", "=", None)
+    assert models.ModelWithOptionalIndexedInteger.x.is_none == ("x", "=", None)
 
 
 def test_required_properties_cant_be_filtered_against_none():
     with pytest.raises(TypeError):
-        models.ModelWithIndexedInteger.x.is_null
+        models.ModelWithIndexedInteger.x.is_none
 
 
 def test_key_properties_can_be_assigned_entities(person):

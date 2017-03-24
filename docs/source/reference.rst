@@ -65,6 +65,17 @@ Built-in Properties
 .. autoclass:: anom.properties.String
 .. autoclass:: anom.properties.Text
 
+Built-in Conditions
+^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: anom.conditions.is_default
+.. autofunction:: anom.conditions.is_not_default
+.. autofunction:: anom.conditions.is_empty
+.. autofunction:: anom.conditions.is_not_empty
+.. autofunction:: anom.conditions.is_none
+.. autofunction:: anom.conditions.is_not_none
+.. autofunction:: anom.conditions.is_true
+.. autofunction:: anom.conditions.is_false
 
 Queries
 -------

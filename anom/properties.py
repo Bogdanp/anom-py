@@ -18,7 +18,7 @@ class Blob:
     """
 
     def __init__(self, **options):
-        if options.get("indexed"):
+        if options.get("indexed") or options.get("indexed_if"):
             raise TypeError(f"{classname(self)} properties cannot be indexed.")
 
         super().__init__(**options)
@@ -96,6 +96,9 @@ class Bool(Property):
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -164,6 +167,9 @@ class Computed(Property):
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``True``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``True``.
       repeated(bool, optional): Whether or not this property is
@@ -209,6 +215,9 @@ class DateTime(Property):
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -271,6 +280,9 @@ class Float(Property):
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -291,6 +303,9 @@ class Integer(Property):
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -348,6 +363,9 @@ class Key(Property):
         assigned to this property.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
@@ -391,6 +409,9 @@ class String(Encodable, Property):
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.

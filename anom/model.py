@@ -171,6 +171,9 @@ class Property:
       default(object, optional): The property's default value.
       indexed(bool, optional): Whether or not this property should be
         indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required-but-empty values
         cause models to raise an exception before data is persisted.
@@ -182,11 +185,13 @@ class Property:
     #: The types of values that may be assigned to this property.
     _types = ()
 
-    def __init__(self, *, name=None, default=None, indexed=False, optional=False, repeated=False):
-        self.default = self.validate(default) if default else None
-        self.indexed = indexed
+    def __init__(self, *, name=None, default=None, indexed=False, indexed_if=None, optional=False, repeated=False):
+        self.indexed = indexed or bool(indexed_if)
+        self.indexed_if = indexed_if
         self.optional = optional
         self.repeated = repeated
+
+        self.default = self.validate(default) if default else None
 
         self._name_on_entity = name
         self._name_on_model = None
@@ -207,9 +212,6 @@ class Property:
         if not self.optional:
             raise TypeError("Required properties cannot be compared against None.")
         return self == None  # noqa
-
-    #: Alias of is_none.
-    is_null = is_none
 
     def validate(self, value):
         """Validates that `value` can be assigned to this Property.
@@ -337,21 +339,15 @@ class model(type):
         for this model class.
       _properties(dict): A dict of all of the properties defined on
         this model.
-      _unindexed(tuple): A tuple of all of the names of the unindexed
-        properties on this model.
     """
 
     def __new__(cls, classname, bases, attrs):
         # Collect all of the properties defined on this model.
         attrs["_adapter"] = _adapter()
         attrs["_properties"] = properties = {}
-        attrs["_unindexed"] = unindexed = ()
         for name, value in attrs.items():
             if isinstance(value, Property):
                 properties[name] = value
-
-                if not value.indexed:
-                    unindexed += (name,)
 
         # Ensure that a single model maps to a single kind at runtime.
         kind = attrs.setdefault("_kind", classname)
@@ -404,6 +400,16 @@ class Model(metaclass=model):
                 setattr(instance, name, value)
 
         return instance
+
+    @property
+    def unindexed_properties(self):
+        "tuple[str]: The names of all the unindexed properties on this entity."
+        properties = ()
+        for name, prop in self._properties.items():
+            if not prop.indexed or prop.indexed_if and prop.indexed_if(self, prop, name):
+                properties += (prop.name_on_entity,)
+
+        return properties
 
     @classmethod
     def pre_get_hook(cls, key):
@@ -654,7 +660,7 @@ def put_multi(entities):
             adapter = entity._adapter
 
         adapter = entity._adapter
-        requests.append(PutRequest(entity.key, entity._unindexed, entity))
+        requests.append(PutRequest(entity.key, entity.unindexed_properties, entity))
         entity.pre_put_hook()
 
     keys = adapter.put_multi(requests)

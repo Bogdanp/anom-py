@@ -13,7 +13,7 @@ class User(Model):
 
 class Person(Model):
     email = props.String(indexed=True)
-    first_name = props.String()
+    first_name = props.String(indexed=True)
     last_name = props.String(optional=True)
     parent = props.Key(optional=True)
     created_at = props.DateTime(auto_now_add=True, indexed=True)

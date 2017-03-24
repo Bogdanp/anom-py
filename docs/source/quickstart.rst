@@ -281,8 +281,8 @@ The following conditions are built-in:
 * :func:`anom.conditions.is_not_empty`
 * :func:`anom.conditions.is_true`
 * :func:`anom.conditions.is_false`
-* :func:`anom.conditions.is_null`
-* :func:`anom.conditions.is_not_null`
+* :func:`anom.conditions.is_none`
+* :func:`anom.conditions.is_not_none`
 
 
 Queries
