@@ -57,17 +57,7 @@ class QueryResponse(namedtuple("QueryResponse", ("entities", "cursor"))):
 class Adapter:
     """Abstract base class for Datastore adapters.  Adapters determine
     how your :class:`Models<Model>` interact with the Datastore.
-
-    Parameters:
-      project(str): The project this Adapter should connect to.
-      namespace(str): The namespace inside which this Adapter should
-        operate by default.  Individual Datastore Keys may specify
-        their own namespaces and override this.
     """
-
-    def __init__(self, *, project=None, namespace=None):
-        self.project = project
-        self.namespace = namespace
 
     def delete_multi(self, keys):  # pragma: no cover
         """Delete a list of entities from the Datastore by their
