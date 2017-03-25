@@ -382,8 +382,15 @@ FIXME
 Adapters
 --------
 
-FIXME
+|Adapters| define how anom interacts with Datastore: all anom
+operations eventually end up being performed by an adapter.
 
+By default, anom creates a |DatastoreAdapter| instance that'll connect
+to Datastore based on environment variables at runtime. You can get
+and set the current |Adapter| instance using |get_adapter| and
+|set_adapter| respectively.
+
+Read more about adapters in the :doc:`advanced` section.
 
 Testing
 -------

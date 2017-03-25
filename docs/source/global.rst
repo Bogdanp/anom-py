@@ -3,6 +3,9 @@
 .. |anom| replace:: :mod:`anom`
 .. |props| replace:: :mod:`props<anom.properties>`
 
+.. |get_adapter| replace:: :func:`get_adapter<anom.get_adapter>`
+.. |set_adapter| replace:: :func:`set_adapter<anom.set_adapter>`
+
 .. |Model| replace:: :class:`Model<anom.Model>`
 .. |Model_key| replace:: :attr:`key<anom.Model.key>`
 .. |Model_get| replace:: :meth:`get<anom.Model.get>`
@@ -35,6 +38,8 @@
 .. |prop_String| replace:: :class:`String<anom.properties.String>`
 .. |prop_Text| replace:: :class:`Text<anom.properties.Text>`
 
+.. |Adapter| replace:: :class:`Adapter<anom.Adapter>`
+.. |Adapters| replace:: :class:`Adapters<anom.Adapter>`
 .. |DatastoreAdapter| replace:: :class:`DatastoreAdapter<anom.adapters.DatastoreAdapter>`
 
 .. |Emulator| replace:: :class:`Emulator<anom.testing.Emulator>`
