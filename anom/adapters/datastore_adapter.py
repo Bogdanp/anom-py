@@ -7,9 +7,23 @@ from ..adapter import QueryResponse
 
 class DatastoreAdapter(Adapter):
     """A Google Cloud Datastore adapter based on :mod:`google.cloud.datastore`.
+
+    Parameters:
+      project(str, optional): The project this Adapter should connect to.
+      namespace(str, optional): The namespace inside which this
+        Adapter should operate by default.  Individual Datastore Keys
+        may specify their own namespaces and override this.
+      credentials(datastore.Credentials): The OAuth2 Credentials to
+        use for this client.  If not passed, falls back to the default
+        inferred from the environment.
     """
 
     _state = local()
+
+    def __init__(self, *, project=None, namespace=None, credentials=None):
+        self.project = project
+        self.namespace = namespace
+        self.credentials = credentials
 
     @property
     def client(self):
@@ -19,6 +33,7 @@ class DatastoreAdapter(Adapter):
         client = getattr(self._state, "client", None)
         if client is None:
             client = self._state.client = datastore.Client(
+                credentials=self.credentials,
                 project=self.project,
                 namespace=self.namespace,
             )
