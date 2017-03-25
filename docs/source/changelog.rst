@@ -6,14 +6,15 @@ Changelog
 v0.0.6
 ------
 
-* Renamed ``Emulator.terminate`` to |Emulator_stop|.
+* Fixed |Model| inheritance.
 * Split |Query_where| and |Query_and_where|.
+* Renamed ``Emulator.terminate`` to |Emulator_stop|.
 
 v0.0.5
 ------
 
 * Added support for conditional indexes on properties.
-* Replaced ``Key.is_complete`` with :attr:`anom.Key.is_partial`.
+* Replaced ``Key.is_complete`` with |Key_is_partial|.
 * Dropped ``is_null`` from |Property|.
 * Dropped ``__ne__`` from |Property|.
 

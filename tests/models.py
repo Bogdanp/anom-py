@@ -2,7 +2,13 @@ from anom import Model, props
 from contextlib import contextmanager
 
 
-class User(Model):
+class FullName:
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class User(FullName, Model):
     email = props.String(indexed=True)
     password = props.String()
     first_name = props.String(optional=True)
@@ -11,12 +17,20 @@ class User(Model):
     updated_at = props.DateTime(auto_now=True)
 
 
-class Person(Model):
+class Person(FullName, Model):
     email = props.String(indexed=True)
     first_name = props.String(indexed=True)
     last_name = props.String(optional=True)
     parent = props.Key(optional=True)
     created_at = props.DateTime(auto_now_add=True, indexed=True)
+
+
+class Mutant(Person):
+    power = props.String(indexed=True)
+
+
+class MutantUser(User, Mutant):
+    pass
 
 
 class ModelWithIndexedBool(Model):

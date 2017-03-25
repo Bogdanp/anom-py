@@ -395,7 +395,7 @@ class Key(Property):
                 raise ValueError("Cannot assign partial Keys to Key properties.")
 
             elif self.kind and self.kind != value.kind:
-                raise ValueError(f"Property {self.name_on_model} is cannot be assigned keys of kind {value.kind}.")
+                raise ValueError(f"Property {self.name_on_model} cannot be assigned keys of kind {value.kind}.")
 
         return value
 

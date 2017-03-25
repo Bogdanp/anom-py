@@ -87,12 +87,14 @@ Every entity\ [#]_ has a |Key| that you can access via its |Model_key|
 attribute.  Entities that have not yet been saved have what are known
 as partial keys, keys without an id assigned to them.
 
-You can store the greeting by calling its |Model_put| method.  Doing
-so will serialize the entity, store it in Datastore and update its key
-to point to its location in Datastore.
+You can store the greeting by calling its |Model_put| method::
 
-You can get the greeting's automatically-assigned id by accessing
-|Key_int_id| or |Key_id_or_name| on its key::
+  >>> greeting.put()
+
+Doing so will serialize the entity, store it in Datastore and update
+its key to point to its location in Datastore.  You can get the
+greeting's automatically-assigned id by accessing |Key_int_id| or
+|Key_id_or_name| on its key::
 
   >>> greeting.key.int_id
   1001
@@ -279,10 +281,10 @@ The following conditions are built-in:
 * :func:`anom.conditions.is_not_default`
 * :func:`anom.conditions.is_empty`
 * :func:`anom.conditions.is_not_empty`
-* :func:`anom.conditions.is_true`
-* :func:`anom.conditions.is_false`
 * :func:`anom.conditions.is_none`
 * :func:`anom.conditions.is_not_none`
+* :func:`anom.conditions.is_true`
+* :func:`anom.conditions.is_false`
 
 
 Queries

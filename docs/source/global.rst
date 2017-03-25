@@ -14,6 +14,7 @@
 
 .. |Key| replace:: :class:`Key<anom.Key>`
 .. |Keys| replace:: :class:`Keys<anom.Key>`
+.. |Key_is_partial| replace:: :attr:`is_partial<anom.Key.is_partial>`
 .. |Key_int_id| replace:: :attr:`int_id<anom.Key.int_id>`
 .. |Key_str_id| replace:: :attr:`str_id<anom.Key.str_id>`
 .. |Key_id_or_name| replace:: :attr:`id_or_name<anom.Key.id_or_name>`
@@ -32,6 +33,7 @@
 .. |Page| replace:: :class:`Page<anom.Page>`
 .. |Page_cursor| replace:: :attr:`cursor<anom.Page.cursor>`
 
+.. |Property| replace:: :class:`Property<anom.Property>`
 .. |prop_Computed| replace:: :class:`Computed<anom.properties.Computed>`
 .. |prop_DateTime| replace:: :class:`DateTime<anom.properties.DateTime>`
 .. |prop_Key| replace:: :class:`Key<anom.properties.Key>`

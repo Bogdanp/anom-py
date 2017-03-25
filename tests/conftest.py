@@ -4,7 +4,7 @@ import pytest
 from anom import Key, adapters, get_adapter, set_adapter, delete_multi
 from anom.testing import Emulator
 
-from .models import Person
+from .models import Person, Mutant
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -74,3 +74,12 @@ def people():
     yield people
 
     delete_multi([person.key for person in people])
+
+
+@pytest.fixture()
+def mutant():
+    mutant = Mutant(email="charles@xavier.edu", first_name="Charles", last_name="Xavier")
+    mutant.power = "telepathy"
+    mutant.put()
+    yield mutant
+    mutant.delete()

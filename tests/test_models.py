@@ -2,7 +2,7 @@ import pytest
 
 from anom import Key, Model
 
-from .models import Person
+from .models import Person, Mutant, MutantUser
 
 
 def test_constructor_params_must_be_valid_properties():
@@ -18,7 +18,6 @@ def test_model_delete_deletes_entities(person):
 def test_model_delete_is_idempotent(person):
     for _ in range(2):
         assert person.key.delete() is None
-    assert person.key.get() is None
 
 
 def test_model_adapter_instantiates_a_default_adapter_if_none_was_set():
@@ -68,3 +67,31 @@ def test_model_reprs_can_be_used_to_rebuild_them():
 
 def test_models_can_get_entities_by_id(person):
     assert Person.get(person.key.int_id) == person
+
+
+def test_models_can_be_inherited(mutant):
+    assert mutant.key.kind == "Mutant"
+
+
+def test_models_can_inherit_from_many_models(mutant):
+    mutant_user_child = MutantUser(
+        email="david.haller@xavier.edu",
+        password="shadowking123",
+        first_name="David",
+        last_name="Haller",
+        parent=mutant,
+        power="literally everything",
+    ).put()
+
+    try:
+        assert mutant_user_child
+        assert mutant_user_child.full_name == "David Haller"
+        assert mutant_user_child.parent == mutant.key
+    finally:
+        mutant_user_child.delete()
+
+
+def test_inherited_models_can_be_queried(mutant):
+    mutant = Mutant.query().where(Mutant.power == "telepathy").get()
+    assert mutant
+    assert mutant.full_name == "Charles Xavier"

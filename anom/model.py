@@ -341,7 +341,7 @@ class model(type):
         this model.
     """
 
-    def __new__(cls, classname, bases, attrs):
+    def __new__(cls, classname, bases, attrs, **kwargs):
         # Collect all of the properties defined on this model.
         attrs["_adapter"] = _adapter()
         attrs["_properties"] = properties = {}
@@ -349,17 +349,26 @@ class model(type):
             if isinstance(value, Property):
                 properties[name] = value
 
+        # Collect all of the properties defined on parents of this model.
+        for base in bases:
+            if not isinstance(base, model):
+                continue
+
+            for name, prop in base._properties.items():
+                if name not in properties:
+                    properties[name] = prop
+
         # Ensure that a single model maps to a single kind at runtime.
         kind = attrs.setdefault("_kind", classname)
-        model = super().__new__(cls, classname, bases, attrs)
+        clazz = type.__new__(cls, classname, bases, attrs)
 
         with _known_models_lock:
             if kind in _known_models:
                 raise TypeError(f"Multiple models for kind {kind!r}.")
 
-            _known_models[kind] = model
+            _known_models[kind] = clazz
 
-        return model
+        return clazz
 
 
 class Model(metaclass=model):
