@@ -84,11 +84,12 @@ class Emulator:
         self._running = False
 
         if self._proc is not None:
-            os.killpg(self._proc.pid, signal.SIGTERM)
-            _, retcode = os.waitpid(self._proc.pid, 0)
-            self._logger.debug("Emulator process exited with code %d.", retcode)
-            return retcode
-
+            if self._proc.poll() is None:
+                os.killpg(self._proc.pid, signal.SIGTERM)
+                _, returncode = os.waitpid(self._proc.pid, 0)
+                self._logger.debug("Emulator process exited with code %d.", returncode)
+                return returncode
+            return self._proc.returncode  # pragma: no cover
         return None  # pragma: no cover
 
     def _run(self):
@@ -100,7 +101,7 @@ class Emulator:
         )
 
         env_vars = {}
-        while self._running:
+        while self._running and self._proc.poll() is None:
             line = self._proc.stdout.readline().strip().decode("utf-8")
             self._logger.debug(line)
 
