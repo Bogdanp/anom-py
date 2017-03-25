@@ -1,21 +1,21 @@
+.. include:: global.rst
+
 Changelog
 =========
 
 v0.0.6
 ------
 
-* Renamed ``Emulator.terminate`` to :meth:`anom.testing.Emulator.stop`
-
+* Renamed ``Emulator.terminate`` to |Emulator_stop|.
+* Split |Query_where| and |Query_and_where|.
 
 v0.0.5
 ------
 
-* Added support for conditional indexes on properties
+* Added support for conditional indexes on properties.
 * Replaced ``Key.is_complete`` with :attr:`anom.Key.is_partial`.
-* Dropped ``is_null`` from :class:`anom.Property`
-* Dropped ``__ne__`` from :class:`anom.Property` as it's not natively
-  supported.
-
+* Dropped ``is_null`` from |Property|.
+* Dropped ``__ne__`` from |Property|.
 
 v0.0.4
 ------
@@ -25,4 +25,4 @@ v0.0.4
 v0.0.3
 ------
 
-* Added support for :class:`Computed<anom.properties.Computed>` properties.
+* Added support for |prop_Computed| properties.

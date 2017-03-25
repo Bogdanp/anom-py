@@ -1,6 +1,7 @@
 import pytest
 
 from anom import Query
+from anom.query import PropertyFilter
 
 from .models import Person, temp_person
 
@@ -40,6 +41,25 @@ def test_queries_can_be_filtered(people):
 def test_queries_can_be_filtered_and_return_no_results(people):
     invalid_people = Person.query().where(Person.email == "invalid").run()
     assert list(invalid_people) == []
+
+
+def test_queries_where_can_replace_filters(people):
+    query = Person.query() \
+                  .where(Person.email == "invalid") \
+                  .where(Person.email == "valid")
+
+    assert query.filters == (PropertyFilter("email", "=", "valid"),)
+
+
+def test_queries_and_where_can_add_filters(people):
+    query = Person.query() \
+                  .where(Person.email == "invalid") \
+                  .and_where(Person.first_name == "Jim")
+
+    assert query.filters == (
+        PropertyFilter("email", "=", "invalid"),
+        PropertyFilter("first_name", "=", "Jim"),
+    )
 
 
 def test_queries_can_be_limited(people):

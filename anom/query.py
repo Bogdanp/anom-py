@@ -261,7 +261,7 @@ class Query(namedtuple("Query", (
         """Return a new query with its projection replaced.
 
         Parameters:
-          projection(tuple[str]): The fields to project.
+          \*projection(str): The fields to project.
 
         Returns:
           Query: The derived Query.
@@ -269,25 +269,33 @@ class Query(namedtuple("Query", (
         return self._replace(projection=_prepare_projection(projection))
 
     def where(self, *filters):
-        """Return a new query containing an additional set of filters.
-        This is equivalent to an "and".
+        """Return a new query, replacing the current set of filters.
 
         Parameters:
-          filters(tuple[PropertyFilter]): The filters to add.
+          \*filters(PropertyFilter): The filters to add.
+
+        Returns:
+          Query: The derived Query.
+        """
+        return self._replace(filters=filters)
+
+    def and_where(self, *filters):
+        """Return a new query, adding joining the given filters with
+        the current query's filters to form an "and".
+
+        Parameters:
+          \*filters(PropertyFilter): The filters to add.
 
         Returns:
           Query: The derived Query.
         """
         return self._replace(filters=self.filters + filters)
 
-    #: Alias of :meth:`.where`.
-    and_where = where
-
     def order_by(self, *orders):
         """Returns a new query containing an additional set of orders.
 
         Parameters:
-          orders(tuple[str]): The sort orders to add.
+          \*orders(str): The sort orders to add.
 
         Returns:
           Query: The derived Query.
