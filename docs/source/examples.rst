@@ -1,3 +1,5 @@
+.. include:: global.rst
+
 Examples
 ========
 
@@ -7,8 +9,6 @@ Guestbook (Bottle)
 This example uses anom and Bottle_ to build a simple guestbook
 application.
 
-
-.. _Bottle: http://bottlepy.org/docs/dev/index.html
 
 Running
 ^^^^^^^
@@ -27,8 +27,8 @@ source code online click here_.
 Annotated Source Code
 ^^^^^^^^^^^^^^^^^^^^^
 
-First we import :class:`Model<anom.Model>` and :mod:`props<anom.properties>`
-from anom and various Bottle functions:
+First we import |Model| and |props| from |anom| and various bottle_
+functions:
 
 .. literalinclude:: ../../examples/guestbook/guestbook.py
    :caption: guestbook.py

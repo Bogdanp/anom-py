@@ -20,6 +20,8 @@
 .. |Query_get| replace:: :meth:`get<anom.Query.get>`
 .. |Query_run| replace:: :meth:`run<anom.Query.run>`
 .. |Query_paginate| replace:: :meth:`paginate<anom.Query.paginate>`
+.. |Query_and_where| replace:: :meth:`and_where<anom.Query.and_where>`
+.. |Query_where| replace:: :meth:`where<anom.Query.where>`
 
 .. |Resultset| replace:: :class:`Resultset<anom.Resultset>`
 
@@ -33,10 +35,18 @@
 .. |prop_String| replace:: :class:`String<anom.properties.String>`
 .. |prop_Text| replace:: :class:`Text<anom.properties.Text>`
 
+.. |DatastoreAdapter| replace:: :class:`DatastoreAdapter<anom.adapters.DatastoreAdapter>`
+
+.. |Emulator| replace:: :class:`Emulator<anom.testing.Emulator>`
+.. |Emulator_stop| replace:: :class:`stop<anom.testing.Emulator.stop>`
+
 .. External links
 
+.. _bottle: http://bottlepy.org/docs/dev/index.html
 .. _google cloud datastore: https://cloud.google.com/datastore/docs/
 .. _gcloud: https://cloud.google.com/sdk/
 .. _ndb: https://cloud.google.com/appengine/docs/standard/python/ndb/
 .. _official docs:
 .. _datastore emulator: https://cloud.google.com/datastore/docs/tools/datastore-emulator
+.. _pytest: http://doc.pytest.org/en/latest
+.. _pytest fixture: http://doc.pytest.org/en/latest/fixture.html

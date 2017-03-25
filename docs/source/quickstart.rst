@@ -236,13 +236,13 @@ overall Datastore costs.
 
 For this reason, all anom properties except for |prop_Computed| are
 *unindexed by default*.  This means that if you want to filter on or
-sort by a property you must decide up front if it's going to be
+sort by a property you have to decide up front if it's going to be
 indexed or not.
 
 Changing a property from unindexed to indexed (or vice-versa) on your
 model **will not** affect the indexing schemes of previously-saved
-data.  You must re-save individual entities in order to add or remove
-indexes.
+data.  You need to re-save individual entities in order to add or
+remove indexes.
 
 Conditional Indexes
 ^^^^^^^^^^^^^^^^^^^
@@ -388,7 +388,41 @@ FIXME
 Testing
 -------
 
-FIXME
+The recommended testing framework is pytest_ due to its fantastic
+fixture mechanism.
+
+Datastore Emulator
+^^^^^^^^^^^^^^^^^^
+
+anom provides the |Emulator| utility class which is able to spin up a
+Datastore emulator in a subprocess via the `datastore emulator`_
+command, wait for it to initialize and then inject its environment
+variables into the current process so that adapters can connect to it
+automatically.
+
+Here's how you would use it in a `pytest fixture`_::
+
+  import pytest
+
+  from anom.testing import Emulator
+
+  @pytest.fixture(scope="session")
+  def datastore_emulator():
+    emulator = Emulator()
+    emulator.start(inject=True)
+    yield
+    emulator.stop()
+
+You can then have tests depend on it::
+
+  def test_can_create_users(datastore_emulator):
+    user = User(username="test").put()
+    assert user.key
+    user.delete()
+
+Since starting and stopping the emulator takes on the order of a few
+seconds, it is recommended to use a session-scoped emulator fixture
+and for individual tests to clean up after themselves.
 
 
 .. [#] Model instances are known as "entities".
