@@ -14,7 +14,7 @@ def emulator():
     emulator = Emulator()
     emulator.start(inject=True)
     yield
-    emulator.terminate()
+    emulator.stop()
 
 
 @pytest.fixture(autouse=True)

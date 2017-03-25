@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.0.6
+------
+
+* Renamed ``Emulator.terminate`` to :meth:`anom.testing.Emulator.stop`
+
+
 v0.0.5
 ------
 

@@ -35,7 +35,7 @@ class Emulator:
         emulator = Emulator()
         emulator.start(inject=True)
         yield
-        emulator.terminate()
+        emulator.stop()
     """
 
     def __init__(self, *, consistency=1):
@@ -74,8 +74,8 @@ class Emulator:
         except Empty:  # pragma: no cover
             raise RuntimeError("Timed out while waiting for Emulator to start up.")
 
-    def terminate(self):
-        """Terminate the emulator process.
+    def stop(self):
+        """Stop the emulator process.
 
         Returns:
           int: The process return code or None if the process isn't
