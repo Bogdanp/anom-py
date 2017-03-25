@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.0.7
+------
+
+* Added support for model polymorphism.
+
 v0.0.6
 ------
 

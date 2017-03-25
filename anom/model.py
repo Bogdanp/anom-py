@@ -110,10 +110,7 @@ class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
         Returns:
           type: A Model class.
         """
-        model = _known_models.get(self.kind)
-        if model is None:
-            raise RuntimeError(f"There is no Model class for kind {self.kind!r}.")
-        return model
+        return lookup_model_by_kind(self.kind)
 
     def delete(self):
         """Delete the entity represented by this Key from Datastore.
@@ -191,7 +188,7 @@ class Property:
         self.optional = optional
         self.repeated = repeated
 
-        self.default = self.validate(default) if default else None
+        self.default = self.validate(default) if default is not None else None
 
         self._name_on_entity = name
         self._name_on_model = None
@@ -281,7 +278,7 @@ class Property:
 
         value = ob._data.get(self.name_on_entity, NotFound)
         if value is NotFound:
-            if self.default:
+            if self.default is not None:
                 return self.default
 
             elif self.repeated:
@@ -333,42 +330,69 @@ class _adapter:
 class model(type):
     """Metaclass of Model classes.
 
+    Parameters:
+      poly(bool, optional): Determines if the model should be
+        polymorphic or not.  Subclasses of polymorphic models are all
+        stored under the same kind.
+
     Attributes:
-      _kind(str): The underlying Datastore kind of this model.
       _adapter(Adapter): A computed property that returns the adapter
         for this model class.
+      _is_child(bool): Whether or not this is a child model in a
+        polymorphic hierarchy.
+      _is_root(bool): Whether or not this is the root model in a
+        polymorphic hierarchy.
+      _kind(str): The underlying Datastore kind of this model.
+      _kinds(list[str]): The list of kinds in this model's hierarchy.
       _properties(dict): A dict of all of the properties defined on
         this model.
     """
 
-    def __new__(cls, classname, bases, attrs, **kwargs):
-        # Collect all of the properties defined on this model.
+    _kinds_name = "^k"
+
+    def __new__(cls, classname, bases, attrs, poly=False, **kwargs):
         attrs["_adapter"] = _adapter()
+        attrs["_is_child"] = is_child = False
+        attrs["_is_root"] = poly
+        attrs["_kind"] = kind = classname
+        attrs["_kinds"] = kinds = [classname]
+
+        # Collect all of the properties defined on this model.
         attrs["_properties"] = properties = {}
         for name, value in attrs.items():
             if isinstance(value, Property):
                 properties[name] = value
 
-        # Collect all of the properties defined on parents of this model.
+        # Collect all of the properties and kinds defined on parents
+        # of this model.
         for base in bases:
             if not isinstance(base, model):
                 continue
+
+            kinds.extend(base._kinds)
+            if base._is_polymorphic:
+                attrs["_is_child"] = is_child = True
+                attrs["_kind"] = base._kind
 
             for name, prop in base._properties.items():
                 if name not in properties:
                     properties[name] = prop
 
-        # Ensure that a single model maps to a single kind at runtime.
-        kind = attrs.setdefault("_kind", classname)
         clazz = type.__new__(cls, classname, bases, attrs)
 
+        # Ensure that a single model maps to a single kind at runtime.
         with _known_models_lock:
-            if kind in _known_models:
+            if kind in _known_models and not is_child:
                 raise TypeError(f"Multiple models for kind {kind!r}.")
 
-            _known_models[kind] = clazz
+            _known_models[classname] = clazz
 
         return clazz
+
+    @property
+    def _is_polymorphic(self):
+        "bool: True if this child belongs to a polymorphic hierarchy."
+        return self._is_root or self._is_child
 
 
 class Model(metaclass=model):
@@ -398,8 +422,17 @@ class Model(metaclass=model):
         for name, prop in self._properties.items():
             yield prop.name_on_entity, prop.prepare_to_store(self, getattr(self, name))
 
+        # Polymorphic models need to keep track of their bases.
+        if type(self)._is_polymorphic:
+            yield model._kinds_name, self._kinds
+
     @classmethod
     def _load(cls, key, data):
+        # Polymorphic models need to instantiate leaf classes.
+        if cls._is_polymorphic and model._kinds_name in data:
+            name = data[model._kinds_name][0]
+            cls = lookup_model_by_kind(name)
+
         instance = cls()
         instance.key = key
 
@@ -535,10 +568,17 @@ def lookup_model_by_kind(kind):
     Parameters:
       kind(str)
 
+    Raises:
+      RuntimeError: If a model for the given kind has not been
+        defined.
+
     Returns:
-      model: The model class or None if it does not exist.
+      model: The model class.
     """
-    return _known_models.get(kind)
+    model = _known_models.get(kind)
+    if model is None:
+        raise RuntimeError(f"Model for kind {kind!r} not found.")
+    return model
 
 
 def delete_multi(keys):

@@ -107,7 +107,7 @@ class Resultset:
     def _get_batches(self):
         remaining = self._options.limit
         while True:
-            adapter = self._query._get_adapter()
+            adapter = self._query.model._adapter
             entities, self._options.cursor = adapter.query(self._query, self._options)
             if remaining is not None:
                 remaining -= len(entities)
@@ -201,7 +201,7 @@ class Pages:
 
 
 class Query(namedtuple("Query", (
-    "kind", "ancestor", "namespace", "projection", "filters", "orders", "offset", "limit",
+    "model", "kind", "ancestor", "namespace", "projection", "filters", "orders", "offset", "limit",
 ))):
     """An immutable Datastore query.
 
@@ -248,11 +248,16 @@ class Query(namedtuple("Query", (
             cls, kind, *, ancestor=None, namespace=None,
             projection=(), filters=(), orders=(), offset=0, limit=None,
     ):
-        if not isinstance(kind, str):
-            kind = kind._kind
+        from .model import lookup_model_by_kind
+
+        if isinstance(kind, str):
+            model = lookup_model_by_kind(kind)
+
+        else:
+            model, kind = kind, kind._kind
 
         return super().__new__(
-            cls, kind=kind, ancestor=ancestor, namespace=namespace,
+            cls, model=model, kind=kind, ancestor=ancestor, namespace=namespace,
             projection=_prepare_projection(projection), filters=tuple(filters), orders=tuple(orders),
             offset=offset, limit=limit,
         )
@@ -370,7 +375,7 @@ class Query(namedtuple("Query", (
         Returns:
           Resultset: An iterator for this query's results.
         """
-        return Resultset(self, QueryOptions(self, **options))
+        return Resultset(self._prepare(), QueryOptions(self, **options))
 
     def paginate(self, *, page_size, **options):
         """Run this query and return a page iterator.
@@ -382,16 +387,16 @@ class Query(namedtuple("Query", (
         Returns:
           Pages: An iterator for this query's pages of results.
         """
-        return Pages(self, page_size, QueryOptions(self, **options))
+        return Pages(self._prepare(), page_size, QueryOptions(self, **options))
 
-    def _get_adapter(self):
-        from .model import lookup_model_by_kind
+    def _prepare(self):
+        # Polymorphic children need to be able to query for themselves
+        # and their subclasses.
+        if self.model._is_child:
+            kind_filter = (self.model._kinds_name, "=", self.model._kinds[0])
+            return self._replace(filters=(kind_filter,) + self.filters)
 
-        model = lookup_model_by_kind(self.kind)
-        if model is None:
-            raise RuntimeError(f"There is no Model class for kind {self.kind!r}.")
-
-        return model._adapter
+        return self
 
 
 def _prepare_projection(projection):
