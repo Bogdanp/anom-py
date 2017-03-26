@@ -445,7 +445,7 @@ class Model(metaclass=model):
         for name, prop in instance._properties.items():
             value = prop.prepare_to_load(instance, data.get(name))
             if value is not Skip:
-                setattr(instance, name, value)
+                instance._data[name] = value
 
         return instance
 
