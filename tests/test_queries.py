@@ -12,7 +12,7 @@ def test_queries_can_fail_to_get_single_items():
 
 def test_queries_can_fail_given_unknown_kind():
     with pytest.raises(RuntimeError):
-        next(Query("UnknownKind").run())
+        Query("UnknownKind")
 
 
 def test_queries_can_fetch_entire_datasets(people):

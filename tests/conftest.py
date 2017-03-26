@@ -4,7 +4,7 @@ import pytest
 from anom import Key, adapters, get_adapter, set_adapter, delete_multi
 from anom.testing import Emulator
 
-from .models import Person, Mutant
+from .models import Person, Mutant, Cat, Human, Eagle
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -83,3 +83,24 @@ def mutant():
     mutant.put()
     yield mutant
     mutant.delete()
+
+
+@pytest.fixture
+def cat():
+    cat = Cat(name="Volgar the Destoryer").put()
+    yield cat
+    cat.delete()
+
+
+@pytest.fixture
+def human():
+    human = Human(name="Steve").put()
+    yield human
+    human.delete()
+
+
+@pytest.fixture
+def eagle():
+    eagle = Eagle().put()
+    yield eagle
+    eagle.delete()

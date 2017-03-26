@@ -33,6 +33,32 @@ class MutantUser(User, Mutant):
     pass
 
 
+class Animal(Model, poly=True):
+    endangered = props.Bool(default=False)
+    birthday = props.DateTime(indexed=True, auto_now_add=True)
+
+
+class Bird(Animal):
+    flightless = props.Bool(default=False)
+
+
+class Eagle(Bird):
+    pass
+
+
+class Mammal(Animal):
+    hair_color = props.String(default="black")
+    name = props.String()
+
+
+class Human(Mammal):
+    pass
+
+
+class Cat(Mammal):
+    pass
+
+
 class ModelWithIndexedBool(Model):
     active = props.Bool(indexed=True)
 
