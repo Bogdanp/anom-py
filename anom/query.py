@@ -117,6 +117,12 @@ class Resultset:
             if not entities:
                 break
 
+            # If we received fewer entities than we asked for then we
+            # can safely say that we've finished iterating.  We have
+            # to do this before yielding, however.
+            if len(entities) < self._options.batch_size:
+                self._complete = True
+
             if self._options.keys_only:
                 yield (key for key, _ in entities)
             else:
@@ -177,6 +183,11 @@ class Pages:
     def has_more(self):
         "bool: Whether or not there are more pages."
         return self._resultset.has_more
+
+    @property
+    def cursor(self):
+        "str: The url-safe cursor for the next page of results."
+        return self._resultset.cursor
 
     def fetch_next_page(self):
         """Fetch the next Page of results.

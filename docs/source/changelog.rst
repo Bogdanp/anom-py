@@ -8,6 +8,7 @@ v0.0.7
 
 * Fixed handling of repeated values in |prop_Encodable| properties.
 * Added support for model polymorphism.
+* Added |Pages_cursor| to |Pages|.
 
 v0.0.6
 ------

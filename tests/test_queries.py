@@ -129,6 +129,12 @@ def test_pages_fetch_next_page_returns_empty_iterator_if_there_are_no_more_pages
     assert list(pages.fetch_next_page()) == []
 
 
+def test_pages_cursor_points_to_the_next_page():
+    pages = Person.query().paginate(page_size=10)
+    page_1 = pages.fetch_next_page()
+    assert pages.cursor == page_1.cursor
+
+
 def test_queries_preprocess_keys(person):
     with temp_person(email="child@example.com", first_name="Child", parent=person) as child:
         child = Person.query().where(Person.email == "child@example.com").get()

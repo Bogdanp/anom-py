@@ -30,6 +30,7 @@
 .. |Resultset| replace:: :class:`Resultset<anom.Resultset>`
 
 .. |Pages| replace:: :class:`Pages<anom.Pages>`
+.. |Pages_cursor| replace:: :attr:`Pages<anom.Pages.cursor>`
 .. |Page| replace:: :class:`Page<anom.Page>`
 .. |Page_cursor| replace:: :attr:`cursor<anom.Page.cursor>`
 
