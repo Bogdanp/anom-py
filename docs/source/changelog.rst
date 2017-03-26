@@ -6,6 +6,7 @@ Changelog
 v0.0.7
 ------
 
+* Fixed handling of repeated values in |prop_Encodable| properties.
 * Added support for model polymorphism.
 
 v0.0.6

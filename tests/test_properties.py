@@ -52,6 +52,15 @@ def test_encodables_avoid_loading_nones():
         assert prop.prepare_to_load(None, None) is None
 
 
+def test_encodables_respect_repeated_option():
+    string_list = ["a", "b"]
+    bytes_list = [b"a", b"b"]
+    for property_class in encodable_properties:
+        prop = property_class(repeated=True)
+        assert prop.prepare_to_store(None, string_list) == bytes_list
+        assert prop.prepare_to_load(None, bytes_list) == string_list
+
+
 def test_keys_can_be_assigned_full_keys():
     assert props.Key().validate(Key("Person", 12))
 

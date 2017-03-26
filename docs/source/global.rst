@@ -34,6 +34,7 @@
 .. |Page_cursor| replace:: :attr:`cursor<anom.Page.cursor>`
 
 .. |Property| replace:: :class:`Property<anom.Property>`
+.. |prop_Encodable| replace:: :class:`Encodable<anom.properties.Encodable>`
 .. |prop_Computed| replace:: :class:`Computed<anom.properties.Computed>`
 .. |prop_DateTime| replace:: :class:`DateTime<anom.properties.DateTime>`
 .. |prop_Key| replace:: :class:`Key<anom.properties.Key>`

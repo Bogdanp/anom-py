@@ -75,14 +75,20 @@ class Encodable:
 
         # BUG(gcloud): Projections seem to cause bytes to be
         # loaded as strings so this instance check is required.
-        if value is not None and isinstance(value, bytes):
-            value = value.decode(self.encoding)
+        if value is not None and isinstance(value, (list, bytes)):
+            if self.repeated:
+                value = [v.decode(self.encoding) for v in value]
+            else:
+                value = value.decode(self.encoding)
 
         return value
 
     def prepare_to_store(self, entity, value):
         if value is not None:
-            value = value.encode(self.encoding)
+            if self.repeated:
+                value = [v.encode(self.encoding) for v in value]
+            else:
+                value = value.encode(self.encoding)
 
         return super().prepare_to_store(entity, value)
 
@@ -424,11 +430,7 @@ class String(Encodable, Property):
 
     _types = (str,)
 
-    def validate(self, value):
-        value = super().validate(value)
-        if not self.indexed:
-            return value
-
+    def _validate_length(self, value):
         if len(value) > _max_indexed_length and \
            len(value.encode(self.encoding)) > _max_indexed_length:
             raise ValueError(
@@ -436,6 +438,14 @@ class String(Encodable, Property):
                 f"({_max_indexed_length}) for indexed properties. Set "
                 f"indexed to False if the value should not be indexed."
             )
+
+    def validate(self, value):
+        value = super().validate(value)
+        if not self.indexed:
+            return value
+
+        if not self.repeated:
+            self._validate_length(value)
 
         return value
 
