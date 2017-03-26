@@ -348,6 +348,8 @@ class model(type):
         this model.
     """
 
+    #: The name of the field that holds the flattened class hierarchy
+    #: on polymodel entities.
     _kinds_name = "^k"
 
     def __new__(cls, classname, bases, attrs, poly=False, **kwargs):
@@ -369,8 +371,12 @@ class model(type):
             if not isinstance(base, model):
                 continue
 
+            # Avoid adding the base Model class to kinds.
+            if "Model" in globals() and base is Model:
+                continue
+
             kinds.extend(base._kinds)
-            if base._is_polymorphic:
+            if base._is_polymorphic:  # Poly bases "infect" everything below them.
                 attrs["_is_child"] = is_child = True
                 attrs["_kind"] = base._kind
 
