@@ -1,0 +1,5 @@
+anom
+awesome-slugify
+bottle
+markdown
+passlib

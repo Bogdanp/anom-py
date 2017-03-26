@@ -93,8 +93,8 @@ You can store the greeting by calling its |Model_put| method::
 
 Doing so will serialize the entity, store it in Datastore and update
 its key to point to its location in Datastore.  You can get the
-greeting's automatically-assigned id by accessing |Key_int_id| or
-|Key_id_or_name| on its key::
+greeting's automatically-assigned id by accessing |Key_int_id| on its
+key::
 
   >>> greeting.key.int_id
   1001

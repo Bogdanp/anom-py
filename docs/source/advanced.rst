@@ -3,20 +3,28 @@ Advanced Usage
 
 FIXME
 
-Model Polymorphism
-------------------
+Model Inheritance
+-----------------
 
 FIXME
+
+Polymorphism
+^^^^^^^^^^^^
+
+FIXME
+
 
 Caching Adapters
 ----------------
 
 FIXME
 
+
 Custom Adapters
 ---------------
 
 FIXME
+
 
 Custom Properties
 -----------------
