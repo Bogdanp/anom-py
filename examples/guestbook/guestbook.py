@@ -1,6 +1,6 @@
 # [START imports]
 from anom import Model, props
-from bottle import SimpleTemplate, get, post, redirect, request, run
+from bottle import get, post, redirect, request, run, view
 # [END imports]
 
 
@@ -12,26 +12,22 @@ class GuestbookEntry(Model):
 # [END guestbook-entry-model]
 
 
-with open("templates/index.html") as f:
-    _index_template = SimpleTemplate(f.read())
-
-
 # [START index-route]
 @get("/")
+@view("index")
 def index():
-    cursor = request.params.get("cursor")
+    cursor = request.params.cursor
     pages = GuestbookEntry.query().order_by(-GuestbookEntry.created_at).paginate(page_size=1, cursor=cursor)
-    page = pages.fetch_next_page()
-    return _index_template.render(page=page)
+    return {"pages": pages}
 # [END index-route]
 
 
 # [START sign-route]
 @post("/sign")
 def sign():
-    author = request.forms.get("author")
-    message = request.forms.get("message")
-    if not message:
+    author = request.forms.author
+    message = request.forms.message
+    if not author or not message:
         return "<em>You must provide a message!</em>"
 
     GuestbookEntry(author=author, message=message).put()
@@ -52,5 +48,5 @@ def delete(entry_id):
 
 
 # [START run]
-run(host="localhost", port=8080, reload=True)
+run(host="localhost", port=8080, debug=True, reloader=True)
 # [END run]

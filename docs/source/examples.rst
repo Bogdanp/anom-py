@@ -89,9 +89,9 @@ Finally, we run the server:
 
 Here is the template we used to render the listing:
 
-.. literalinclude:: ../../examples/guestbook/templates/index.html
+.. literalinclude:: ../../examples/guestbook/views/index.tpl
    :language: html
-   :caption: templates/index.html
+   :caption: views/index.tpl
    :name: guestbook-py-template
 
 
