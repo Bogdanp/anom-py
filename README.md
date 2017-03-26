@@ -32,12 +32,12 @@ supports Python 3.6 and later.
 ## Installation
 
 ```
-pip install anom
+pip install -U anom
 ```
 
 ## Documentation
 
-Documentation is available at https://anom.defn.io.
+Documentation is available at http://anom.defn.io.
 
 
 [gcd]: https://cloud.google.com/datastore/docs/
