@@ -392,7 +392,7 @@ For example::
     target_account.balance += amount
     put_multi([source_account, target_account])
 
-  transfer_money(bank_account_1.key, bank_account_2.key)
+  transfer_money(bank_account_1.key, bank_account_2.key, 20)
 
 If any of the operations in the above function were to fail at any
 point, the entire transaction would be rolled back.  The same thing
