@@ -378,7 +378,71 @@ Option          Default    Description
 Transactions
 ------------
 
-FIXME
+The |transactional| decorator lets you run a batch of Datastore
+operations atomically.
+
+For example::
+
+  from anom import transactional
+
+  @transactional(retries=3)
+  def transfer_money(source_account_key, target_account_key, amount):
+    source_account, target_account = get_multi([source_account_key, target_account_key])
+    source_account.balance -= amount
+    target_account.balance += amount
+    put_multi([source_account, target_account])
+
+  transfer_money(bank_account_1.key, bank_account_2.key)
+
+If any of the operations in the above function were to fail at any
+point, the entire transaction would be rolled back.  The same thing
+would happen if the code were to raise an uncaught exception at any
+point.
+
+If there is too much contention over a set of entities, transactions
+are retried up to ``retries`` amount of times, until the transaction
+either succeeds or it runs out of retries.  The default number of
+retries is ``3``.
+
+By default, transactions are automatically nested underneath one
+another so you can transparently call transactional functions inside
+other transactional functions.  This code::
+
+  @transactional()
+  def inner(key):
+    an_entity = key.get()
+    an_entity.foo = 42
+    an_entity.put()
+
+  @transactional()
+  def outer(key):
+    parent = key.get()
+    parent.n += 1
+    inner(entity.child)
+    parent.put()
+
+is equivalent to this code in its behavior::
+
+  @transactional()
+  def outer(key):
+    parent = key.get()
+    parent.n += 1
+    an_entity = key.get()
+    an_entity.foo = 42
+    an_entity.put()
+    parent.put()
+
+You can specify that certain transactions should always be run inside
+an independent transaction::
+
+  from anom import Transaction, transactional
+
+  @transactional(propagation=Transaction.Propagation.Independent)
+  def inner():
+    ...
+
+The above transaction will always run independently of any outer
+transactions so it won't affect the outer transactions should it fail.
 
 
 Adapters

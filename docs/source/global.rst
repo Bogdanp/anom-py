@@ -46,6 +46,10 @@
 .. |Adapters| replace:: :class:`Adapters<anom.Adapter>`
 .. |DatastoreAdapter| replace:: :class:`DatastoreAdapter<anom.adapters.DatastoreAdapter>`
 
+.. |Transaction| replace:: :class:`Transaction<anom.Transaction>`
+.. |Transactions| replace:: :class:`Transactions<anom.Transaction>`
+.. |transactional| replace:: :class:`transactional<anom.transactional>`
+
 .. |Emulator| replace:: :class:`Emulator<anom.testing.Emulator>`
 .. |Emulator_stop| replace:: :class:`stop<anom.testing.Emulator.stop>`
 

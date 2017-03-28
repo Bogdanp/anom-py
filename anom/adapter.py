@@ -54,12 +54,12 @@ class QueryResponse(namedtuple("QueryResponse", ("entities", "cursor"))):
     """
 
 
-class Adapter:
+class Adapter:  # pragma: no cover
     """Abstract base class for Datastore adapters.  Adapters determine
     how your :class:`Models<Model>` interact with the Datastore.
     """
 
-    def delete_multi(self, keys):  # pragma: no cover
+    def delete_multi(self, keys):
         """Delete a list of entities from the Datastore by their
         respective keys.
 
@@ -68,7 +68,7 @@ class Adapter:
         """
         raise NotImplementedError
 
-    def get_multi(self, keys):  # pragma: no cover
+    def get_multi(self, keys):
         """Get multiple entities from the Datastore by their
         respective keys.
 
@@ -82,7 +82,7 @@ class Adapter:
         """
         raise NotImplementedError
 
-    def put_multi(self, requests):  # pragma: no cover
+    def put_multi(self, requests):
         """Store multiple entities into the Datastore.
 
         Parameters:
@@ -95,7 +95,7 @@ class Adapter:
         """
         raise NotImplementedError
 
-    def query(self, query, options):  # pragma: no cover
+    def query(self, query, options):
         """Run a query against the datastore.
 
         Parameters:
@@ -105,5 +105,18 @@ class Adapter:
 
         Returns:
           QueryResponse: The query response from Datastore.
+        """
+        raise NotImplementedError
+
+    def transaction(self, propagation):
+        """Create a new Transaction object.
+
+        Parameters:
+          propagation(Transaction.Propagation): How the new
+            transaction should be propagated with regards to any
+            previously-created transactions.
+
+        Returns:
+          Transaction: The transaction.
         """
         raise NotImplementedError

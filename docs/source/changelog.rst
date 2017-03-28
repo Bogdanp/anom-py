@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.1.0
+------
+
+* Added support for |Transactions|.
+
 v0.0.7
 ------
 

@@ -12,6 +12,7 @@ Functions
 .. autofunction:: delete_multi
 .. autofunction:: get_multi
 .. autofunction:: put_multi
+.. autofunction:: transactional
 .. autofunction:: lookup_model_by_kind
 
 
@@ -95,6 +96,16 @@ Query Internals
 
 .. autoclass:: anom.query.QueryOptions
 .. autoclass:: anom.query.PropertyFilter
+
+
+Transactions
+------------
+
+.. autoclass:: anom.Transaction
+   :members:
+.. autoclass:: anom.transaction.TransactionError
+.. autoclass:: anom.transaction.TransactionFailed
+.. autoclass:: anom.transaction.RetriesExceeded
 
 
 Adapters

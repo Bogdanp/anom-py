@@ -1,8 +1,63 @@
+import logging
+
+from functools import partial
 from google.cloud import datastore
 from threading import local
 
 from .. import Adapter, Key
 from ..adapter import QueryResponse
+from ..transaction import Transaction, TransactionFailed
+
+_logger = logging.getLogger("datastore_adapter")
+
+
+class DatastoureOuterTransaction(Transaction):
+    def __init__(self, adapter):
+        self.adapter = adapter
+        self.ds_transaction = adapter.client.transaction()
+
+    def begin(self):
+        _logger.debug("Beginning transaction...")
+        self.ds_transaction.begin()
+        self.adapter.client._push_batch(self.ds_transaction)
+
+    def commit(self):
+        try:
+            _logger.debug("Committing transaction...")
+            self.ds_transaction.commit()
+        except Exception as e:
+            _logger.debug("Transaction failed: %s", e)
+            raise TransactionFailed(e)
+
+    def rollback(self):
+        _logger.debug("Rolling transaction back...")
+        self.ds_transaction.rollback()
+
+    def end(self):
+        _logger.debug("Ending transaction...")
+        self.adapter.client._pop_batch()
+        self.adapter._transactions.remove(self)
+
+
+class DatastoreInnerTransaction(Transaction):
+    def __init__(self, parent):
+        self.parent = parent
+
+    def begin(self):
+        _logger.debug("Beginning inner transaction...")
+
+    def commit(self):
+        _logger.debug("Committing inner transaction...")
+
+    def rollback(self):
+        _logger.debug("Rolling back inner transaction...")
+
+    def end(self):
+        _logger.debug("Ending inner transaction...")
+        self.adapter._transactions.remove(self)
+
+    def __getattr__(self, name):
+        return getattr(self.parent, name)
 
 
 class DatastoreAdapter(Adapter):
@@ -39,19 +94,28 @@ class DatastoreAdapter(Adapter):
             )
         return client
 
+    @property
+    def _transactions(self):
+        "list[Transaction]: The current stack of Transactions."
+        transactions = getattr(self._state, "transactions", None)
+        if transactions is None:
+            transactions = self._state.transactions = []
+        return transactions
+
     def delete_multi(self, keys):
         self.client.delete_multi(self._convert_key_to_datastore(key) for key in keys)
 
     def get_multi(self, keys):
+        get_multi = self.client.get_multi
+        if self._transactions:
+            transaction = self._transactions[-1]
+            get_multi = partial(get_multi, transaction=transaction.ds_transaction)
+
         datastore_keys = [self._convert_key_to_datastore(key) for key in keys]
         request_keys = set(datastore_keys)
         found, missing, deferred = [], [], []
         while True:
-            found.extend(self.client.get_multi(
-                request_keys,
-                missing=missing,
-                deferred=deferred
-            ))
+            found.extend(get_multi(request_keys, missing=missing, deferred=deferred))
             if not deferred:
                 break
 
@@ -105,6 +169,24 @@ class DatastoreAdapter(Adapter):
 
         return QueryResponse(entities=entities, cursor=result_iterator.next_page_token)
 
+    def transaction(self, propagation):
+        if propagation == Transaction.Propagation.Independent:
+            transaction = DatastoureOuterTransaction(self)
+            self._transactions.append(transaction)
+            return transaction
+
+        elif propagation == Transaction.Propagation.Nested:
+            if self._transactions:
+                transaction = DatastoreInnerTransaction(self._transactions[-1])
+            else:
+                transaction = DatastoureOuterTransaction(self)
+
+            self._transactions.append(transaction)
+            return transaction
+
+        else:  # pragma: no cover
+            raise ValueError(f"Invalid propagation option {propagation!r}.")
+
     def _convert_key_to_datastore(self, anom_key):
         return self.client.key(*anom_key.path, namespace=anom_key.namespace)
 
@@ -112,16 +194,6 @@ class DatastoreAdapter(Adapter):
         return Key.from_path(*datastore_key.flat_path, namespace=datastore_key.namespace)
 
     def _prepare_to_store(self, key, unindexed, data):
-        """Populate an Entity with data from the Model.
-
-        Parameters:
-          key(Key)
-          unindexed(str list)
-          data(iterable)
-
-        Returns:
-          datastore.Entity
-        """
         datastore_key = self._convert_key_to_datastore(key)
         entity = datastore.Entity(datastore_key, unindexed)
         for name, value in data:
@@ -133,14 +205,6 @@ class DatastoreAdapter(Adapter):
         return entity
 
     def _prepare_to_load(self, entity):
-        """Preprocess Entity data before returning it to the Model.
-
-        Parameters:
-          entity(datastore.Entity)
-
-        Returns:
-          dict
-        """
         data = {}
         for name, value in entity.items():
             if isinstance(value, datastore.Key):
