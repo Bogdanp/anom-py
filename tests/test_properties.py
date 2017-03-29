@@ -81,6 +81,24 @@ def test_jsons_load_data_from_json_on_load():
     assert props.Json().prepare_to_load(None, json.dumps(data)) == data
 
 
+def test_jsons_dump_and_load_entities(person, mutant, human):
+    for entity in (person, mutant, human):
+        json = props.Json()
+        entity_json = json.prepare_to_store(None, entity)
+        loaded_entity = json.prepare_to_load(None, entity_json)
+        assert loaded_entity == entity
+
+
+def test_jsons_fail_to_dump_invalid_data():
+    with pytest.raises(TypeError):
+        props.Json().prepare_to_store(None, object())
+
+
+def test_jsons_fail_to_load_invalid_data():
+    with pytest.raises(ValueError):
+        props.Json().prepare_to_load(None, json.dumps({"__anom_type": "unknown"}))
+
+
 def test_strings_that_are_not_indexed_can_be_assigned_arbitrarily_long_values():
     string = props.String()
     assert string.validate(" " * 1501)

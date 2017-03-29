@@ -1,4 +1,5 @@
 # TODO(bogdan): Add support for msgpack and pickle properties.
+import base64
 import json
 import zlib
 
@@ -7,6 +8,14 @@ from dateutil import tz
 
 from . import model
 from .model import Property, NotFound, Skip, classname
+
+
+#: The UNIX epoch.
+_epoch = datetime(1970, 1, 1, tzinfo=tz.tzutc())
+
+
+def _seconds_since_epoch(dt):
+    return (dt - _epoch).total_seconds()
 
 
 #: The maximum length of indexed properties.
@@ -342,18 +351,63 @@ class Json(Compressable, Property):
         apply when compressing values.
     """
 
-    # TODO(bogdan): Add support for `datetime` and `Model`.
-    _types = (bool, bytes, dict, float, int, str)
+    _types = (bool, bytes, dict, float, int, str, datetime, model.Key, model.Model)
+
+    #: The name of the field that is used to store type information
+    #: about non-standard JSON values.
+    _type_field = "__anom_type"
+
+    @classmethod
+    def _serialize(cls, value):
+        if isinstance(value, bytes):
+            kind, value = "blob", base64.b64encode(value).decode("utf-8")
+
+        elif isinstance(value, datetime):
+            kind, value = "datetime", _seconds_since_epoch(value)
+
+        elif isinstance(value, model.Model):
+            kind, value = "model", {
+                "key": value.key,
+                "kind": value._kind,
+                "data": dict(value),
+            }
+
+        else:
+            raise TypeError(f"Value of type {type(value)} cannot be serialized.")
+
+        return {cls._type_field: kind, "value": value}
+
+    @classmethod
+    def _deserialize(cls, data):
+        kind = data.get(cls._type_field, None)
+        if kind is None:
+            return data
+
+        value = data.get("value")
+        if kind == "blob":
+            return base64.b64decode(value.encode("utf-8"))
+
+        elif kind == "datetime":
+            return datetime.fromtimestamp(value, tz.tzutc())
+
+        elif kind == "model":
+            key = model.Key(*value["key"])
+            clazz = model.lookup_model_by_kind(value["kind"])
+            instance = clazz._load(key, value["data"])
+            return instance
+
+        else:
+            raise ValueError(f"Invalid kind {kind!r}.")
 
     def prepare_to_load(self, entity, value):
         if value is not None:
-            value = json.loads(value)
+            value = json.loads(value, object_hook=Json._deserialize)
 
         return super().prepare_to_load(entity, value)
 
     def prepare_to_store(self, entity, value):
         if value is not None:
-            value = json.dumps(value, separators=(",", ":"))
+            value = json.dumps(value, separators=(",", ":"), default=Json._serialize)
 
         return super().prepare_to_store(entity, value)
 
@@ -380,7 +434,7 @@ class Key(Property):
         properties default to an empty list.
     """
 
-    _types = (model.Model, model.Key,)
+    _types = (model.Model, model.Key, tuple)
 
     def __init__(self, *, kind=None, **options):
         super().__init__(**options)
@@ -396,6 +450,11 @@ class Key(Property):
         if value is not None:
             if isinstance(value, model.Model):
                 value = value.key
+
+            # Serialized keys may end up being turned into tuples
+            # (JSON, msgpack) so we attempt to coerce them here.
+            if isinstance(value, tuple):
+                value = model.Key(*value)
 
             if value.is_partial:
                 raise ValueError("Cannot assign partial Keys to Key properties.")

@@ -3,6 +3,12 @@
 Changelog
 =========
 
+v0.2.0
+------
+
+* Added support for Json serialization of datetimes, Models and Keys.
+
+
 v0.1.0
 ------
 
