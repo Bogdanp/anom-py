@@ -63,6 +63,7 @@ Built-in Properties
 .. autoclass:: anom.properties.Integer
 .. autoclass:: anom.properties.Json
 .. autoclass:: anom.properties.Key
+.. autoclass:: anom.properties.Msgpack
 .. autoclass:: anom.properties.String
 .. autoclass:: anom.properties.Text
 

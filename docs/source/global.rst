@@ -39,6 +39,7 @@
 .. |prop_Computed| replace:: :class:`Computed<anom.properties.Computed>`
 .. |prop_DateTime| replace:: :class:`DateTime<anom.properties.DateTime>`
 .. |prop_Key| replace:: :class:`Key<anom.properties.Key>`
+.. |prop_Msgpack| replace:: :class:`Msgpack<anom.properties.Msgpack>`
 .. |prop_String| replace:: :class:`String<anom.properties.String>`
 .. |prop_Text| replace:: :class:`Text<anom.properties.Text>`
 

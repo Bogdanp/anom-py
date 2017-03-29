@@ -134,6 +134,7 @@ Property                           Description
 :class:`anom.properties.Json`      Stores JSON values. Never indexed.
 :class:`anom.properties.Key`       Stores :class:`anom.Key` values.
 :class:`anom.properties.String`    Stores :class:`str` values.
+:class:`anom.properties.Msgpack`   Stores msgpack values. Never indexed.
 :class:`anom.properties.Text`      Stores long :class:`str` values. Never indexed.
 =================================  ============================================================
 
@@ -144,7 +145,7 @@ Option        Default    Description
 ============  =========  ===============================================================================================================================
 ``name``      ``None``   The name of the property on the stored entity in Datastore. Defaults to its name on the model.
 ``default``   ``None``   The default value to return when the property isn't populated with data.
-``indexed``   ``False``  Whether or not the property should be indexed in Datastore. Bytes, Json and Text properties cannot be indexed.
+``indexed``   ``False``  Whether or not the property should be indexed in Datastore. Bytes, Json, Msgpack and Text properties cannot be indexed.
 ``optional``  ``False``  Whether or not the property is optional. Required-but-empty values cause models to raise an exception before data is persisted.
 ``repeated``  ``False``  Whether or not the property is repeated.
 ============  =========  ===============================================================================================================================
@@ -157,6 +158,7 @@ storing/loading them to/from Datastore:
 
 * :class:`anom.properties.Bytes`
 * :class:`anom.properties.Json`
+* :class:`anom.properties.Msgpack`
 * :class:`anom.properties.String`
 * :class:`anom.properties.Text`
 

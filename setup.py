@@ -11,16 +11,19 @@ with open("anom/__init__.py") as module:
         assert False, "could not find version in anom/__init__.py"
 
 
+dependencies = []
+with open("requirements.txt") as reqs:
+    for line in reqs:
+        dependencies.append(line.strip())
+
+
 setup(
     name="anom",
     version=version,
     description="anom is an object mapper for Google Cloud Datastore.",
     long_description="https://github.com/Bogdanp/anom-py",
     packages=["anom", "anom.adapters", "anom.testing"],
-    install_requires=[
-        "google-cloud-datastore==0.23.0",
-        "python-dateutil==2.6.0",
-    ],
+    install_requires=dependencies,
     author="Bogdan Popa",
     author_email="popa.bogdanp@gmail.com",
     url="https://github.com/Bogdanp/anom-py",

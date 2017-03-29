@@ -1,10 +1,11 @@
-# TODO(bogdan): Add support for msgpack and pickle properties.
 import base64
 import json
+import msgpack
 import zlib
 
 from datetime import datetime
 from dateutil import tz
+from enum import IntEnum
 
 from . import model
 from .model import Property, NotFound, Skip, classname
@@ -109,18 +110,35 @@ class Serializer(Compressable, Property):
     _types = (bool, bytes, dict, float, int, str, datetime, model.Key, model.Model)
 
     @classmethod
-    def _serialize(cls, value):
+    def _serialize(cls, value):  # pragma: no cover
         raise NotImplementedError
 
     @classmethod
-    def _deserialize(cls, data):
+    def _deserialize(cls, data):  # pragma: no cover
         raise NotImplementedError
 
-    def _dumps(self, value):
+    @classmethod
+    def _dumps(cls, value):  # pragma: no cover
         raise NotImplementedError
 
-    def _loads(self, data):
+    @classmethod
+    def _loads(cls, data):  # pragma: no cover
         raise NotImplementedError
+
+    @staticmethod
+    def _entity_to_dict(entity):
+        return {
+            "key": entity.key,
+            "kind": entity._kind,
+            "data": dict(entity),
+        }
+
+    @staticmethod
+    def _entity_from_dict(data):
+        key = model.Key(*data["key"])
+        clazz = model.lookup_model_by_kind(data["kind"])
+        instance = clazz._load(key, data["data"])
+        return instance
 
     def prepare_to_load(self, entity, value):
         if value is not None:
@@ -375,9 +393,6 @@ class Json(Serializer):
       optional(bool, optional): Whether or not this property is
         optional.  Defaults to ``False``.  Required but empty values
         cause models to raise an exception before data is persisted.
-      repeated(bool, optional): Whether or not this property is
-        repeated.  Defaults to ``False``.  Optional repeated
-        properties default to an empty list.
       compressed(bool, optional): Whether or not this property should
         be compressed before being persisted.
       compression_level(int, optional): The amount of compression to
@@ -397,11 +412,7 @@ class Json(Serializer):
             kind, value = "datetime", _seconds_since_epoch(value)
 
         elif isinstance(value, model.Model):
-            kind, value = "model", {
-                "key": value.key,
-                "kind": value._kind,
-                "data": dict(value),
-            }
+            kind, value = "model", cls._entity_to_dict(value)
 
         else:
             raise TypeError(f"Value of type {type(value)} cannot be serialized.")
@@ -422,18 +433,17 @@ class Json(Serializer):
             return datetime.fromtimestamp(value, tz.tzutc())
 
         elif kind == "model":
-            key = model.Key(*value["key"])
-            clazz = model.lookup_model_by_kind(value["kind"])
-            instance = clazz._load(key, value["data"])
-            return instance
+            return cls._entity_from_dict(value)
 
         else:
             raise ValueError(f"Invalid kind {kind!r}.")
 
-    def _dumps(self, value):
+    @classmethod
+    def _dumps(cls, value):
         return json.dumps(value, separators=(",", ":"), default=Json._serialize)
 
-    def _loads(self, data):
+    @classmethod
+    def _loads(cls, data):
         return json.loads(data, object_hook=Json._deserialize)
 
 
@@ -488,6 +498,62 @@ class Key(Property):
                 raise ValueError(f"Property {self.name_on_model} cannot be assigned keys of kind {value.kind}.")
 
         return value
+
+
+class Msgpack(Serializer):
+    """A Property for values that should be stored as msgpack data.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      compressed(bool, optional): Whether or not this property should
+        be compressed before being persisted.
+      compression_level(int, optional): The amount of compression to
+        apply when compressing values.
+    """
+
+    class Extensions(IntEnum):
+        Model = 0
+        DateTime = 1
+
+    @classmethod
+    def _serialize(cls, value):
+        if isinstance(value, model.Model):
+            kind, value = cls.Extensions.Model, cls._entity_to_dict(value)
+
+        elif isinstance(value, datetime):
+            kind, value = cls.Extensions.DateTime, _seconds_since_epoch(value)
+
+        else:
+            raise TypeError(f"Value of type {type(value)} cannot be serialized.")
+
+        return msgpack.ExtType(kind, cls._dumps(value))
+
+    @classmethod
+    def _deserialize(cls, code, data):
+        try:
+            kind = cls.Extensions(code)
+        except ValueError:
+            raise ValueError(f"Invalid extension code {code}.")
+
+        value = cls._loads(data)
+        if kind is cls.Extensions.Model:
+            return cls._entity_from_dict(value)
+
+        elif kind is cls.Extensions.DateTime:
+            return datetime.fromtimestamp(value, tz.tzutc())
+
+    @classmethod
+    def _dumps(cls, value):
+        return msgpack.packb(value, default=cls._serialize, use_bin_type=True)
+
+    @classmethod
+    def _loads(cls, data):
+        return msgpack.unpackb(data, ext_hook=cls._deserialize, encoding="utf-8")
 
 
 class String(Encodable, Property):

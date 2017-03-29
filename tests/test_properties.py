@@ -1,5 +1,6 @@
 import inspect
 import json
+import msgpack
 import pytest
 
 from anom import Key, Model, Property, props
@@ -97,6 +98,37 @@ def test_jsons_fail_to_dump_invalid_data():
 def test_jsons_fail_to_load_invalid_data():
     with pytest.raises(ValueError):
         props.Json().prepare_to_load(None, json.dumps({"__anom_type": "unknown"}))
+
+
+def test_msgpacks_dump_data_to_msgpack_on_store():
+    data = {"foo": {"bar": 42}}
+    assert props.Msgpack().prepare_to_store(None, data) == msgpack.packb(data)
+
+
+def test_msgpacks_load_data_from_msgpack_on_load():
+    data = {"foo": {"bar": 42}}
+    assert props.Msgpack().prepare_to_load(None, msgpack.packb(data)) == data
+
+
+def test_msgpacks_dump_and_load_entities(person, mutant, human):
+    for entity in (person, mutant, human):
+        msgpack = props.Msgpack()
+        entity_msgpack = msgpack.prepare_to_store(None, entity)
+        loaded_entity = msgpack.prepare_to_load(None, entity_msgpack)
+        assert loaded_entity == entity
+
+
+def test_msgpacks_fail_to_dump_invalid_data():
+    with pytest.raises(TypeError):
+        props.Msgpack().prepare_to_store(None, object())
+
+
+def test_msgpacks_fail_to_load_invalid_data():
+    def default(ob):
+        return msgpack.ExtType(127, b"")
+
+    with pytest.raises(ValueError):
+        props.Msgpack().prepare_to_load(None, msgpack.packb(object(), default=default))
 
 
 def test_strings_that_are_not_indexed_can_be_assigned_arbitrarily_long_values():
