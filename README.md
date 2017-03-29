@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Bogdanp/anom-py.svg?branch=master)](https://travis-ci.org/Bogdanp/anom-py)
 [![Coverage Status](https://coveralls.io/repos/github/Bogdanp/anom-py/badge.svg?branch=master)](https://coveralls.io/github/Bogdanp/anom-py?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a4d2fc43036b4277bf196de6f1766fd7)](https://www.codacy.com/app/bogdan/anom-py?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bogdanp/anom-py&amp;utm_campaign=Badge_Grade)
+[![Code Climate](https://codeclimate.com/github/Bogdanp/anom-py/badges/gpa.svg)](https://codeclimate.com/github/Bogdanp/anom-py)
 [![PyPI version](https://badge.fury.io/py/anom.svg)](https://badge.fury.io/py/anom)
 [![Documentation](https://img.shields.io/badge/doc-latest-brightgreen.svg)](http://anom.defn.io)
 

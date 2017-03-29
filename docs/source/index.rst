@@ -11,8 +11,8 @@ Release v\ |release|. (:doc:`installation`, :doc:`changelog`)
    :target: https://travis-ci.org/Bogdanp/anom-py
 .. image:: https://coveralls.io/repos/github/Bogdanp/anom-py/badge.svg?branch=master
    :target: https://coveralls.io/github/Bogdanp/anom-py?branch=master
-.. image:: https://api.codacy.com/project/badge/Grade/a4d2fc43036b4277bf196de6f1766fd7
-   :target: https://www.codacy.com/app/bogdan/anom-py?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bogdanp/anom-py&amp;utm_campaign=Badge_Grade
+.. image:: https://codeclimate.com/github/Bogdanp/anom-py/badges/gpa.svg
+   :target: https://codeclimate.com/github/Bogdanp/anom-py
 .. image:: https://badge.fury.io/py/anom.svg
    :target: https://badge.fury.io/py/anom
 .. image:: https://img.shields.io/badge/Say%20Thanks!-%F0%9F%A6%89-1EAEDB.svg
