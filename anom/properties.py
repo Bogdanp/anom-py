@@ -67,7 +67,7 @@ class Compressable(Blob):
 
 
 class Encodable:
-    """Mixins for string properties that have an encoding.
+    """Mixin for string properties that have an encoding.
 
     Parameters:
       encoding(str): The encoding to use when persisting this Property
@@ -98,6 +98,39 @@ class Encodable:
                 value = [v.encode(self.encoding) for v in value]
             else:
                 value = value.encode(self.encoding)
+
+        return super().prepare_to_store(entity, value)
+
+
+class Serializer(Compressable, Property):
+    """Base class for properties that serialize data.
+    """
+
+    _types = (bool, bytes, dict, float, int, str, datetime, model.Key, model.Model)
+
+    @classmethod
+    def _serialize(cls, value):
+        raise NotImplementedError
+
+    @classmethod
+    def _deserialize(cls, data):
+        raise NotImplementedError
+
+    def _dumps(self, value):
+        raise NotImplementedError
+
+    def _loads(self, data):
+        raise NotImplementedError
+
+    def prepare_to_load(self, entity, value):
+        if value is not None:
+            value = self._loads(value)
+
+        return super().prepare_to_load(entity, value)
+
+    def prepare_to_store(self, entity, value):
+        if value is not None:
+            value = self._dumps(value)
 
         return super().prepare_to_store(entity, value)
 
@@ -332,7 +365,7 @@ class Integer(Property):
     _types = (int,)
 
 
-class Json(Compressable, Property):
+class Json(Serializer):
     """A Property for values that should be stored as JSON.
 
     Parameters:
@@ -350,8 +383,6 @@ class Json(Compressable, Property):
       compression_level(int, optional): The amount of compression to
         apply when compressing values.
     """
-
-    _types = (bool, bytes, dict, float, int, str, datetime, model.Key, model.Model)
 
     #: The name of the field that is used to store type information
     #: about non-standard JSON values.
@@ -399,17 +430,11 @@ class Json(Compressable, Property):
         else:
             raise ValueError(f"Invalid kind {kind!r}.")
 
-    def prepare_to_load(self, entity, value):
-        if value is not None:
-            value = json.loads(value, object_hook=Json._deserialize)
+    def _dumps(self, value):
+        return json.dumps(value, separators=(",", ":"), default=Json._serialize)
 
-        return super().prepare_to_load(entity, value)
-
-    def prepare_to_store(self, entity, value):
-        if value is not None:
-            value = json.dumps(value, separators=(",", ":"), default=Json._serialize)
-
-        return super().prepare_to_store(entity, value)
+    def _loads(self, data):
+        return json.loads(data, object_hook=Json._deserialize)
 
 
 class Key(Property):
