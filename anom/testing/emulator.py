@@ -45,7 +45,6 @@ class Emulator:
 
         self._logger = logging.getLogger("Emulator")
         self._proc = None
-        self._running = False
         self._queue = Queue()
         self._thread = Thread(target=self._run, daemon=True)
 
@@ -63,7 +62,6 @@ class Emulator:
           the Datastore emulator.
         """
         try:
-            self._running = True
             self._thread.start()
 
             env_vars = self._queue.get(block=True, timeout=timeout)
@@ -81,8 +79,6 @@ class Emulator:
           int: The process return code or None if the process isn't
           currently running.
         """
-        self._running = False
-
         if self._proc is not None:
             if self._proc.poll() is None:
                 os.killpg(self._proc.pid, signal.SIGTERM)
@@ -101,7 +97,7 @@ class Emulator:
         )
 
         env_vars = {}
-        while self._running and self._proc.poll() is None:
+        while self._proc.poll() is None:
             line = self._proc.stdout.readline().strip().decode("utf-8")
             self._logger.debug(line)
 
