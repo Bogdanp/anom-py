@@ -1,15 +1,13 @@
 import pytest
 
-from anom import Model, Transaction, RetriesExceeded, props, get_multi, put_multi, transactional
+from anom import Transaction, RetriesExceeded, get_multi, put_multi, transactional
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 
-
-class BankAccount(Model):
-    balance = props.Integer()
+from .models import BankAccount, Person
 
 
-def test_transactions_are_serializable():
+def test_transactions_are_serializable(adapter):
     @transactional(retries=128)
     def transfer_money(source_account_key, target_account_key, amount):
         source_account, target_account = get_multi([source_account_key, target_account_key])
@@ -132,3 +130,13 @@ def test_transactions_can_run_out_of_retries(person):
 
         with pytest.raises(RetriesExceeded):
             failing(person.key)
+
+
+@pytest.mark.xfail(reason="transactions' put is buggy")
+def test_can_get_entity_that_was_stored_in_a_txn(adapter):
+    @transactional()
+    def store():
+        return Person(email="someone@example.com", first_name="Someone").put()
+
+    person = store()
+    assert person.key.get() == person

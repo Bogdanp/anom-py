@@ -8,6 +8,10 @@ class FullName:
         return f"{self.first_name} {self.last_name}"
 
 
+class BankAccount(Model):
+    balance = props.Integer()
+
+
 class User(FullName, Model):
     email = props.String(indexed=True)
     password = props.String()
@@ -102,8 +106,22 @@ class ModelWithRestrictedKeyProperty(Model):
 class ModelWithComputedProperty(Model):
     s = props.String()
 
-    def __compute(self):
+    def compute(self):
         return self.s.upper() if self.s else None
+
+    c = props.Computed(compute)
+
+
+class ModelWithComputedProperty2(Model):
+    c = props.Computed(lambda s: 42)
+
+
+class ModelWithComputedProperty3(Model):
+    calls = []
+
+    def __compute(self):
+        self.calls.append(1)
+        return 42
 
     c = props.Computed(__compute)
 

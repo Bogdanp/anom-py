@@ -68,7 +68,7 @@ def test_keys_can_be_not_equal():
     assert Key("Foo", 123, namespace="foos") != Key("Foo", 123, parent=Key("Bar", 1))
 
 
-def test_key_delete_deletes_nonexistent_entities():
+def test_key_delete_deletes_nonexistent_entities(adapter):
     assert Key("Person", 123).delete() is None
 
 
@@ -81,7 +81,7 @@ def test_keys_can_get_single_entities(person):
     assert person.key.get() == person
 
 
-def test_keys_can_fail_to_get_single_entities():
+def test_keys_can_fail_to_get_single_entities(adapter):
     assert Key(models.Person, "nonexistent").get() is None
 
 

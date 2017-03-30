@@ -120,3 +120,13 @@ class Adapter:  # pragma: no cover
           Transaction: The transaction.
         """
         raise NotImplementedError
+
+    @property
+    def in_transaction(self):
+        "bool: True if the adapter is currently in a Transaction."
+        raise NotImplementedError
+
+    @property
+    def current_transaction(self):
+        "Transaction: The current Transaction or None."
+        raise NotImplementedError

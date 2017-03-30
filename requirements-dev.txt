@@ -1,4 +1,5 @@
 -r requirements.txt
+-r requirements-memcache.txt
 
 # Misc
 bumpversion

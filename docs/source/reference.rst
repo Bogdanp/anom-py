@@ -120,6 +120,8 @@ Built-in Adapters
 
 .. autoclass:: anom.adapters.DatastoreAdapter
    :members:
+.. autoclass:: anom.adapters.MemcacheAdapter
+   :members:
 
 Adapter Internals
 ^^^^^^^^^^^^^^^^^

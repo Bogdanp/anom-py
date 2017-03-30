@@ -1,7 +1,8 @@
 import logging
+import pylibmc
 import pytest
 
-from anom import Key, adapters, get_adapter, set_adapter, delete_multi
+from anom import Adapter, Key, adapters, get_adapter, set_adapter, delete_multi
 from anom.testing import Emulator
 
 from .models import Person, Mutant, Cat, Human, Eagle
@@ -17,16 +18,46 @@ def emulator():
     emulator.stop()
 
 
+@pytest.fixture(scope="session")
+def memcache_client():
+    client = pylibmc.Client(["127.0.0.1"], binary=True, behaviors={"cas": True})
+    yield client
+    client.flush_all()
+
+
 @pytest.fixture(autouse=True)
-def adapter(emulator):
+def noop_adapter():
     old_adapter = get_adapter()
-    adapter = set_adapter(adapters.DatastoreAdapter())
+    adapter = set_adapter(Adapter())
+    yield adapter
+    set_adapter(old_adapter)
+
+
+@pytest.fixture(params=["datastore", "memcache"])
+def adapter(request, emulator, memcache_client):
+    old_adapter = get_adapter()
+    ds_adapter = adapters.DatastoreAdapter()
+
+    if request.param == "datastore":
+        adapter = ds_adapter
+    elif request.param == "memcache":
+        adapter = adapters.MemcacheAdapter(memcache_client, ds_adapter)
+
+    adapter = set_adapter(adapter)
     yield adapter
     set_adapter(old_adapter)
 
 
 @pytest.fixture()
-def person():
+def memcache_adapter(emulator, memcache_client):
+    old_adapter = get_adapter()
+    adapter = set_adapter(adapters.MemcacheAdapter(memcache_client, adapters.DatastoreAdapter()))
+    yield adapter
+    set_adapter(old_adapter)
+
+
+@pytest.fixture()
+def person(adapter):
     person = Person(
         email="john.smith@example.com",
         first_name="John",
@@ -38,7 +69,7 @@ def person():
 
 
 @pytest.fixture()
-def person_in_ns():
+def person_in_ns(adapter):
     person = Person(
         email="namespaced@example.com",
         first_name="Namespaced",
@@ -64,7 +95,7 @@ def person_with_ancestor(person):
 
 
 @pytest.fixture()
-def people():
+def people(adapter):
     people = []
     for i in range(1, 21):
         person = Person(email=f"{i}@example.com", first_name="Person", last_name=str(i))
@@ -77,7 +108,7 @@ def people():
 
 
 @pytest.fixture()
-def mutant():
+def mutant(adapter):
     mutant = Mutant(email="charles@xavier.edu", first_name="Charles", last_name="Xavier")
     mutant.power = "telepathy"
     mutant.put()
@@ -86,21 +117,21 @@ def mutant():
 
 
 @pytest.fixture
-def cat():
+def cat(adapter):
     cat = Cat(name="Volgar the Destoryer").put()
     yield cat
     cat.delete()
 
 
 @pytest.fixture
-def human():
+def human(adapter):
     human = Human(name="Steve").put()
     yield human
     human.delete()
 
 
 @pytest.fixture
-def eagle():
+def eagle(adapter):
     eagle = Eagle().put()
     yield eagle
     eagle.delete()

@@ -107,8 +107,8 @@ class DatastoreAdapter(Adapter):
 
     def get_multi(self, keys):
         get_multi = self.client.get_multi
-        if self._transactions:
-            transaction = self._transactions[-1]
+        if self.in_transaction:
+            transaction = self.current_transaction
             get_multi = partial(get_multi, transaction=transaction.ds_transaction)
 
         datastore_keys = [self._convert_key_to_datastore(key) for key in keys]
@@ -177,7 +177,7 @@ class DatastoreAdapter(Adapter):
 
         elif propagation == Transaction.Propagation.Nested:
             if self._transactions:
-                transaction = DatastoreInnerTransaction(self._transactions[-1])
+                transaction = DatastoreInnerTransaction(self.current_transaction)
             else:
                 transaction = DatastoureOuterTransaction(self)
 
@@ -186,6 +186,14 @@ class DatastoreAdapter(Adapter):
 
         else:  # pragma: no cover
             raise ValueError(f"Invalid propagation option {propagation!r}.")
+
+    @property
+    def in_transaction(self):
+        return bool(self._transactions)
+
+    @property
+    def current_transaction(self):
+        return self._transactions[-1]
 
     def _convert_key_to_datastore(self, anom_key):
         return self.client.key(*anom_key.path, namespace=anom_key.namespace)

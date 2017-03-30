@@ -6,7 +6,7 @@ from anom.query import PropertyFilter
 from .models import Person, temp_person
 
 
-def test_queries_can_fail_to_get_single_items():
+def test_queries_can_fail_to_get_single_items(adapter):
     assert Person.query().where(Person.email == "invalid").get() is None
 
 
@@ -124,12 +124,12 @@ def test_pages_can_be_paginated_manually(people):
     assert list(page_2) == people[2:4]
 
 
-def test_pages_fetch_next_page_returns_empty_iterator_if_there_are_no_more_pages():
+def test_pages_fetch_next_page_returns_empty_iterator_if_there_are_no_more_pages(adapter):
     pages = Person.query().paginate(page_size=10)
     assert list(pages.fetch_next_page()) == []
 
 
-def test_pages_cursor_points_to_the_next_page():
+def test_pages_cursor_points_to_the_next_page(adapter):
     pages = Person.query().paginate(page_size=10)
     page_1 = pages.fetch_next_page()
     assert pages.cursor == page_1.cursor

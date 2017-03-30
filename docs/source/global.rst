@@ -46,6 +46,7 @@
 .. |Adapter| replace:: :class:`Adapter<anom.Adapter>`
 .. |Adapters| replace:: :class:`Adapters<anom.Adapter>`
 .. |DatastoreAdapter| replace:: :class:`DatastoreAdapter<anom.adapters.DatastoreAdapter>`
+.. |MemcacheAdapter| replace:: :class:`MemcacheAdapter<anom.adapters.MemcacheAdapter>`
 
 .. |Transaction| replace:: :class:`Transaction<anom.Transaction>`
 .. |Transactions| replace:: :class:`Transactions<anom.Transaction>`

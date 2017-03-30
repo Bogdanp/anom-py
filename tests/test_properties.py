@@ -209,7 +209,7 @@ def test_tz_aware_datetimes_are_not_converted():
     assert prop.validate(now) == now
 
 
-def test_datetimes_can_be_set_on_create():
+def test_datetimes_can_be_set_on_create(adapter):
     user = models.User(email="user@example.com", password="password")
     assert not user.created_at
     assert not user.updated_at
@@ -222,7 +222,7 @@ def test_datetimes_can_be_set_on_create():
         user.delete()
 
 
-def test_datetimes_can_update_on_every_put():
+def test_datetimes_can_update_on_every_put(adapter):
     user = models.User(email="user@example.com", password="password")
     assert not user.created_at
     assert not user.updated_at
@@ -334,29 +334,21 @@ def test_computed_properties_are_only_computed_once():
     assert sum(calls) == 1
 
 
-def test_computed_properties_are_stored():
-    class ModelWithComputedProperty2(Model):
-        c = props.Computed(lambda s: 42)
-
-    entity = ModelWithComputedProperty2().put()
+def test_computed_properties_are_stored(adapter):
+    entity = models.ModelWithComputedProperty2().put()
 
     try:
-        queried_entity = ModelWithComputedProperty2.query().where(ModelWithComputedProperty2.c == 42).get()
+        queried_entity = models.ModelWithComputedProperty2.query().where(
+            models.ModelWithComputedProperty2.c == 42
+        ).get()
         assert entity == queried_entity
     finally:
         entity.delete()
 
 
-def test_computed_properties_are_always_computed():
-    calls = []
-
-    def f(ob):
-        calls.append(1)
-
-    class ModelWithComputedProperty3(Model):
-        c = props.Computed(f)
-
-    entity_1 = ModelWithComputedProperty3().put()
+def test_computed_properties_are_always_computed(adapter):
+    models.ModelWithComputedProperty3.calls = calls = []
+    entity_1 = models.ModelWithComputedProperty3().put()
 
     try:
         entity_2 = entity_1.key.get()
@@ -367,16 +359,9 @@ def test_computed_properties_are_always_computed():
 
 
 def test_computed_properties_cache_can_be_busted():
-    calls = []
+    models.ModelWithComputedProperty3.calls = calls = []
 
-    def f(ob):
-        calls.append(1)
-        return 42
-
-    class ModelWithComputedProperty4(Model):
-        c = props.Computed(f)
-
-    entity_1 = ModelWithComputedProperty4()
+    entity_1 = models.ModelWithComputedProperty3()
     assert entity_1.c == 42
     assert sum(calls) == 1
 

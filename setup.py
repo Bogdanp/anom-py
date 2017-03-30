@@ -17,6 +17,14 @@ with open("requirements.txt") as reqs:
         dependencies.append(line.strip())
 
 
+extra_dependencies = {}
+for group in ("memcache",):
+    extra_dependencies[group] = extra_dep_list = []
+    with open(f"requirements-{group}.txt") as reqs:
+        for line in reqs:
+            extra_dep_list.append(line.strip())
+
+
 setup(
     name="anom",
     version=version,
@@ -24,6 +32,7 @@ setup(
     long_description="https://github.com/Bogdanp/anom-py",
     packages=["anom", "anom.adapters", "anom.testing"],
     install_requires=dependencies,
+    extras_require=extra_dependencies,
     author="Bogdan Popa",
     author_email="popa.bogdanp@gmail.com",
     url="https://github.com/Bogdanp/anom-py",
