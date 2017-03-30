@@ -16,5 +16,7 @@ install:
 - pip install -r requirements-dev.txt codeclimate-test-reporter
 script:
 - py.test -sv
+services:
+- memcached
 after_success:
 - CODECLIMATE_REPO_TOKEN=a9bdd48ac0fc260d85947d679d8015fe3a31d8efa51e358f550a778386993fcf codeclimate-test-reporter
