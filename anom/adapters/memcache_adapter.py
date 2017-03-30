@@ -1,16 +1,11 @@
 import pylibmc
 
 from contextlib import contextmanager
-from enum import Enum, auto
 from hashlib import md5
 from threading import local
 
 from .. import Adapter, Transaction
 from ..properties import Msgpack
-
-
-class _State(Enum):
-    Locked = auto()
 
 
 class MemcacheOuterTransaction(Transaction):
@@ -65,6 +60,7 @@ class MemcacheAdapter(Adapter):
 
     _state = local()
 
+    _lock_value = b"L"
     _lock_timeout = 60  # seconds
     _item_timeout = 86400  # one day in seconds
 
@@ -105,7 +101,7 @@ class MemcacheAdapter(Adapter):
         found, missing = [None] * len(keys), []
         for memcache_key, anom_key in pairs.items():
             data = mapping.get(memcache_key)
-            if data is None or data is _State.Locked:
+            if data is None or data == self._lock_value:
                 missing.append(anom_key)
                 continue
 
@@ -173,7 +169,7 @@ class MemcacheAdapter(Adapter):
     @contextmanager
     def _bust(self, keys):
         memcache_keys = [self._convert_key_to_memcache(key) for key in keys]
-        memcache_pairs = {key: _State.Locked for key in memcache_keys}
+        memcache_pairs = {key: self._lock_value for key in memcache_keys}
 
         # Lock the keys so that they can't be set for the duration of
         # the delete (or until timeout).
@@ -194,10 +190,10 @@ class MemcacheAdapter(Adapter):
             while True:
                 value, cas_id = client.gets(key)
                 if cas_id is None:
-                    client.add(key, _State.Locked)
+                    client.add(key, self._lock_value)
                     continue
 
                 try:
                     return client.cas(key, data, cas_id, time=self._item_timeout)
-                except pylibmc.NotFound:  # pragma: no cover
+                except pylibmc.NotFound:
                     return
