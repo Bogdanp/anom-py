@@ -1,5 +1,5 @@
 import pylibmc
-import time
+import uuid
 
 from contextlib import contextmanager
 from hashlib import md5
@@ -178,7 +178,7 @@ class MemcacheAdapter(Adapter):
         # Lock the keys so that they can't be set for the duration of
         # the delete (or until timeout).
         with self.client_pool.reserve() as client:
-            client.set_multi(memcache_pairs, time=self._lock_timeout)
+            client.set_multi(memcache_pairs, self._lock_timeout)
 
         try:
             # Delete the keys from Datastore.
@@ -202,11 +202,11 @@ class MemcacheAdapter(Adapter):
                 # If there isn't a value at all, we have to add one
                 # and try again.
                 if cid is None:
-                    client.add(key, current_lock, time=self._lock_timeout)
+                    client.add(key, current_lock, self._lock_timeout)
                     continue
 
                 try:
-                    return client.cas(key, data, cid, time=self._item_timeout)
+                    return client.cas(key, data, cid, self._item_timeout)
 
                 # There is a small chance that between the `gets` and
                 # "now" the key will have been deleted by a concurrent
@@ -215,6 +215,6 @@ class MemcacheAdapter(Adapter):
                     return
 
     def _lock_value(self):
-        random_value = str(time.time()).encode("ascii")
+        random_value = str(uuid.uuid4()).encode("ascii")
         lock_value = self._lock_prefix + random_value
         return lock_value
