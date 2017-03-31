@@ -139,3 +139,15 @@ def test_can_get_entity_that_was_stored_in_a_txn(adapter):
 
     person = store()
     assert person.key.get() == person
+
+
+def test_deferred_keys_behave_like_normal_keys(adapter):
+    @transactional()
+    def store():
+        return Person(email="someone@example.com", first_name="Someone").put()
+
+    person_1 = store()
+    person_2 = person_1.key.get()
+    assert person_1.key == person_2.key
+    assert person_1.key.path == person_2.key.path
+    assert str(person_1.key) == str(person_2.key)

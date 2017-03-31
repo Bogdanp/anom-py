@@ -24,13 +24,13 @@ def test_model_adapter_instantiates_a_default_adapter_if_none_was_set():
     assert Person._adapter
 
 
-def test_model_delete_fails_if_the_entity_was_never_saved():
+def test_model_delete_fails_if_the_entity_was_never_saved(adapter):
     with pytest.raises(RuntimeError):
         person = Person()
         person.delete()
 
 
-def test_model_put_requires_fields_that_are_not_optional_to_be_set():
+def test_model_put_requires_fields_that_are_not_optional_to_be_set(adapter):
     with pytest.raises(RuntimeError):
         person = Person()
         person.put()
