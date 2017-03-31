@@ -89,9 +89,8 @@ def transactional(*, adapter=None, retries=3, propagation=Transaction.Propagatio
       retries(int, optional): The number of times to retry the
         transaction if it couldn't be committed.
       propagation(Transaction.Propagation, optional): The propagation
-        strategy to use. By default, transactions are Transactions are
-        nested, but you can force certain transactions to always run
-        independently.
+        strategy to use. By default, transactions are nested, but you
+        can force certain transactions to always run independently.
 
     Raises:
       anom.RetriesExceeded: When the decorator runbs out of retries
