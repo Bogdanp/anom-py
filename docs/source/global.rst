@@ -60,6 +60,7 @@
 .. _bottle: http://bottlepy.org/docs/dev/index.html
 .. _google cloud datastore: https://cloud.google.com/datastore/docs/
 .. _gcloud: https://cloud.google.com/sdk/
+.. _memcached: https://memcached.org/
 .. _ndb: https://cloud.google.com/appengine/docs/standard/python/ndb/
 .. _official docs:
 .. _datastore emulator: https://cloud.google.com/datastore/docs/tools/datastore-emulator
