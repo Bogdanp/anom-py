@@ -6,12 +6,31 @@ from threading import local
 
 from .. import Adapter, Key
 from ..adapter import QueryResponse
+from ..model import KeyLike
 from ..transaction import Transaction, TransactionFailed
 
 _logger = logging.getLogger("datastore_adapter")
 
 
-class DatastoureOuterTransaction(Transaction):
+class _DeferredKey(KeyLike):
+    def __init__(self, ds_entity):
+        self.ds_entity = ds_entity
+        self._value = None
+
+    @property
+    def _anom_key(self):
+        if self._value is None or self._value.is_partial:
+            self._value = DatastoreAdapter._convert_key_from_datastore(self.ds_entity.key)
+        return self._value
+
+    def __getattr__(self, name):
+        return getattr(self._anom_key, name)
+
+    def __repr__(self):
+        return repr(self._anom_key)
+
+
+class _DatastoreOuterTransaction(Transaction):
     def __init__(self, adapter):
         self.adapter = adapter
         self.ds_transaction = adapter.client.transaction()
@@ -39,7 +58,7 @@ class DatastoureOuterTransaction(Transaction):
         self.adapter._transactions.remove(self)
 
 
-class DatastoreInnerTransaction(Transaction):
+class _DatastoreInnerTransaction(Transaction):
     def __init__(self, parent):
         self.parent = parent
 
@@ -135,6 +154,8 @@ class DatastoreAdapter(Adapter):
     def put_multi(self, requests):
         entities = [self._prepare_to_store(*request) for request in requests]
         self.client.put_multi(entities)
+        if self.in_transaction:
+            return [_DeferredKey(entity) for entity in entities]
         return [self._convert_key_from_datastore(entity.key) for entity in entities]
 
     def query(self, query, options):
@@ -171,15 +192,15 @@ class DatastoreAdapter(Adapter):
 
     def transaction(self, propagation):
         if propagation == Transaction.Propagation.Independent:
-            transaction = DatastoureOuterTransaction(self)
+            transaction = _DatastoreOuterTransaction(self)
             self._transactions.append(transaction)
             return transaction
 
         elif propagation == Transaction.Propagation.Nested:
             if self._transactions:
-                transaction = DatastoreInnerTransaction(self.current_transaction)
+                transaction = _DatastoreInnerTransaction(self.current_transaction)
             else:
-                transaction = DatastoureOuterTransaction(self)
+                transaction = _DatastoreOuterTransaction(self)
 
             self._transactions.append(transaction)
             return transaction
@@ -198,7 +219,8 @@ class DatastoreAdapter(Adapter):
     def _convert_key_to_datastore(self, anom_key):
         return self.client.key(*anom_key.path, namespace=anom_key.namespace)
 
-    def _convert_key_from_datastore(self, datastore_key):
+    @staticmethod
+    def _convert_key_from_datastore(datastore_key):
         return Key.from_path(*datastore_key.flat_path, namespace=datastore_key.namespace)
 
     def _prepare_to_store(self, key, unindexed, data):

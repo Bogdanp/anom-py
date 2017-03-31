@@ -132,7 +132,6 @@ def test_transactions_can_run_out_of_retries(person):
             failing(person.key)
 
 
-@pytest.mark.xfail(reason="transactions' put is buggy")
 def test_can_get_entity_that_was_stored_in_a_txn(adapter):
     @transactional()
     def store():

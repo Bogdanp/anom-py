@@ -23,7 +23,14 @@ def classname(ob):
     return type(ob).__name__
 
 
-class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
+class KeyLike:
+    """Base class for objects that should be treated as if they are
+    datastore keys (for example, when comparing two objects with one
+    another).
+    """
+
+
+class Key(KeyLike, namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
     """A Datastore key.
 
     Parameters:
@@ -132,7 +139,7 @@ class Key(namedtuple("Key", ("kind", "id_or_name", "parent", "namespace"))):
         return hash(tuple(self))
 
     def __eq__(self, other):
-        if not isinstance(other, Key):
+        if not isinstance(other, KeyLike):
             return False
 
         if self is other:
