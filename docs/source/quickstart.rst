@@ -79,13 +79,13 @@ attributes (under the hood, that's more or less what they are!)::
   None
 
 You can also specify which properties should be populated when you
-instantiate models::
+construct entities::
 
   >>> greeting = Greeting(email="someone@example.com", message="Hi!")
 
 Every entity\ [#]_ has a |Key| that you can access via its |Model_key|
 attribute.  Entities that have not yet been saved have what are known
-as partial keys, keys without an id assigned to them.
+as partial keys, keys without an id or a name assigned to them.
 
 You can store the greeting by calling its |Model_put| method::
 
@@ -105,7 +105,7 @@ You can fetch entities by id by calling |Model_get|::
   >>> same_greeting
   Greeting(Key("Greeting", 1001, parent=None, namespace=None), email="someone@example.com", message="Hi!", created_at=..., updated_at=...)
 
-Entities can be compared for equality::
+And entities can be compared with each other for equality::
 
   >>> same_greeting == greeting
   True
@@ -114,13 +114,13 @@ Finally, you can |Model_delete| entities::
 
   >>> greeting.delete()
 
-Doing so will permanently remove the Greeting from Datastore.
+Doing so will permanently remove ``greeting`` from Datastore.
 
 
 Properties
 ----------
 
-The following properties are built-in:
+anom comes with the following predefined properties:
 
 =================================  ============================================================
 Property                           Description
@@ -138,7 +138,8 @@ Property                           Description
 :class:`anom.properties.Text`      Stores long :class:`str` values. Never indexed.
 =================================  ============================================================
 
-All of these support the following options:
+These properties all map to built-in Datastore types and they each
+support the following set of options:
 
 ============  =========  ===============================================================================================================================
 Option        Default    Description
@@ -153,8 +154,8 @@ Option        Default    Description
 Compressable Properties
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The following properties can compress/decompress their values before
-storing/loading them to/from Datastore:
+The following properties can be g{un,}zipped before being stored to or
+loaded from Datastore:
 
 * :class:`anom.properties.Bytes`
 * :class:`anom.properties.Json`
@@ -162,7 +163,8 @@ storing/loading them to/from Datastore:
 * :class:`anom.properties.String`
 * :class:`anom.properties.Text`
 
-Compressable properties support the following additional options:
+Compressable properties support the following additional set of
+options:
 
 =====================  =========  ============================================================================================================================
 Option                 Default    Description
@@ -173,7 +175,15 @@ Option                 Default    Description
 
 Compression is applied as late as possible (on ``put``) to avoid
 wasting CPU so assigning values to compressed properties has no
-additional cost.
+additional cost until you save the entity.
+
+.. warning::
+
+   Currently, compression is all-or-nothing.  anom does not check if
+   values are compressed before loading them unless you explicitly ask
+   it to.  Likewise, if you tell it that a property's values are
+   compressed it won't validate that they are compressed before trying
+   to decompress them.
 
 DateTime Properties
 ^^^^^^^^^^^^^^^^^^^
@@ -192,8 +202,7 @@ Encodable Properties
 ^^^^^^^^^^^^^^^^^^^^
 
 |prop_String| and |prop_Text| properties have an ``encoding`` option
-which controls how their values should be encoded/decoded before
-storing/loading them to/from Datastore.
+which controls which codec to use when {en,de}coding values.
 
 The default ``encoding`` is ``utf-8``.
 
@@ -224,7 +233,7 @@ Keys can have ancestors::
 
   >>> jim_key = Key("Person", "Jim", parent=Key("Person", "John"))
 
-And namespaces::
+And they can be namespaced::
 
   >>> jim_key_in_ns = Key("Person", "Jim", namespace="people")
 
@@ -267,7 +276,7 @@ subsets of your data.  For example::
   # whereas this doesn't.
   normal_user = User().put()
 
-  # This query would return all admin users.
+  # This query would return all admin users,
   all_admins = User.query().where(User.is_admin.is_true).run()
 
   # whereas this wouldn't return any users at all.
@@ -288,6 +297,12 @@ The following conditions are built-in:
 * :func:`anom.conditions.is_true`
 * :func:`anom.conditions.is_false`
 
+But conditions are just functions that take an entity, a property and
+the name of that property on the entity and return a boolean value so
+you can easily write your own::
+
+  def is_even(entity, prop, name):
+    return getattr(entity, name) % 2 == 0
 
 Queries
 -------
@@ -328,8 +343,11 @@ Resultsets
 
 When you |Query_run| a |Query| you get back an iterable |Resultset|
 object.  These objects let you efficiently iterate over query results
-by fetching result data in batches.  You may only iterate over a
-|Resultset| once.
+by fetching data in batches.
+
+You may only iterate over a |Resultset| once.  If you need to keep
+results around so you can iterate over them multiple times call
+:func:`list` on the resultset.
 
 Pagination
 ^^^^^^^^^^
@@ -341,8 +359,8 @@ page-sized chunks.  For example::
   >>> all_posts = Posts.query()
   >>> all_pages = all_posts.paginate(page_size=20)
 
-  >>> for i, page in enumerate(all_pages):
-  ...   print(f"Page {i + 1}:")
+  >>> for page_number, page in enumerate(all_pages, start=1):
+  ...   print(f"Page {page_number}:")
   ...
   ...   for post in page:
   ...     print(f"  * {post.title}")
@@ -454,7 +472,7 @@ Adapters
 operations eventually end up being performed by an adapter.
 
 By default, anom creates a |DatastoreAdapter| instance that'll connect
-to Datastore based on environment variables at runtime. You can get
+to Datastore based on environment variables at runtime.  You can get
 and set the current |Adapter| instance using |get_adapter| and
 |set_adapter| respectively.
 
