@@ -3,6 +3,15 @@
 Changelog
 =========
 
+v0.3.0
+------
+
+* Fixed late-bound keys inside transactions (`#3`_).
+* **Breaking change:** changed the locked item value in
+  |MemcacheAdapter|.
+
+.. _#3: https://github.com/Bogdanp/anom-py/issues/3
+
 v0.2.0
 ------
 

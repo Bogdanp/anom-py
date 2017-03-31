@@ -1,4 +1,5 @@
 import pylibmc
+import time
 
 from contextlib import contextmanager
 from hashlib import md5
@@ -8,7 +9,7 @@ from .. import Adapter, Transaction
 from ..properties import Msgpack
 
 
-class MemcacheOuterTransaction(Transaction):
+class _MemcacheOuterTransaction(Transaction):
     def __init__(self, adapter, ds_transaction):
         self.adapter = adapter
         self.ds_transaction = ds_transaction
@@ -29,7 +30,7 @@ class MemcacheOuterTransaction(Transaction):
         self.adapter._transactions.remove(self)
 
 
-class MemcacheInnerTransaction(Transaction):
+class _MemcacheInnerTransaction(Transaction):
     def __init__(self, parent, ds_transaction):
         self.parent = parent
         self.ds_transaction = ds_transaction
@@ -47,8 +48,8 @@ class MemcacheInnerTransaction(Transaction):
 
 
 class MemcacheAdapter(Adapter):
-    """Wraps other adapters in order to add strongly-consistent
-    caching on top using memcached.
+    """Transparently adds memcached-based strongly-consistent caching
+    on top of another adapter for delete, get and put operations.
 
     Parameters:
       client(pylibmc.Client): The memcached client instance to use.
@@ -60,7 +61,7 @@ class MemcacheAdapter(Adapter):
 
     _state = local()
 
-    _lock_value = b"L"
+    _lock_prefix = b"LOCK@"
     _lock_timeout = 60  # seconds
     _item_timeout = 86400  # one day in seconds
 
@@ -101,7 +102,9 @@ class MemcacheAdapter(Adapter):
         found, missing = [None] * len(keys), []
         for memcache_key, anom_key in pairs.items():
             data = mapping.get(memcache_key)
-            if data is None or data == self._lock_value:
+            # If there is no data or the data appears to be locked, we
+            # have to grab the entity from datastore.
+            if data is None or data.startswith(self._lock_prefix):
                 missing.append(anom_key)
                 continue
 
@@ -138,15 +141,15 @@ class MemcacheAdapter(Adapter):
         ds_transaction = self.adapter.transaction(propagation)
 
         if propagation == Transaction.Propagation.Independent:
-            transaction = MemcacheOuterTransaction(self, ds_transaction)
+            transaction = _MemcacheOuterTransaction(self, ds_transaction)
             self._transactions.append(transaction)
             return transaction
 
         elif propagation == Transaction.Propagation.Nested:
             if self._transactions:
-                transaction = MemcacheInnerTransaction(self.current_transaction, ds_transaction)
+                transaction = _MemcacheInnerTransaction(self.current_transaction, ds_transaction)
             else:
-                transaction = MemcacheOuterTransaction(self, ds_transaction)
+                transaction = _MemcacheOuterTransaction(self, ds_transaction)
 
             self._transactions.append(transaction)
             return transaction
@@ -168,8 +171,9 @@ class MemcacheAdapter(Adapter):
 
     @contextmanager
     def _bust(self, keys):
+        current_lock = self._lock_value()
         memcache_keys = [self._convert_key_to_memcache(key) for key in keys]
-        memcache_pairs = {key: self._lock_value for key in memcache_keys}
+        memcache_pairs = {key: current_lock for key in memcache_keys}
 
         # Lock the keys so that they can't be set for the duration of
         # the delete (or until timeout).
@@ -186,14 +190,31 @@ class MemcacheAdapter(Adapter):
                 client.delete_multi(memcache_keys)
 
     def _cache(self, key, data):
+        current_lock = self._lock_value()
         with self.client_pool.reserve() as client:
             while True:
-                value, cas_id = client.gets(key)
-                if cas_id is None:
-                    client.add(key, self._lock_value)
+                value, cid = client.gets(key)
+                # If there is a lock value in Memcache that is
+                # different from our own we have to bail.
+                if value and value.startswith(self._lock_prefix) and value != current_lock:
+                    return
+
+                # If there isn't a value at all, we have to add one
+                # and try again.
+                if cid is None:
+                    client.add(key, current_lock, time=self._lock_timeout)
                     continue
 
                 try:
-                    return client.cas(key, data, cas_id, time=self._item_timeout)
-                except pylibmc.NotFound:
+                    return client.cas(key, data, cid, time=self._item_timeout)
+
+                # There is a small chance that between the `gets` and
+                # "now" the key will have been deleted by a concurrent
+                # process, so we account for that possibility here.
+                except pylibmc.NotFound:  # pragma: no cover
                     return
+
+    def _lock_value(self):
+        random_value = str(time.time()).encode("ascii")
+        lock_value = self._lock_prefix + random_value
+        return lock_value
