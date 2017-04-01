@@ -38,7 +38,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
     'alabaster',
 ]
 

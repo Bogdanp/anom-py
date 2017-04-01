@@ -1,5 +1,4 @@
 -r ../requirements-dev.txt
 
 # Sphinx
-sphinx
-sphinxcontrib-napoleon
+sphinx>=1.3
