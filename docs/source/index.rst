@@ -40,11 +40,6 @@ Here's what it looks like:
 **anom** is :doc:`licensed<license>` under the 3-clause BSD license
 and it officially supports Python 3.6 and later.
 
-.. warning::
-
-   anom is under heavy development and is currently not ready for
-   prodution use.
-
 Get It Now
 ----------
 

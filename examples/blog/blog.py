@@ -8,7 +8,7 @@ from session import create_session, user_required
 @view("index")
 @user_required()
 def index(user):
-    cursor, tag = request.params.cursor, request.params.tag.strip()
+    cursor, tag = request.params.cursor, request.params.tag
     posts = Post.query().order_by(-Post.created_at)
     if tag:
         posts = posts.where(Post.tags == tag)

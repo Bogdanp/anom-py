@@ -177,7 +177,7 @@ Compression is applied as late as possible (on ``put``) to avoid
 wasting CPU so assigning values to compressed properties has no
 additional cost until you save the entity.
 
-.. warning::
+.. note::
 
    Currently, compression is all-or-nothing.  anom does not check if
    values are compressed before loading them unless you explicitly ask
@@ -506,7 +506,7 @@ Here's how you would use it in a `pytest fixture`_::
     yield
     emulator.stop()
 
-You can then have tests depend on it::
+You can then have tests that depend on it::
 
   def test_can_create_users(datastore_emulator):
     user = User(username="test").put()
@@ -514,8 +514,8 @@ You can then have tests depend on it::
     user.delete()
 
 Since starting and stopping the emulator takes on the order of a few
-seconds, it is recommended to use a session-scoped emulator fixture
-and for individual tests to clean up after themselves.
+seconds, we recommend using a session-scoped emulator fixture and for
+individual tests to clean up after themselves.
 
 
 .. [#] Model instances are known as "entities".
