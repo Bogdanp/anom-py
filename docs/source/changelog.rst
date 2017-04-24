@@ -3,6 +3,13 @@
 Changelog
 =========
 
+v0.3.1
+------
+
+* Updated google-cloud-datastore_ to version ``1.0.0``.
+
+.. _google-cloud-datastore: https://github.com/GoogleCloudPlatform/google-cloud-python/releases/tag/datastore-1.0.0
+
 v0.3.0
 ------
 
