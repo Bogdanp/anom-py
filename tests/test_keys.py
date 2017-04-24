@@ -113,21 +113,15 @@ def test_keys_are_hashable():
         assert entities[Key("Person", i)] == i
 
 
-def test_keys_build_up_parents_from_path():
-    cases = [
-        (
-            Key.from_path("Person", 1, "Person"),
-            Key("Person", parent=Key("Person", 1))
-        ),
-        (
-            Key.from_path("Person", 1, "Person", 2),
-            Key("Person", 2, parent=Key("Person", 1))
-        ),
-        (
-            Key.from_path("Person", 1, "Person", 2, "Person", 3),
-            Key("Person", 3, parent=Key("Person", 2, parent=Key("Person", 1)))
-        )
-    ]
+@pytest.mark.parametrize("case,expected", [
+    (Key.from_path("Person", 1, "Person"),
+     Key("Person", parent=Key("Person", 1))),
 
-    for case, expected in cases:
-        assert case == expected
+    (Key.from_path("Person", 1, "Person", 2),
+     Key("Person", 2, parent=Key("Person", 1))),
+
+    (Key.from_path("Person", 1, "Person", 2, "Person", 3),
+     Key("Person", 3, parent=Key("Person", 2, parent=Key("Person", 1))))
+])
+def test_keys_build_up_parents_from_path(case, expected):
+    assert case == expected
