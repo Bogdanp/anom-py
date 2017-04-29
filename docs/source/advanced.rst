@@ -80,7 +80,7 @@ query for all animals::
   >>> list(Animal.query().run())
   [Eagle(...), Human(...), Cat(...)]
 
-and get back a list containing and ``Eagle``, a ``Human`` and a
+and get back a list containing an ``Eagle``, a ``Human`` and a
 ``Cat``.  Likewise, you can query specifically for all birds or all
 eagles and get back an ``Eagle``, excluding all humans or cats::
 
