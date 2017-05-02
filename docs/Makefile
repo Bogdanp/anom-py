@@ -12,7 +12,7 @@ BUILDDIR      = build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-deploy:
+deploy: html
 	gcloud app deploy --project anom-docs app.yaml
 
 .PHONY: deploy help Makefile
