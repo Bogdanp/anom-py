@@ -1,0 +1,21 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+ - url: /
+   static_files: build/html/index.html
+   upload: build/html/index.html
+
+ - url: /(.*)
+   static_files: build/html/\1
+   upload: build/html/(.*)
+
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+- ^(.*/)?\.bak$
+- ^(.*/)?(?!build/html)/.*$
