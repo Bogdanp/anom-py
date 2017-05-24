@@ -101,7 +101,7 @@ key::
 
 You can fetch entities by id by calling |Model_get|::
 
-  >>> same_greeting = Greeting.get_by_id(1001)  # Replace 1001 with whatever id your greeting was assigned
+  >>> same_greeting = Greeting.get(1001)  # Replace 1001 with whatever id your greeting was assigned
   >>> same_greeting
   Greeting(Key("Greeting", 1001, parent=None, namespace=None), email="someone@example.com", message="Hi!", created_at=..., updated_at=...)
 
