@@ -624,15 +624,18 @@ def delete_multi(keys):
         if key.is_partial:
             raise RuntimeError(f"Key {key!r} is partial.")
 
-        model = key.get_model()
+        model = lookup_model_by_kind(key.kind)
         if adapter is None:
-            adapter = key.get_model()._adapter
+            adapter = model._adapter
 
         model.pre_delete_hook(key)
 
     adapter.delete_multi(keys)
     for key in keys:
-        model = _known_models[key.kind]  # Micro-optimization, avoids calling get_model
+        # Micro-optimization to avoid calling get_model.  This is OK
+        # to do here because we've already proved that a model for
+        # that kind exists in the previous block.
+        model = _known_models[key.kind]
         model.post_delete_hook(key)
 
 
@@ -670,9 +673,9 @@ def get_multi(keys):
         if key.is_partial:
             raise RuntimeError(f"Key {key!r} is partial.")
 
-        model = key.get_model()
+        model = lookup_model_by_kind(key.kind)
         if adapter is None:
-            adapter = key.get_model()._adapter
+            adapter = model._adapter
 
         model.pre_get_hook(key)
 
@@ -682,7 +685,10 @@ def get_multi(keys):
             entities.append(None)
             continue
 
-        model = _known_models[key.kind]  # Micro-optimization, avoids calling get_model
+        # Micro-optimization to avoid calling get_model.  This is OK
+        # to do here because we've already proved that a model for
+        # that kind exists in the previous block.
+        model = _known_models[key.kind]
         entity = model._load(key, entity_data)
         entities.append(entity)
         entity.post_get_hook()
