@@ -1,6 +1,7 @@
 import logging
 
 from functools import partial
+from gcloud_requests import DatastoreRequestsProxy, enter_transaction, exit_transaction
 from google.cloud import datastore
 from threading import local
 
@@ -39,6 +40,7 @@ class _DatastoreOuterTransaction(Transaction):
         _logger.debug("Beginning transaction...")
         self.ds_transaction.begin()
         self.adapter.client._push_batch(self.ds_transaction)
+        enter_transaction()
 
     def commit(self):
         try:
@@ -54,6 +56,7 @@ class _DatastoreOuterTransaction(Transaction):
 
     def end(self):
         _logger.debug("Ending transaction...")
+        exit_transaction()
         self.adapter.client._pop_batch()
         self.adapter._transactions.remove(self)
 
@@ -110,6 +113,8 @@ class DatastoreAdapter(Adapter):
                 credentials=self.credentials,
                 project=self.project,
                 namespace=self.namespace,
+                _http=DatastoreRequestsProxy(),
+                _use_grpc=False,
             )
         return client
 
