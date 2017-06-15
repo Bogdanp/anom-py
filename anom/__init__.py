@@ -5,4 +5,4 @@ from .model import Key, Model, Property, delete_multi, get_multi, put_multi, loo
 from .query import Query, Resultset, Page, Pages
 from .transaction import Transaction, TransactionError, RetriesExceeded, transactional
 
-__version__ = "0.3.4"
+__version__ = "0.4.0"
