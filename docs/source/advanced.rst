@@ -160,3 +160,29 @@ MemcacheAdapter_ for examples of this.
 
 .. _DatastoreAdapter: https://github.com/Bogdanp/anom-py/blob/master/anom/adapters/datastore_adapter.py
 .. _MemcacheAdapter: https://github.com/Bogdanp/anom-py/blob/master/anom/adapters/memcache_adapter.py
+
+
+Queries
+-------
+
+Queries Without a Kind
+^^^^^^^^^^^^^^^^^^^^^^
+
+Normally, in order to query for a model's data you'll start a query
+either by going through the model::
+
+  SomeModel.query().run()
+
+Or by instantiating a |Query| object::
+
+  Query("SomeModel").run()
+
+This limits the query to entities belonging to a single datastore
+kind.  If you ever need to query for all the entities in your
+Datastore regardless of kind, you can drop the ``kind`` parameter::
+
+  Query().run()
+
+The snippet above will iterate over all of the entities in the default
+namespace.  This feature comes in handy when performing backups or
+cleaning up after tests.

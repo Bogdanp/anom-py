@@ -105,9 +105,11 @@ class Resultset:
         return next(self._entities)
 
     def _get_batches(self):
+        from .adapter import get_adapter
+
         remaining = self._options.limit
         while True:
-            adapter = self._query.model._adapter
+            adapter = self._query.model._adapter if self._query.model else get_adapter()
             entities, self._options.cursor = adapter.query(self._query, self._options)
             if remaining is not None:
                 remaining -= len(entities)
@@ -256,12 +258,15 @@ class Query(namedtuple("Query", (
     """
 
     def __new__(
-            cls, kind, *, ancestor=None, namespace=None,
+            cls, kind=None, *, ancestor=None, namespace=None,
             projection=(), filters=(), orders=(), offset=0, limit=None,
     ):
         from .model import lookup_model_by_kind
 
-        if isinstance(kind, str):
+        if kind is None:
+            model = None
+
+        elif isinstance(kind, str):
             model = lookup_model_by_kind(kind)
 
         else:
@@ -403,7 +408,7 @@ class Query(namedtuple("Query", (
     def _prepare(self):
         # Polymorphic children need to be able to query for themselves
         # and their subclasses.
-        if self.model._is_child:
+        if self.model and self.model._is_child:
             kind_filter = (self.model._kinds_name, "=", self.model._kinds[0])
             return self._replace(filters=(kind_filter,) + self.filters)
 

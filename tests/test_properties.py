@@ -215,11 +215,8 @@ def test_datetimes_can_be_set_on_create(adapter):
     assert not user.updated_at
     user.put()
 
-    try:
-        assert user.created_at
-        assert user.updated_at
-    finally:
-        user.delete()
+    assert user.created_at
+    assert user.updated_at
 
 
 def test_datetimes_can_update_on_every_put(adapter):
@@ -228,18 +225,15 @@ def test_datetimes_can_update_on_every_put(adapter):
     assert not user.updated_at
     user.put()
 
-    try:
-        assert user.created_at
-        assert user.created_at
+    assert user.created_at
+    assert user.created_at
 
-        previous_created_at = user.created_at
-        previous_updated_at = user.updated_at
-        user.put()
+    previous_created_at = user.created_at
+    previous_updated_at = user.updated_at
+    user.put()
 
-        assert user.created_at == previous_created_at
-        assert user.updated_at != previous_updated_at
-    finally:
-        user.delete()
+    assert user.created_at == previous_created_at
+    assert user.updated_at != previous_updated_at
 
 
 def test_datetimes_cannot_be_both_auto_and_repeated():
@@ -336,26 +330,18 @@ def test_computed_properties_are_only_computed_once():
 
 def test_computed_properties_are_stored(adapter):
     entity = models.ModelWithComputedProperty2().put()
-
-    try:
-        queried_entity = models.ModelWithComputedProperty2.query().where(
-            models.ModelWithComputedProperty2.c == 42
-        ).get()
-        assert entity == queried_entity
-    finally:
-        entity.delete()
+    queried_entity = models.ModelWithComputedProperty2.query().where(
+        models.ModelWithComputedProperty2.c == 42
+    ).get()
+    assert entity == queried_entity
 
 
 def test_computed_properties_are_always_computed(adapter):
     models.ModelWithComputedProperty3.calls = calls = []
     entity_1 = models.ModelWithComputedProperty3().put()
-
-    try:
-        entity_2 = entity_1.key.get()
-        assert entity_1 == entity_2
-        assert sum(calls) == 2
-    finally:
-        entity_1.delete()
+    entity_2 = entity_1.key.get()
+    assert entity_1 == entity_2
+    assert sum(calls) == 2
 
 
 def test_computed_properties_cache_can_be_busted():

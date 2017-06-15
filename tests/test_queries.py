@@ -139,3 +139,15 @@ def test_queries_preprocess_keys(person):
     with temp_person(email="child@example.com", first_name="Child", parent=person) as child:
         child = Person.query().where(Person.email == "child@example.com").get()
         assert child.parent == person.key
+
+
+def test_kindless_queries(people):
+    queried_people = list(Query().run())
+    assert sorted(queried_people, key=lambda e: e.key) == \
+        sorted(people, key=lambda e: e.key)
+
+
+def test_kindless_queries_in_ns(people, person_in_ns):
+    queried_people = list(Query(namespace=person_in_ns.key.namespace).run())
+    assert sorted(queried_people, key=lambda e: e.key) == \
+        sorted([person_in_ns], key=lambda e: e.key)

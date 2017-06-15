@@ -2,7 +2,7 @@ import logging
 import pylibmc
 import pytest
 
-from anom import Adapter, Key, adapters, get_adapter, set_adapter, delete_multi
+from anom import Adapter, Key, Query, adapters, get_adapter, set_adapter, delete_multi
 from anom.testing import Emulator
 
 from .models import Person, Mutant, Cat, Human, Eagle
@@ -45,6 +45,9 @@ def adapter(request, emulator, memcache_client):
 
     adapter = set_adapter(adapter)
     yield adapter
+
+    all_entities = list(Query().run(keys_only=True))
+    delete_multi(all_entities)
     set_adapter(old_adapter)
 
 

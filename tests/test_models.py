@@ -83,12 +83,9 @@ def test_models_can_inherit_from_many_models(mutant):
         power="literally everything",
     ).put()
 
-    try:
-        assert mutant_user_child
-        assert mutant_user_child.full_name == "David Haller"
-        assert mutant_user_child.parent == mutant.key
-    finally:
-        mutant_user_child.delete()
+    assert mutant_user_child
+    assert mutant_user_child.full_name == "David Haller"
+    assert mutant_user_child.parent == mutant.key
 
 
 def test_inherited_models_can_be_queried(mutant):

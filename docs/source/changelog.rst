@@ -7,6 +7,7 @@ v0.4.0
 ------
 
 * Added support for declaring models' kinds.
+* Added support for kindless Queries.
 
 v0.3.1
 ------
