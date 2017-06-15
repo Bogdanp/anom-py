@@ -2,7 +2,7 @@ import pytest
 
 from anom import Key, Model
 
-from .models import Person, Mutant, MutantUser
+from .models import Person, Mutant, MutantUser, ModelWithCustomKind
 
 
 def test_constructor_params_must_be_valid_properties():
@@ -95,3 +95,10 @@ def test_inherited_models_can_be_queried(mutant):
     mutant = Mutant.query().where(Mutant.power == "telepathy").get()
     assert mutant
     assert mutant.full_name == "Charles Xavier"
+
+
+def test_models_can_have_custom_kinds(adapter):
+    e = ModelWithCustomKind(x=42).put()
+    assert e.key.kind == "CustomKind"
+    assert e.key.get() == e
+    assert e.delete() is None

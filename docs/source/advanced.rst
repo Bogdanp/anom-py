@@ -6,8 +6,24 @@ Advanced Usage
 Models
 ------
 
-Model Inheritance
-^^^^^^^^^^^^^^^^^
+Kinds
+^^^^^
+
+All models have Datastore kinds based on their class names by default.
+That is, a model ``class Foo(Model)`` will have its entities stored
+under the ``Foo`` kind in Datastore.  If you need to declare a model
+with a different kind than its class name then you can do so by giving
+it a ``_kind`` class property::
+
+  class A(Model):
+    _kind = "B"
+
+  >>> a = A().put()
+  >>> a.key.kind
+  'B'
+
+Inheritance
+^^^^^^^^^^^
 
 By default, entities belonging to model subclasses are stored under
 their own kind in datastore::

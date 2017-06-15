@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.4.0
+------
+
+* Added support for declaring models' kinds.
+
 v0.3.1
 ------
 

@@ -363,8 +363,8 @@ class model(type):
         attrs["_adapter"] = _adapter()
         attrs["_is_child"] = is_child = False
         attrs["_is_root"] = poly
-        attrs["_kind"] = kind = classname
-        attrs["_kinds"] = kinds = [classname]
+        attrs["_kind"] = kind = attrs.pop("_kind", classname)
+        attrs["_kinds"] = kinds = [kind]
 
         # Collect all of the properties defined on this model.
         attrs["_properties"] = properties = {}
@@ -398,7 +398,7 @@ class model(type):
             if kind in _known_models and not is_child:
                 raise TypeError(f"Multiple models for kind {kind!r}.")
 
-            _known_models[classname] = clazz
+            _known_models[kind] = clazz
 
         return clazz
 

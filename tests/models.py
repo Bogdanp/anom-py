@@ -130,6 +130,12 @@ class ModelWithJsonProperty(Model):
     j = props.Json()
 
 
+class ModelWithCustomKind(Model):
+    _kind = "CustomKind"
+
+    x = props.Integer()
+
+
 @contextmanager
 def temp_person(**options):
     person = Person(**options).put()
