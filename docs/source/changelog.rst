@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.4.1
+------
+
+* Pinned ``gcloud-requests`` to version ``1.1.8``.
+
 v0.4.0
 ------
 
