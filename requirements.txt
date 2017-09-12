@@ -1,4 +1,4 @@
 google-cloud-datastore>=1.0,<1.1
-gcloud-requests==1.1.8
+gcloud-requests==1.1.9
 msgpack-python==0.4.8
 python-dateutil==2.6.0
