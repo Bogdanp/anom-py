@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.4.5
+------
+
+* Handle a potential race condition during Emulator shutdown.
+
 v0.4.4
 ------
 
