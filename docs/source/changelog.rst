@@ -3,6 +3,20 @@
 Changelog
 =========
 
+v0.4.4
+------
+
+* Fixed an issue with repeated Key properties (`#5`_).
+
+.. _#5: https://github.com/Bogdanp/anom-py/issues/5
+
+v0.4.3
+------
+
+* Fixed an issue with filtering by Keys (`#4`_).
+
+.. _#4: https://github.com/Bogdanp/anom-py/issues/4
+
 v0.4.2
 ------
 
