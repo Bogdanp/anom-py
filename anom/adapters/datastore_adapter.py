@@ -240,13 +240,18 @@ class DatastoreAdapter(Adapter):
     def _prepare_to_store(self, key, unindexed, data):
         datastore_key = self._convert_key_to_datastore(key)
         entity = datastore.Entity(datastore_key, unindexed)
-        for name, value in data:
-            if isinstance(value, Key):
-                value = self._convert_key_to_datastore(value)
-
-            entity[name] = value
-
+        entity.update({name: self._prepare_to_store_value(value) for name, value in data})
         return entity
+
+    def _prepare_to_store_value(self, value):
+        if isinstance(value, Key):
+            return self._convert_key_to_datastore(value)
+
+        elif isinstance(value, (tuple, list)):
+            return [self._prepare_to_store_value(v) for v in value]
+
+        else:
+            return value
 
     def _prepare_to_load(self, entity):
         data = {}

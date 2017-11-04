@@ -136,6 +136,14 @@ class ModelWithCustomKind(Model):
     x = props.Integer()
 
 
+class Tag(Model):
+    name = props.String()
+
+
+class Subscriber(Model):
+    tags = props.Key(repeated=True, kind=Tag)
+
+
 @contextmanager
 def temp_person(**options):
     person = Person(**options).put()

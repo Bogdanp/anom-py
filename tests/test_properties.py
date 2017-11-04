@@ -354,3 +354,12 @@ def test_computed_properties_cache_can_be_busted():
     del entity_1.c
     assert entity_1.c == 42
     assert sum(calls) == 2
+
+
+def test_repeated_keys_can_be_assigned_to_model(adapter):
+    tag1 = models.Tag(name="funny").put()
+    tag2 = models.Tag(name="insightful").put()
+    subscriber = models.Subscriber(tags=[tag1.key, tag2.key]).put()
+    assert subscriber
+    assert subscriber.tags[0].get() == tag1
+    assert subscriber.tags[1].get() == tag2

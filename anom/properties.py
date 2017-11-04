@@ -483,6 +483,9 @@ class Key(Property):
         value = super().validate(value)
 
         if value is not None:
+            if self.repeated and isinstance(value, list):
+                return [self.validate(v) for v in value]
+
             if isinstance(value, model.Model):
                 value = value.key
 
