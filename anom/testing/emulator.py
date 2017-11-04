@@ -81,10 +81,13 @@ class Emulator:
         """
         if self._proc is not None:
             if self._proc.poll() is None:
-                os.killpg(self._proc.pid, signal.SIGTERM)
-                _, returncode = os.waitpid(self._proc.pid, 0)
-                self._logger.debug("Emulator process exited with code %d.", returncode)
-                return returncode
+                try:
+                    os.killpg(self._proc.pid, signal.SIGTERM)
+                    _, returncode = os.waitpid(self._proc.pid, 0)
+                    self._logger.debug("Emulator process exited with code %d.", returncode)
+                    return returncode
+                except ChildProcessError:  # pragma: no cover
+                    return self._proc.returncode
             return self._proc.returncode  # pragma: no cover
         return None  # pragma: no cover
 
