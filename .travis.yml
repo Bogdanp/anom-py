@@ -14,8 +14,9 @@ before_install:
 - gcloud auth activate-service-account --key-file credentials.json
 install:
 - pip install -r requirements-dev.txt codeclimate-test-reporter
+- pip install -I "coverage>4.0,<4.4"
 script:
-- py.test -sv
+- py.test
 services:
 - memcached
 after_success:
