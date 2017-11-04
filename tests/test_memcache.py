@@ -1,3 +1,5 @@
+import pytest
+
 from anom import get_multi
 from concurrent.futures import ThreadPoolExecutor
 
@@ -13,6 +15,7 @@ def test_get_multi_retrieves_cached_and_non_cached_entities(memcache_adapter):
         assert get_multi([person_1.key, person_2.key]) == [person_1, person_2]
 
 
+@pytest.mark.skip(reason="Flaky.")
 def test_delete_wins_under_contention(memcache_adapter):
     person = models.Person(email="someone@example.com", first_name="Person").put()
 
