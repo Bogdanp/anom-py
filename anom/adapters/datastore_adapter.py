@@ -168,13 +168,14 @@ class DatastoreAdapter(Adapter):
         if query.ancestor:
             ancestor = self._convert_key_to_datastore(query.ancestor)
 
+        filters = self._convert_filters_to_datastore(query.filters)
         query = self.client.query(
             kind=query.kind,
             ancestor=ancestor,
             namespace=query.namespace,
             projection=query.projection,
-            filters=query.filters,
             order=query.orders,
+            filters=filters,
         )
         if options.keys_only:
             query.keys_only()
@@ -220,6 +221,14 @@ class DatastoreAdapter(Adapter):
     @property
     def current_transaction(self):
         return self._transactions[-1]
+
+    def _convert_filters_to_datastore(self, filters):
+        for property_filter in filters:
+            prop, op, value = property_filter
+            if isinstance(value, Key):
+                value = self._convert_key_to_datastore(property_filter.value)
+
+            yield prop, op, value
 
     def _convert_key_to_datastore(self, anom_key):
         return self.client.key(*anom_key.path, namespace=anom_key.namespace)

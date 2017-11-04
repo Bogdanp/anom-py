@@ -25,7 +25,7 @@ class Person(FullName, Model):
     email = props.String(indexed=True)
     first_name = props.String(indexed=True)
     last_name = props.String(optional=True)
-    parent = props.Key(optional=True)
+    parent = props.Key(optional=True, indexed=True)
     created_at = props.DateTime(auto_now_add=True, indexed=True)
 
 

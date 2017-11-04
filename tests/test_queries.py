@@ -151,3 +151,8 @@ def test_kindless_queries_in_ns(people, person_in_ns):
     queried_people = list(Query(namespace=person_in_ns.key.namespace).run())
     assert sorted(queried_people, key=lambda e: e.key) == \
         sorted([person_in_ns], key=lambda e: e.key)
+
+
+def test_queries_can_be_filtered_by_key(people):
+    # XREF: https://github.com/Bogdanp/anom-py/issues/4
+    assert list(Person.query().where(Person.parent == people[0]).run()) == []
