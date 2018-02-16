@@ -55,7 +55,7 @@ class MemcacheAdapter(Adapter):
       client(pylibmc.Client): The memcached client instance to use.
         This is automatically wrapped inside a ThreadMappedPool.
       adapter(Adapter): The adapter to wrap.
-      namespace(str, optional): The string keys should be prefixed
+      prefix(str, optional): The string keys should be prefixed
         with.  Defaults to ``anom``.
     """
 
@@ -65,10 +65,10 @@ class MemcacheAdapter(Adapter):
     _lock_timeout = 60  # seconds
     _item_timeout = 86400  # one day in seconds
 
-    def __init__(self, client, adapter, *, namespace="anom"):
+    def __init__(self, client, adapter, *, prefix="anom"):
         self.client_pool = pylibmc.ThreadMappedPool(client)
         self.adapter = adapter
-        self.namespace = namespace
+        self.prefix = prefix
 
         self.query = self.adapter.query
 
@@ -167,7 +167,7 @@ class MemcacheAdapter(Adapter):
 
     def _convert_key_to_memcache(self, anom_key):
         digest = md5(str(anom_key).encode("utf-8")).hexdigest()
-        return f"{self.namespace}:{digest}"
+        return f"{self.prefix}:{digest}"
 
     @contextmanager
     def _bust(self, keys):

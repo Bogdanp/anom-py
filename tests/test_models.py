@@ -60,7 +60,7 @@ def test_models_cannot_have_overlapping_kinds():
 
 def test_model_reprs_can_be_used_to_rebuild_them():
     assert repr(Person(email="foo@example.com")) == \
-        "Person(key=Key('Person', None, parent=None, namespace=None), em" \
+        "Person(key=Key('Person', None, parent=None, namespace=''), em" \
         "ail='foo@example.com', first_name=None, last_name=None, parent=" \
         "None, created_at=None)"
 
@@ -99,3 +99,7 @@ def test_models_can_have_custom_kinds(adapter):
     assert e.key.kind == "CustomKind"
     assert e.key.get() == e
     assert e.delete() is None
+
+
+def test_default_model_key_uses_default_namespace(adapter, default_namespace):
+    assert Person().key.namespace == default_namespace

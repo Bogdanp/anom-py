@@ -30,6 +30,17 @@ def test_keys_parents_must_not_be_partial():
         Key("Person", 123, parent=Key("Organization"))
 
 
+def test_key_inherits_parents_namespace():
+    parent = Key("Organization", 123, namespace="a")
+    assert Key("Person", 123, parent=parent).namespace == parent.namespace
+
+
+def test_keys_namespace_must_match_parent_namespace():
+    parent = Key("Organization", 123, namespace="a")
+    with pytest.raises(ValueError):
+        Key("Person", 123, parent=parent, namespace="b")
+
+
 def test_keys_can_have_numeric_ids():
     assert Key("Person", 123).int_id == 123
     assert Key("Person", 123).str_id is None
@@ -50,7 +61,7 @@ def test_keys_can_fail_to_lookup_models_by_kind():
 
 
 def test_keys_reprs_can_be_used_to_rebuild_them():
-    assert repr(Key("Foo", 123)) == "Key('Foo', 123, parent=None, namespace=None)"
+    assert repr(Key("Foo", 123)) == "Key('Foo', 123, parent=None, namespace='')"
 
 
 def test_keys_can_be_equal():

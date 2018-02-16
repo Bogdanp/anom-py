@@ -1,4 +1,5 @@
 from collections import namedtuple
+from .namespaces import get_namespace
 
 
 class PropertyFilter(namedtuple("PropertyFilter", ("name", "operator", "value"))):
@@ -271,6 +272,9 @@ class Query(namedtuple("Query", (
 
         else:
             model, kind = kind, kind._kind
+
+        if namespace is None:
+            namespace = get_namespace()
 
         return super().__new__(
             cls, model=model, kind=kind, ancestor=ancestor, namespace=namespace,

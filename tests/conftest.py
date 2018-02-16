@@ -2,8 +2,9 @@ import logging
 import pylibmc
 import pytest
 
-from anom import Adapter, Key, Query, adapters, get_adapter, set_adapter, delete_multi
+from anom import Adapter, Key, Query, adapters, get_adapter, set_adapter, put_multi, delete_multi, set_default_namespace
 from anom.testing import Emulator
+from concurrent import futures
 
 from .models import Person, Mutant, Cat, Human, Eagle
 
@@ -33,30 +34,35 @@ def noop_adapter():
     set_adapter(old_adapter)
 
 
-@pytest.fixture(params=["datastore", "memcache"])
-def adapter(request, emulator, memcache_client):
-    old_adapter = get_adapter()
-    ds_adapter = adapters.DatastoreAdapter()
+@pytest.fixture(params=[None, "namespace"])
+def default_namespace(request):
+    namespace = getattr(request, "param", None)
+    yield set_default_namespace(namespace)
+    set_default_namespace(None)
 
-    if request.param == "datastore":
-        adapter = ds_adapter
-    elif request.param == "memcache":
-        adapter = adapters.MemcacheAdapter(memcache_client, ds_adapter)
 
+@pytest.fixture
+def datastore_adapter(emulator):
+    adapter = adapters.DatastoreAdapter()
     adapter = set_adapter(adapter)
     yield adapter
-
     all_entities = list(Query().run(keys_only=True))
     delete_multi(all_entities)
-    set_adapter(old_adapter)
+    set_adapter(None)
 
 
 @pytest.fixture()
-def memcache_adapter(emulator, memcache_client):
-    old_adapter = get_adapter()
-    adapter = set_adapter(adapters.MemcacheAdapter(memcache_client, adapters.DatastoreAdapter()))
+def memcache_adapter(datastore_adapter, memcache_client):
+    adapter = set_adapter(
+        adapters.MemcacheAdapter(memcache_client, datastore_adapter)
+    )
     yield adapter
-    set_adapter(old_adapter)
+    set_adapter(None)
+
+
+@pytest.fixture(params=["datastore_adapter", "memcache_adapter"])
+def adapter(request, default_namespace):
+    return request.getfixturevalue(request.param)
 
 
 @pytest.fixture()
@@ -91,19 +97,19 @@ def person_with_ancestor(person):
         first_name="Child",
         last_name="Person",
     )
-    child.key = Key(Person, parent=person.key)
+    child.key = Key(Person, parent=person.key, namespace=person.key.namespace)
     child.put()
     yield child
     child.delete()
 
 
-@pytest.fixture()
+@pytest.fixture
 def people(adapter):
-    people = []
-    for i in range(1, 21):
-        person = Person(email=f"{i}@example.com", first_name="Person", last_name=str(i))
-        person.key = Key(Person, i)
-        people.append(person.put())
+    people = put_multi([
+        Person(
+            key=Key(Person, i), email=f"{i}@example.com", first_name="Person", last_name=str(i)
+        ) for i in range(1, 21)
+    ])
 
     yield people
 
@@ -138,3 +144,9 @@ def eagle(adapter):
     eagle = Eagle().put()
     yield eagle
     eagle.delete()
+
+
+@pytest.fixture
+def executor():
+    with futures.ThreadPoolExecutor() as executor:
+        yield executor
