@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.5.0
+------
+
+* Added support for managing namespaces.
+
 v0.4.5
 ------
 
