@@ -15,8 +15,6 @@ Release v\ |release|. (:doc:`installation`, :doc:`changelog`)
    :target: https://codeclimate.com/github/Bogdanp/anom-py
 .. image:: https://badge.fury.io/py/anom.svg
    :target: https://badge.fury.io/py/anom
-.. image:: https://img.shields.io/badge/Say%20Thanks!-%F0%9F%A6%89-1EAEDB.svg
-   :target: https://saythanks.io/to/Bogdanp
 
 **anom** is an object mapper for `Google Cloud Datastore`_ heavily
 inspired by ndb_ with a focus on simplicity, correctness and
