@@ -116,21 +116,47 @@ def test_namespaces_persist_through_changes_once_set(default_namespace):
     assert query.namespace == "monaspace"
 
 
-def test_datastore_client_uses_the_default_namespace():
-    # Given that I've set a default namespace
-    anom.set_default_namespace("anomspace")
+def test_namespaces_can_be_stacked(default_namespace):
+    # Given that I have some global default namespace
+    # When I use the context manager
+    with anom.namespace("foo"):
+        # And use the context manager again, inside the first block
+        with anom.namespace("bar"):
+            # Then deepest namespace should be bar
+            assert anom.get_namespace() == "bar"
 
-    # And I have a DatastoreAdapter
-    adapter = anom.adapters.DatastoreAdapter()
+        # The middle namespace should be foo
+        assert anom.get_namespace() == "foo"
 
-    # And the adapter hasn't instantiated a client yet
-    adapter._state.client = None
+    # And the outermost namepsace should be the default
+    assert anom.get_namespace() == default_namespace
 
-    # When I get the adapter's client
-    client = adapter.client
 
-    # I expect the client's namespace to match the global default
-    assert client.namespace == "anomspace"
+def test_datastore_client_uses_the_default_namespace(adapter):
+    # Given that I've created some entities in the "anom" namespace
+    with anom.namespace("anom"):
+        user_1 = models.User(email="user1@example.com", password="some-password").put()
+        user_2 = models.User(email="user2@example.com", password="some-password").put()
 
-    anom.set_default_namespace()
-    adapter._state.client = None
+    # And I've set the default namespace to "anom"
+    anom.set_default_namespace("anom")
+
+    # When I try to get those users by creating new keys
+    user_1_2, user_2_2 = anom.get_multi([
+        anom.Key(models.User, user_1.key.int_id),
+        anom.Key(models.User, user_2.key.int_id),
+    ])
+
+    # Then I should get back the same users
+    assert user_1 == user_1_2
+    assert user_2 == user_2_2
+
+    # When I change the default namespace and try to get the same users
+    anom.set_default_namespace(None)
+    users = anom.get_multi([
+        anom.Key(models.User, user_1.key.int_id),
+        anom.Key(models.User, user_2.key.int_id),
+    ])
+
+    # Then I shuold get nothing back
+    assert users == [None, None]

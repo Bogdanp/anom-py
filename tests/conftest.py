@@ -2,7 +2,10 @@ import logging
 import pylibmc
 import pytest
 
-from anom import Adapter, Key, Query, adapters, get_adapter, set_adapter, put_multi, delete_multi, set_default_namespace
+from anom import (
+    Adapter, Key, Query, adapters, get_adapter, set_adapter,
+    put_multi, delete_multi, set_default_namespace, set_namespace,
+)
 from anom.testing import Emulator
 from concurrent import futures
 
@@ -39,6 +42,7 @@ def default_namespace(request):
     namespace = getattr(request, "param", None)
     yield set_default_namespace(namespace)
     set_default_namespace(None)
+    set_namespace(None)
 
 
 @pytest.fixture

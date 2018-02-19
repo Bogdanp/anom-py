@@ -7,7 +7,6 @@ from threading import local
 
 from .. import Adapter, Key
 from ..adapter import QueryResponse
-from ..namespaces import get_namespace
 from ..model import KeyLike
 from ..transaction import Transaction, TransactionFailed
 
@@ -111,7 +110,6 @@ class DatastoreAdapter(Adapter):
             client = self._state.client = datastore.Client(
                 credentials=self.credentials,
                 project=self.project,
-                namespace=get_namespace(),
                 _http=DatastoreRequestsProxy(),
                 _use_grpc=False,
             )

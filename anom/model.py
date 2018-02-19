@@ -58,7 +58,9 @@ class Key(KeyLike, namedtuple("Key", ("kind", "id_or_name", "parent", "namespace
         if parent:
             if namespace is not None and namespace != parent.namespace:
                 raise ValueError(f"Namespace {namespace!r} is different from parent namespace {parent.namespace!r}.")
+
             namespace = parent.namespace
+
         elif namespace is None:
             namespace = get_namespace()
 
