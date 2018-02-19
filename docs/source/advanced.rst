@@ -162,6 +162,27 @@ MemcacheAdapter_ for examples of this.
 .. _MemcacheAdapter: https://github.com/Bogdanp/anom-py/blob/master/anom/adapters/memcache_adapter.py
 
 
+Namespaces
+----------
+
+Datastore supports multitenancy via namespaces.  You can set a global
+default namespace::
+
+  anom.set_default_namespace("some-namespace")
+
+Or you can set a thread-local namespace::
+
+  anom.set_namespace("some-namespace-for-the-current-thread")
+
+Additionally, you can stack namespaces within a thread::
+
+  with aonm.namespace("ns-1"):
+    with anom.namespace("ns-2"):
+      assert anom.get_namespace() == "ns-2"
+    assert anom.get_namespace() == "ns-1"
+  assert anom.get_namespace() == ""  # "" is the default namespace
+
+
 Queries
 -------
 
