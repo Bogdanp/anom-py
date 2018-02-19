@@ -73,8 +73,9 @@ def namespace(namespace):
     Returns:
       None
     """
-    current_namespace = get_namespace()
-    if current_namespace == _default_namespace:
+    try:
+        current_namespace = _namespace.current
+    except AttributeError:
         current_namespace = None
 
     set_namespace(namespace)

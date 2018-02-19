@@ -1,6 +1,7 @@
 *.py[co]
 .cache
 .coverage
+.pytest_cache
 __pycache__
 anom.egg-info
 build
