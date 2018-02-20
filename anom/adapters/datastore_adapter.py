@@ -99,21 +99,13 @@ class DatastoreAdapter(Adapter):
     def __init__(self, *, project=None, credentials=None):
         self.project = project
         self.credentials = credentials
-
-    @property
-    def client(self):
-        """datastore.Client: The underlying datastore client for this
-        adapter instance.  This property is thread-local.
-        """
-        client = getattr(self._state, "client", None)
-        if client is None:
-            client = self._state.client = datastore.Client(
-                credentials=self.credentials,
-                project=self.project,
-                _http=DatastoreRequestsProxy(),
-                _use_grpc=False,
-            )
-        return client
+        self.proxy = DatastoreRequestsProxy(credentials=credentials)
+        self.client = datastore.Client(
+            credentials=self.credentials,
+            project=self.project,
+            _http=self.proxy,
+            _use_grpc=False,
+        )
 
     @property
     def _transactions(self):

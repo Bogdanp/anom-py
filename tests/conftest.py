@@ -8,10 +8,18 @@ from anom import (
 )
 from anom.testing import Emulator
 from concurrent import futures
+from contextlib import contextmanager
 
 from .models import Person, Mutant, Cat, Human, Eagle
 
 logging.basicConfig(level=logging.DEBUG)
+
+
+@contextmanager
+def push_adapter(adapter):
+    old_adapter = get_adapter()
+    yield set_adapter(adapter)
+    set_adapter(old_adapter)
 
 
 @pytest.fixture(scope="session")
@@ -31,10 +39,28 @@ def memcache_client():
 
 @pytest.fixture(autouse=True)
 def noop_adapter():
-    old_adapter = get_adapter()
-    adapter = set_adapter(Adapter())
-    yield adapter
-    set_adapter(old_adapter)
+    with push_adapter(Adapter()) as adapter:
+        yield adapter
+
+
+@pytest.fixture(scope="session")
+def datastore_adapter_instance(emulator):
+    # This fixture exists to memoize the DS adapter instance to make
+    # initial test setup much cheaper.
+    return adapters.DatastoreAdapter()
+
+
+@pytest.fixture
+def datastore_adapter(datastore_adapter_instance):
+    with push_adapter(datastore_adapter_instance) as adapter:
+        yield adapter
+        Query().delete()
+
+
+@pytest.fixture()
+def memcache_adapter(datastore_adapter, memcache_client):
+    with push_adapter(adapters.MemcacheAdapter(memcache_client, datastore_adapter)) as adapter:
+        yield adapter
 
 
 @pytest.fixture(params=[None, "namespace"])
@@ -43,25 +69,6 @@ def default_namespace(request):
     yield set_default_namespace(namespace)
     set_default_namespace(None)
     set_namespace(None)
-
-
-@pytest.fixture
-def datastore_adapter(emulator):
-    adapter = adapters.DatastoreAdapter()
-    adapter = set_adapter(adapter)
-    yield adapter
-    all_entities = list(Query().run(keys_only=True))
-    delete_multi(all_entities)
-    set_adapter(None)
-
-
-@pytest.fixture()
-def memcache_adapter(datastore_adapter, memcache_client):
-    adapter = set_adapter(
-        adapters.MemcacheAdapter(memcache_client, datastore_adapter)
-    )
-    yield adapter
-    set_adapter(None)
 
 
 @pytest.fixture(params=["datastore_adapter", "memcache_adapter"])
