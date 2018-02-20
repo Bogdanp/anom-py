@@ -156,3 +156,40 @@ def test_kindless_queries_in_ns(people, person_in_ns):
 def test_queries_can_be_filtered_by_key(people):
     # XREF: https://github.com/Bogdanp/anom-py/issues/4
     assert list(Person.query().where(Person.parent == people[0]).run()) == []
+
+
+def test_can_delete_entities_by_query(people):
+    # Given that I have some number of people
+    # When I delete one person by query
+    deleted = Person.query().where(Person.email == "1@example.com").delete()
+    # Then I should get back the number of deleted people
+    assert deleted == 1
+
+    # When I try to delete the same query again
+    deleted = Person.query().where(Person.email == "1@example.com").delete()
+    # Then that number should be 0
+    assert deleted == 0
+
+
+def test_can_delete_many_pages_of_entities_by_query(people):
+    # Given that I have some number of people
+    # When I delete all those people in batches of one at a time
+    deleted = Person.query().delete(page_size=1)
+    # Then I should get back the total number of deleted people and it
+    # should equal the number of people I had originally
+    assert deleted == len(people)
+
+
+def test_can_count_entities_by_query(people):
+    # Given that I have some number of people
+    # When I attempt to count all the people
+    # Then I should get back that number of people
+    assert len(people) == Person.query().count()
+
+    # When I attempt to filter down the query
+    # Then I should get back a smaller count
+    assert 1 == Person.query().where(Person.email == "1@example.com").count()
+
+    # When my query doesn't match any results
+    # Then I should get back a count of 0
+    assert 0 == Person.query().where(Person.email == "idontexist").count()

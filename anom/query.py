@@ -1,5 +1,9 @@
 from collections import namedtuple
+
 from .namespaces import get_namespace
+
+
+DEFAULT_BATCH_SIZE = 300
 
 
 class PropertyFilter(namedtuple("PropertyFilter", ("name", "operator", "value"))):
@@ -44,7 +48,7 @@ class QueryOptions(dict):
         limit if limit is set and is smaller than the given batch
         size.
         """
-        batch_size = self.get("batch_size", 300)
+        batch_size = self.get("batch_size", DEFAULT_BATCH_SIZE)
         if self.limit is not None:
             return min(self.limit, batch_size)
         return batch_size
@@ -370,6 +374,52 @@ class Query(namedtuple("Query", (
           Query: The derived Query.
         """
         return self._replace(limit=limit)
+
+    def count(self, *, page_size=DEFAULT_BATCH_SIZE, **options):
+        """Counts the number of entities that match this query.
+
+        Note:
+          Since Datastore doesn't provide a native way to count
+          entities by query, this method paginates through all the
+          entities' keys and counts them.
+
+        Parameters:
+          \**options(QueryOptions, optional)
+
+        Returns:
+          int: The number of entities.
+        """
+        entities = 0
+        options = QueryOptions(self).replace(keys_only=True)
+        for page in self.paginate(page_size=page_size, **options):
+            entities += len(list(page))
+        return entities
+
+    def delete(self, *, page_size=300, **options):
+        """Deletes all the entities that match this query.
+
+        Note:
+          Since Datasotre doesn't provide a native way to delete
+          entities by query, this method paginates through all the
+          entities' keys and issues a single delete_multi call per
+          page.
+
+        Parameters:
+          \**options(QueryOptions, optional)
+
+        Returns:
+          int: The number of deleted entities.
+        """
+        from .model import delete_multi
+
+        deleted = 0
+        options = QueryOptions(self).replace(keys_only=True)
+        for page in self.paginate(page_size=page_size, **options):
+            keys = list(page)
+            deleted += len(keys)
+            delete_multi(keys)
+
+        return deleted
 
     def get(self, **options):
         """Run this query and get the first result.
