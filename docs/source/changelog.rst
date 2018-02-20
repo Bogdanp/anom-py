@@ -3,6 +3,14 @@
 Changelog
 =========
 
+v0.6.0
+------
+
+* Added ``host`` and ``port`` params to ``Emulator``.
+* Added ``count`` and ``delete`` to ``Query``.
+* Refactored ``DatastoreAdapter`` to no longer use thread-local DS
+  client instances.
+
 v0.5.0
 ------
 
