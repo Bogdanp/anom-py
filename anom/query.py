@@ -395,7 +395,7 @@ class Query(namedtuple("Query", (
             entities += len(list(page))
         return entities
 
-    def delete(self, *, page_size=300, **options):
+    def delete(self, *, page_size=DEFAULT_BATCH_SIZE, **options):
         """Deletes all the entities that match this query.
 
         Note:
