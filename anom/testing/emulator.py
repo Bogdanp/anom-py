@@ -10,7 +10,7 @@ from threading import Thread
 
 
 #: The command to run in order to start the emulator.
-_emulator_command = "gcloud beta emulators datastore start --consistency={consistency:0.2f} --no-store-on-disk"
+_emulator_command = "gcloud beta emulators datastore start --consistency={consistency:0.2f} --host-port={host}:{port} --no-store-on-disk"  # noqa
 
 #: The regexp that is used to search for env vars in the emulator output.
 _env_var_re = re.compile(r"export ([^=]+)=(.+)")
@@ -23,6 +23,8 @@ class Emulator:
     """Runs the Cloud Datastore emulator in a subprocess for testing purposes.
 
     Parameters:
+      host(str): The host name the emulator should bind to.
+      port(int): The port on which the emulator should listen on.
       consistency(float): A value between 0.0 and 1.0 representing the
         percentage of datastore requests that should succeed.
 
@@ -38,8 +40,9 @@ class Emulator:
         emulator.stop()
     """
 
-    def __init__(self, *, consistency=1):
+    def __init__(self, *, host="127.0.0.1", port=9898, consistency=1):
         self._emulator_command = shlex.split(_emulator_command.format(
+            host=host, port=port,
             consistency=consistency
         ))
 
