@@ -309,8 +309,8 @@ class Query(namedtuple("Query", (
         return self._replace(filters=filters)
 
     def and_where(self, *filters):
-        """Return a new query, adding joining the given filters with
-        the current query's filters to form an "and".
+        """Return a new query, adding the given filters with the
+        current query's filters to form an "and".
 
         Parameters:
           \*filters(PropertyFilter): The filters to add.
