@@ -3,6 +3,12 @@
 Changelog
 =========
 
+v0.6.3
+------
+
+* Fixed an issue where ``TransactionFailed`` exceptions had
+  unprintable messages.
+
 v0.6.2
 ------
 
