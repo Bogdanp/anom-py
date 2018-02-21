@@ -737,9 +737,8 @@ def put_multi(entities):
         if adapter is None:
             adapter = entity._adapter
 
-        adapter = entity._adapter
-        requests.append(PutRequest(entity.key, entity.unindexed_properties, entity))
         entity.pre_put_hook()
+        requests.append(PutRequest(entity.key, entity.unindexed_properties, entity))
 
     keys = adapter.put_multi(requests)
     for key, entity in zip(keys, entities):
