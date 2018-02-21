@@ -3,7 +3,7 @@
 Changelog
 =========
 
-v0.6.1
+v0.6.2
 ------
 
 * Fixed an issue where setting entity keys inside `pre_put_hook` would
