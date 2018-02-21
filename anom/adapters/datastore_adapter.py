@@ -48,7 +48,7 @@ class _DatastoreOuterTransaction(Transaction):
             self.ds_transaction.commit()
         except Exception as e:
             _logger.debug("Transaction failed: %s", e)
-            raise TransactionFailed(e)
+            raise TransactionFailed("Failed to commit transaction.", cause=e)
 
     def rollback(self):
         _logger.debug("Rolling transaction back...")
