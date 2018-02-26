@@ -47,7 +47,7 @@ def noop_adapter():
 def datastore_adapter_instance(emulator):
     # This fixture exists to memoize the DS adapter instance to make
     # initial test setup much cheaper.
-    return adapters.DatastoreAdapter()
+    return adapters.DatastoreAdapter(project="fake-project-name")
 
 
 @pytest.fixture
