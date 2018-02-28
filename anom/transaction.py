@@ -5,7 +5,7 @@ from functools import wraps
 
 from .adapter import get_adapter
 
-_logger = logging.getLogger("transaction")
+_logger = logging.getLogger(__name__)
 
 
 class Transaction:  # pragma: no cover

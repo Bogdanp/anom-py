@@ -10,7 +10,7 @@ from ..adapter import QueryResponse
 from ..model import KeyLike
 from ..transaction import Transaction, TransactionFailed
 
-_logger = logging.getLogger("datastore_adapter")
+_logger = logging.getLogger(__name__)
 
 
 class _DeferredKey(KeyLike):

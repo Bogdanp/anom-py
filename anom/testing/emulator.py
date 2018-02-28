@@ -8,6 +8,7 @@ import subprocess
 from queue import Empty, Queue
 from threading import Thread
 
+_logger = logging.getLogger(__name__)
 
 #: The command to run in order to start the emulator.
 _emulator_command = "gcloud beta emulators datastore start --consistency={consistency:0.2f} --host-port={host}:{port} --no-store-on-disk"  # noqa
@@ -46,7 +47,6 @@ class Emulator:
             consistency=consistency
         ))
 
-        self._logger = logging.getLogger("Emulator")
         self._proc = None
         self._queue = Queue()
         self._thread = Thread(target=self._run, daemon=True)
@@ -87,7 +87,7 @@ class Emulator:
                 try:
                     os.killpg(self._proc.pid, signal.SIGTERM)
                     _, returncode = os.waitpid(self._proc.pid, 0)
-                    self._logger.debug("Emulator process exited with code %d.", returncode)
+                    _logger.debug("Emulator process exited with code %d.", returncode)
                     return returncode
                 except ChildProcessError:  # pragma: no cover
                     return self._proc.returncode
@@ -105,7 +105,7 @@ class Emulator:
         env_vars = {}
         while self._proc.poll() is None:
             line = self._proc.stdout.readline().strip().decode("utf-8")
-            self._logger.debug(line)
+            _logger.debug(line)
 
             match = _env_var_re.search(line)
             if match:
