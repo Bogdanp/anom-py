@@ -7,6 +7,7 @@ v0.7.0
 ------
 
 * Added support for ``Embed`` properties.
+* Fixed inconsistent internal usages of ``name_on_{entity,model}``.
 * Fixed an issue that made ``indexed_if`` act like ``indexed_unless``.
 * Fixed logger names.
 
