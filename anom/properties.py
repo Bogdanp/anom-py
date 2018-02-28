@@ -264,9 +264,9 @@ class Computed(Property):
         if ob is None:
             return self
 
-        value = ob._data.get(self.name_on_entity, NotFound)
+        value = ob._data.get(self.name_on_model, NotFound)
         if value is NotFound:
-            value = ob._data[self.name_on_entity] = self.fn(ob)
+            value = ob._data[self.name_on_model] = self.fn(ob)
 
         return value
 
@@ -326,12 +326,12 @@ class DateTime(Property):
 
     def prepare_to_store(self, entity, value):
         if value is None and self.auto_now_add:
-            value = entity._data[self.name_on_entity] = self._current_value()
+            value = entity._data[self.name_on_model] = self._current_value()
         elif self.auto_now:
-            value = entity._data[self.name_on_entity] = self._current_value()
+            value = entity._data[self.name_on_model] = self._current_value()
 
         if value is not None:
-            value = entity._data[self.name_on_entity] = value.astimezone(tz.tzutc())
+            value = entity._data[self.name_on_model] = value.astimezone(tz.tzutc())
 
         return super().prepare_to_store(entity, value)
 
@@ -647,7 +647,7 @@ class Embed(EmbedLike):
     """
 
     def __init__(self, *, kind, **options):
-        if "name" in options or "default" in options or "indexed" in options or "indexed_if" in options:
+        if "default" in options or "indexed" in options or "indexed_if" in options:
             raise TypeError(f"{classname(self)} does not support name, default, indexed or indexed_if.")
 
         super().__init__(**options)

@@ -11,14 +11,7 @@ class Nested(Model):
 
 class Outer(Model):
     x = props.Float(indexed=True)
-    nested = props.Embed(kind=Nested)
-
-
-def test_embed_properties_cannot_be_renamed():
-    # When I try to make an Embed property with a custom name
-    # Then I should get back a type error
-    with pytest.raises(TypeError):
-        props.Embed(kind=Nested, name="foo")
+    nested = props.Embed(name="child", kind=Nested)
 
 
 def test_embed_properties_cannot_have_defaults():
@@ -44,7 +37,7 @@ def test_can_embed_entities_inside_other_entities(adapter):
     assert outer == outer.key.get()
 
     # And only the x and nested.z properties should be indexed
-    assert outer.unindexed_properties == ("nested.y",)
+    assert outer.unindexed_properties == ("child.y",)
 
 
 def test_embedded_entities_are_required_by_default(adapter):
@@ -164,7 +157,7 @@ def test_can_deeply_embed_entitites_inside_other_entities(adapter):
 
 
 def test_embed_properties_can_generate_filters():
-    assert (Outer.nested.z == 1) == PropertyFilter("nested.z", "=", 1)
+    assert (Outer.nested.z == 1) == PropertyFilter("child.z", "=", 1)
     assert (SplitTest.variations.weight >= 10) == PropertyFilter("variations.weight", ">=", 10)
 
     with pytest.raises(TypeError):
@@ -172,8 +165,8 @@ def test_embed_properties_can_generate_filters():
 
 
 def test_embed_properties_can_generate_sort_orders():
-    assert +Outer.nested.z == "nested.z"
-    assert -Outer.nested.z == "-nested.z"
+    assert +Outer.nested.z == "child.z"
+    assert -Outer.nested.z == "-child.z"
     assert +SplitTest.variations.weight == "variations.weight"
     assert -SplitTest.variations.weight == "-variations.weight"
     assert +DeepA.child.child.child.x == "child.child.child.x"

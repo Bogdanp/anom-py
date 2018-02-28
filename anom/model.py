@@ -293,13 +293,13 @@ class Property:
         if ob is None:
             return self
 
-        value = ob._data.get(self.name_on_entity, NotFound)
+        value = ob._data.get(self.name_on_model, NotFound)
         if value is NotFound:
             if self.default is not None:
                 return self.default
 
             elif self.repeated:
-                value = ob._data[self.name_on_entity] = []
+                value = ob._data[self.name_on_model] = []
 
             else:
                 return None
@@ -307,10 +307,10 @@ class Property:
         return value
 
     def __set__(self, ob, value):
-        ob._data[self.name_on_entity] = self.validate(value)
+        ob._data[self.name_on_model] = self.validate(value)
 
     def __delete__(self, ob):
-        del ob._data[self.name_on_entity]
+        del ob._data[self.name_on_model]
 
     def _build_filter(self, op, value):
         if not self.indexed:
