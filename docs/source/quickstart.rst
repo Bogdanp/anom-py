@@ -122,9 +122,9 @@ Properties
 
 anom comes with the following predefined properties:
 
-=================================  ============================================================
+=================================  ======================================================================
 Property                           Description
-=================================  ============================================================
+=================================  ======================================================================
 :class:`anom.properties.Bool`      Stores :class:`bool` values.
 :class:`anom.properties.Bytes`     Stores blobs of binary data (:class:`bytes`). Never indexed.
 :class:`anom.properties.Computed`  Stores values computed by arbitrary functions.
@@ -136,7 +136,8 @@ Property                           Description
 :class:`anom.properties.String`    Stores :class:`str` values.
 :class:`anom.properties.Msgpack`   Stores msgpack values. Never indexed.
 :class:`anom.properties.Text`      Stores long :class:`str` values. Never indexed.
-=================================  ============================================================
+:class:`anom.properties.Embed`     Stores embedded models.  Indexed if any nested properties are indexed.
+=================================  ======================================================================
 
 These properties all map to built-in Datastore types and they each
 support the following set of options:

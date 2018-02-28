@@ -109,6 +109,40 @@ eagles and get back an ``Eagle``, excluding all humans or cats::
   >>> list(Human.query().run())
   [Human(...)]
 
+Embedding
+^^^^^^^^^
+
+Models may be embedded within one another by leveraging ``Embed``
+properties::
+
+  class Variation(Model):
+    slug = props.String(indexed=True)
+    weight = props.Integer(indexed=True)
+
+
+  class SplitTest(Model):
+    variations = props.Embed(kind=Variation, repeated=True)
+
+`SplitTests` embed a list of `Variations` within themselves::
+
+  >>> test = SplitTest(variations=[Variation(slug="a", weight=50), Variation(slug="b", weight=50)])
+  >>> test.put()
+
+  >>> for variation in test.variations:
+  ...   print(variation)
+  Variation(key=Key('Variation', None, parent=None, namespace=''), slug='a', weight=50)
+  Variation(key=Key('Variation', None, parent=None, namespace=''), slug='b', weight=50)
+
+And they may be filtered by their variations' properties::
+
+  >>> list(SplitTest.query().where(SplitTest.variations.slug == "a").run())
+  [
+    SplitTest(key=Key('SplitTest', 1001, parent=None, namespace=''), variations=[
+      Variation(key=Key('Variation', None, parent=None, namespace=''), slug='a', weight=50),
+      Variation(key=Key('Variation', None, parent=None, namespace=''), slug='b', weight=50),
+    ])
+  ]
+
 
 Adapters
 --------
