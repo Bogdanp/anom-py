@@ -1,14 +1,19 @@
 import base64
 import json
 import msgpack
+import operator
 import zlib
 
+from collections import defaultdict
+from copy import copy
 from datetime import datetime
 from dateutil import tz
 from enum import IntEnum
+from functools import reduce
+from itertools import chain
 
 from . import model
-from .model import Property, NotFound, Skip, classname
+from .model import EmbedLike, Property, NotFound, Skip, classname
 
 
 #: The UNIX epoch.
@@ -625,3 +630,126 @@ class Text(Encodable, Compressable, Property):
     """
 
     _types = (str,)
+
+
+class Embed(EmbedLike):
+    """A property for embedding entities inside other entities.
+
+    Parameters:
+      kind(str or model): The kinds of keys that may be assigned to
+        this property.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+    """
+
+    def __init__(self, *, kind, **options):
+        if "name" in options or "default" in options or "indexed" in options or "indexed_if" in options:
+            raise TypeError(f"{classname(self)} does not support name, default, indexed or indexed_if.")
+
+        super().__init__(**options)
+
+        if isinstance(kind, model.model):
+            self.kind = kind._kind
+        else:
+            self.kind = kind
+
+    def __copy__(self):
+        prop = type(self)(kind=self.kind)
+        for name in vars(self):
+            setattr(prop, name, getattr(self, name))
+
+        return prop
+
+    def get_unindexed_properties(self, entity):
+        if isinstance(entity, list):
+            return tuple(set(chain.from_iterable(self.get_unindexed_properties(e) for e in entity)))
+        return tuple(f"{self.name_on_entity}.{name}" for name in entity.unindexed_properties)
+
+    def validate(self, value):
+        if self.optional and value is None:
+            return value
+
+        model_class = model.lookup_model_by_kind(self.kind)
+        if self.repeated and not all(isinstance(v, model_class) for v in value):
+            raise TypeError(f"{self.name_on_model} properties must be instances of {self.kind}.")
+
+        elif not self.repeated and not isinstance(value, model_class):
+            raise TypeError(f"{self.name_on_model} properties must be instances of {self.kind}.")
+
+        return value
+
+    def prepare_to_load(self, entity, data):
+        embed_prefix = f"{self.name_on_entity}."
+        embed_prefix_len = len(embed_prefix)
+        data = {k[embed_prefix_len:]: v for k, v in data.items() if k.startswith(embed_prefix)}
+        if self.repeated:
+            return self._prepare_to_load_repeated_properties(data)
+        return self._prepare_to_load_properties(data)
+
+    def _prepare_to_load_repeated_properties(self, data):
+        datas = [{} for _ in range(len(next(iter(data.values()))))]
+        for key, values in data.items():
+            for i, value in enumerate(values):
+                datas[i][key] = value
+
+        return [self._prepare_to_load_properties(data) for data in datas]
+
+    def _prepare_to_load_properties(self, data):
+        if self.optional and not data:
+            return None
+
+        model_class = model.lookup_model_by_kind(self.kind)
+        model_key = model.Key(self.kind)
+        return model_class._load(model_key, data)
+
+    def prepare_to_store(self, entity, value):
+        if value is not None:
+            if isinstance(value, list):
+                yield from self._prepare_to_store_repeated_properties(value)
+
+            else:
+                yield from self._prepare_to_store_properties(value)
+
+        elif not self.optional:
+            raise RuntimeError(f"Property {self.name_on_model} requires a value.")
+
+    def _prepare_to_store_repeated_properties(self, entities):
+        properties = defaultdict(list)
+        for entity in entities:
+            for name, value in self._prepare_to_store_properties(entity):
+                properties[name].append(value)
+
+        # Ensure all sublists are equal, otherwise rebuilding the
+        # entity is not going to be possible.
+        props_are_valid = reduce(operator.eq, (len(val) for val in properties.values()))
+        if not props_are_valid:  # pragma: no cover
+            raise ValueError(
+                "Repeated properties for {self.name_on_model} have different lengths. "
+                "You probably just found a bug in anom, please report it!"
+            )
+
+        for name, values in properties.items():
+            yield name, values
+
+    def _prepare_to_store_properties(self, entity):
+        for name, prop in entity._properties.items():
+            value = getattr(entity, name)
+            if isinstance(prop, EmbedLike):
+                for name, value in prop.prepare_to_store(entity, value):
+                    yield f"{self.name_on_entity}.{name}", value
+            else:
+                yield f"{self.name_on_entity}.{prop.name_on_entity}", prop.prepare_to_store(entity, value)
+
+    def __getattr__(self, name):
+        model_class = model.lookup_model_by_kind(self.kind)
+        value = getattr(model_class, name)
+        if isinstance(value, model.Property):
+            value = copy(value)
+            value._name_on_entity = f"{self.name_on_entity}.{value.name_on_entity}"
+            value._name_on_model = f"{self.name_on_model}.{value.name_on_model}"
+            return value
+        return value

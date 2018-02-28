@@ -339,6 +339,17 @@ class Property:
         return self.name_on_entity
 
 
+class EmbedLike(Property):
+    """Base class for properties that Embed other models.
+    """
+
+    def get_unindexed_properties(self, entity):  # pragma: no cover
+        """tuple[str]: The set of unindexed properties belonging to
+        the underlying model and all nested models.
+        """
+        raise NotImplementedError
+
+
 class _adapter:
     def __get__(self, ob, obtype):
         return get_adapter()
@@ -443,7 +454,11 @@ class Model(metaclass=model):
 
     def __iter__(self):
         for name, prop in self._properties.items():
-            yield prop.name_on_entity, prop.prepare_to_store(self, getattr(self, name))
+            value = getattr(self, name)
+            if isinstance(prop, EmbedLike):
+                yield from prop.prepare_to_store(self, value)
+            else:
+                yield prop.name_on_entity, prop.prepare_to_store(self, value)
 
         # Polymorphic models need to keep track of their bases.
         if type(self)._is_polymorphic:
@@ -460,9 +475,13 @@ class Model(metaclass=model):
         instance.key = key
 
         for name, prop in instance._properties.items():
-            value = prop.prepare_to_load(instance, data.get(name))
-            if value is not Skip:
-                instance._data[name] = value
+            if isinstance(prop, EmbedLike):
+                instance._data[name] = prop.prepare_to_load(instance, data)
+
+            else:
+                value = prop.prepare_to_load(instance, data.get(name))
+                if value is not Skip:
+                    instance._data[name] = value
 
         return instance
 
@@ -471,7 +490,12 @@ class Model(metaclass=model):
         "tuple[str]: The names of all the unindexed properties on this entity."
         properties = ()
         for name, prop in self._properties.items():
-            if not prop.indexed or prop.indexed_if and prop.indexed_if(self, prop, name):
+            if isinstance(prop, EmbedLike):
+                embedded_entity = getattr(self, name, None)
+                if embedded_entity:
+                    properties += prop.get_unindexed_properties(embedded_entity)
+
+            elif not prop.indexed or prop.indexed_if and not prop.indexed_if(self, prop, name):
                 properties += (prop.name_on_entity,)
 
         return properties

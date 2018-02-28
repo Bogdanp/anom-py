@@ -11,7 +11,7 @@ from . import models
 
 all_properties = inspect.getmembers(props, lambda x: (
     inspect.isclass(x) and issubclass(x, Property) and
-    x is not props.Computed
+    x not in {props.Computed, props.Embed}
 ))
 blob_properties = (props.Bytes, props.Json, props.Text)
 encodable_properties = (props.String, props.Text)
@@ -154,6 +154,7 @@ def test_repeated_properties_validate_their_data_types():
 def test_required_properties_cannot_be_assigned_none():
     for _, property_class in all_properties:
         prop = property_class()
+
         with pytest.raises(TypeError):
             prop.validate(None)
 

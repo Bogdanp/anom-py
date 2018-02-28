@@ -132,10 +132,10 @@ class DatastoreAdapter(Adapter):
             if not deferred:
                 break
 
-            for entity in found:
+            for entity in found:  # pragma: no cover
                 request_keys.remove(entity.key)
 
-            for key in missing:
+            for key in missing:  # pragma: no cover
                 request_keys.remove(key)
 
         results = [None] * len(keys)

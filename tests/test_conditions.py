@@ -6,10 +6,10 @@ def test_is_empty():
         s = props.String(indexed_if=conditions.is_empty)
 
     e = ConditionsModelIsEmpty()
-    assert "s" in e.unindexed_properties
+    assert "s" not in e.unindexed_properties
 
     e.s = "hello!"
-    assert "s" not in e.unindexed_properties
+    assert "s" in e.unindexed_properties
 
 
 def test_is_not_empty():
@@ -17,10 +17,10 @@ def test_is_not_empty():
         s = props.String(indexed_if=conditions.is_not_empty)
 
     e = ConditionsModelIsNotEmpty()
-    assert "s" not in e.unindexed_properties
+    assert "s" in e.unindexed_properties
 
     e.s = "hello!"
-    assert "s" in e.unindexed_properties
+    assert "s" not in e.unindexed_properties
 
 
 def test_is_default():
@@ -28,10 +28,10 @@ def test_is_default():
         s = props.String(default="hello", indexed_if=conditions.is_default)
 
     e = ConditionsModelIsDefault()
-    assert "s" in e.unindexed_properties
+    assert "s" not in e.unindexed_properties
 
     e.s = "goodbye"
-    assert "s" not in e.unindexed_properties
+    assert "s" in e.unindexed_properties
 
 
 def test_is_not_default():
@@ -39,10 +39,10 @@ def test_is_not_default():
         s = props.String(default="hello", indexed_if=conditions.is_not_default)
 
     e = ConditionsModelIsNotDefault()
-    assert "s" not in e.unindexed_properties
+    assert "s" in e.unindexed_properties
 
     e.s = "goodbye"
-    assert "s" in e.unindexed_properties
+    assert "s" not in e.unindexed_properties
 
 
 def test_is_true():
@@ -50,10 +50,10 @@ def test_is_true():
         b = props.Bool(indexed_if=conditions.is_true)
 
     e = ConditionsModelIsTrue()
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = True
-    assert "b" in e.unindexed_properties
+    assert "b" not in e.unindexed_properties
 
 
 def test_is_false():
@@ -61,13 +61,13 @@ def test_is_false():
         b = props.Bool(indexed_if=conditions.is_false)
 
     e = ConditionsModelIsFalse()
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = True
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = False
-    assert "b" in e.unindexed_properties
+    assert "b" not in e.unindexed_properties
 
 
 def test_is_none():
@@ -75,13 +75,13 @@ def test_is_none():
         b = props.Bool(optional=True, indexed_if=conditions.is_none)
 
     e = ConditionsModelIsNone()
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = False
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = None
-    assert "b" in e.unindexed_properties
+    assert "b" not in e.unindexed_properties
 
 
 def test_is_not_none():
@@ -89,10 +89,10 @@ def test_is_not_none():
         b = props.Bool(optional=True, indexed_if=conditions.is_not_none)
 
     e = ConditionsModelIsNotNone()
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = None
-    assert "b" not in e.unindexed_properties
+    assert "b" in e.unindexed_properties
 
     e.b = False
-    assert "b" in e.unindexed_properties
+    assert "b" not in e.unindexed_properties
