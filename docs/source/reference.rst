@@ -66,6 +66,7 @@ Built-in Properties
 .. autoclass:: anom.properties.Msgpack
 .. autoclass:: anom.properties.String
 .. autoclass:: anom.properties.Text
+.. autoclass:: anom.properties.Embed
 
 Built-in Conditions
 ^^^^^^^^^^^^^^^^^^^
