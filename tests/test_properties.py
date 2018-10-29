@@ -165,6 +165,17 @@ def test_optional_properties_can_be_assigned_none():
         assert prop.validate(None) is None
 
 
+def test_optional_indexed_properties_can_be_assigned_none():
+    indexable_properties = [
+        x
+        for _, x in all_properties
+        if not issubclass(x, props.Blob)
+    ]
+    for property_class in indexable_properties:
+        prop = property_class(indexed=True, optional=True)
+        assert prop.validate(None) is None
+
+
 def test_uninitialized_properties_return_none_on_get():
     entity = models.ModelWithInteger()
     assert entity.x is None

@@ -599,7 +599,7 @@ class String(Encodable, Property):
 
     def validate(self, value):
         value = super().validate(value)
-        if not self.indexed:
+        if not self.indexed or value is None:
             return value
 
         if not self.repeated:
