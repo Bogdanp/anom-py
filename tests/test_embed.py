@@ -91,6 +91,65 @@ def test_optional_embedded_properties_can_be_assigned_None(adapter):
     assert outer == outer.key.get()
 
 
+class Point(Model):
+    x = props.Float(indexed=False)
+    y = props.Float(indexed=False)
+
+
+class Place(Model):
+    name = props.String()
+    points = props.Embed(kind=Point, optional=True, repeated=True)
+
+
+def test_optional_repeated_embed_properties_can_be_assigned_none(adapter):
+    # Given that i have an place entity w/ a optional repeated embed property
+    place = Place(
+        name="New York",
+        points=[Point(x=40.7128, y=74.0060)]
+    )
+
+    # When I assign none to that nested property
+    place.points = None
+
+    # Then its repeated property should become the empty list
+    assert place.points == []
+
+    # When I save that entity
+    place.put()
+
+    # Then I should be able to get back the same entity from datastore
+    assert place == place.key.get()
+
+
+def test_optional_repeated_embed_properties_can_be_created_with_none(adapter):
+    # Given that i have an place entity w/ a optional repeated embed property,
+    # but don't assign it in the constructor
+    place = Place(
+        name="New York"
+    )
+
+    # And save that entity
+    place.put()
+
+    # Then I should be able to get back the same entity from datastore
+    assert place == place.key.get()
+
+
+def test_optional_repeated_embed_properties_can_be_created_with_empty_list(adapter):
+    # Given that i have an place entity w/ a optional repeated embed property,
+    # but assign it an empty list in the constructor
+    place = Place(
+        name="New York",
+        points=[]
+    )
+
+    # And save that entity with the empty list
+    place.put()
+
+    # Then I should be able to get back the same entity from datastore
+    assert place == place.key.get()
+
+
 class Variation(Model):
     weight = props.Integer(indexed=True)
 

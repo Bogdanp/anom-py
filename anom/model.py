@@ -243,7 +243,7 @@ class Property:
             return value
 
         elif self.optional and value is None:
-            return value
+            return [] if self.repeated else None
 
         elif self.repeated and isinstance(value, (tuple, list)) and all(isinstance(x, self._types) for x in value):
             return value

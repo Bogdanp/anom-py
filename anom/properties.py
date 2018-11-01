@@ -712,7 +712,7 @@ class Embed(EmbedLike):
 
     def validate(self, value):
         if self.optional and value is None:
-            return value
+            return [] if self.repeated else None
 
         model_class = model.lookup_model_by_kind(self.kind)
         if self.repeated and not all(isinstance(v, model_class) for v in value):
@@ -732,6 +732,9 @@ class Embed(EmbedLike):
         return self._prepare_to_load_properties(data)
 
     def _prepare_to_load_repeated_properties(self, data):
+        if self.optional and not data:
+            return []
+
         datas = [{} for _ in range(len(next(iter(data.values()))))]
         for key, values in data.items():
             for i, value in enumerate(values):
@@ -759,6 +762,9 @@ class Embed(EmbedLike):
             raise RuntimeError(f"Property {self.name_on_model} requires a value.")
 
     def _prepare_to_store_repeated_properties(self, entities):
+        if self.optional and not entities:
+            return []
+
         properties = defaultdict(list)
         for entity in entities:
             for name, value in self._prepare_to_store_properties(entity):
