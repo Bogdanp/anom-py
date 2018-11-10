@@ -1,8 +1,6 @@
 # anom
 
 [![Build Status](https://travis-ci.org/Bogdanp/anom-py.svg?branch=master)](https://travis-ci.org/Bogdanp/anom-py)
-[![Test Coverage](https://codeclimate.com/github/Bogdanp/anom-py/badges/coverage.svg)](https://codeclimate.com/github/Bogdanp/anom-py/coverage)
-[![Code Climate](https://codeclimate.com/github/Bogdanp/anom-py/badges/gpa.svg)](https://codeclimate.com/github/Bogdanp/anom-py)
 [![PyPI version](https://badge.fury.io/py/anom.svg)](https://badge.fury.io/py/anom)
 [![Documentation](https://img.shields.io/badge/doc-latest-brightgreen.svg)](http://anom.defn.io)
 

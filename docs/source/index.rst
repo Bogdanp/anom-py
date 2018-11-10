@@ -9,10 +9,6 @@ Release v\ |release|. (:doc:`installation`, :doc:`changelog`)
    :target: license.html
 .. image:: https://travis-ci.org/Bogdanp/anom-py.svg?branch=master
    :target: https://travis-ci.org/Bogdanp/anom-py
-.. image:: https://codeclimate.com/github/Bogdanp/anom-py/badges/coverage.svg
-   :target: https://codeclimate.com/github/Bogdanp/anom-py/coverage
-.. image:: https://codeclimate.com/github/Bogdanp/anom-py/badges/gpa.svg
-   :target: https://codeclimate.com/github/Bogdanp/anom-py
 .. image:: https://badge.fury.io/py/anom.svg
    :target: https://badge.fury.io/py/anom
 

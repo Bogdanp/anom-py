@@ -13,11 +13,8 @@ before_install:
 - gcloud -q config set project anom-ci
 - gcloud auth activate-service-account --key-file credentials.json
 install:
-- pip install -r requirements-dev.txt codeclimate-test-reporter
-- pip install -I "coverage>4.0,<4.4"
+- pip install -r requirements-dev.txt
 script:
 - py.test
 services:
 - memcached
-after_success:
-- CODECLIMATE_REPO_TOKEN=a9bdd48ac0fc260d85947d679d8015fe3a31d8efa51e358f550a778386993fcf codeclimate-test-reporter
