@@ -3,6 +3,15 @@
 Changelog
 =========
 
+v0.7.1
+------
+
+* Fixed an issue that caused assigning ``None`` to optional indexed
+  ``Strings`` to fail.  (`#10`_, `@JorinTielen`_)
+
+.. _#10: https://github.com/Bogdanp/anom-py/pull/10
+.. _@JorinTielen: https://github.com/JorinTielen
+
 v0.7.0
 ------
 
