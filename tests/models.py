@@ -130,6 +130,10 @@ class ModelWithJsonProperty(Model):
     j = props.Json()
 
 
+class ModelWithUnicodeProperty(Model):
+    u = props.Unicode()
+
+
 class ModelWithCustomKind(Model):
     _kind = "CustomKind"
 

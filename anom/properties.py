@@ -632,6 +632,47 @@ class Text(Encodable, Compressable, Property):
     _types = (str,)
 
 
+class Unicode(Property):
+    """A Property for string values that should be stored as unicode strings.
+
+    Parameters:
+      name(str, optional): The name of this property on the Datastore
+        entity.  Defaults to the name of this property on the model.
+      default(object, optional): The property's default value.
+      indexed(bool, optional): Whether or not this property should be
+        indexed.  Defaults to ``False``.
+      indexed_if(callable, optional): Whether or not this property
+        should be indexed when the callable returns ``True``.
+        Defaults to ``None``.
+      optional(bool, optional): Whether or not this property is
+        optional.  Defaults to ``False``.  Required but empty values
+        cause models to raise an exception before data is persisted.
+      repeated(bool, optional): Whether or not this property is
+        repeated.  Defaults to ``False``.  Optional repeated
+        properties default to an empty list.
+    """
+
+    _types = (str,)
+
+    def _validate_length(self, value):
+        if len(value.encode('utf-8')) > _max_indexed_length:
+            raise ValueError(
+                f"Unicode value is longer than the maximum allowed length "
+                f"({_max_indexed_length} bytes) for indexed properties. Set "
+                f"indexed to False if the value should not be indexed."
+            )
+
+    def validate(self, value):
+        value = super().validate(value)
+        if not self.indexed or value is None:
+            return value
+
+        if not self.repeated:
+            self._validate_length(value)
+
+        return value
+
+
 class Embed(EmbedLike):
     """A property for embedding entities inside other entities.
 

@@ -375,3 +375,28 @@ def test_repeated_keys_can_be_assigned_to_model(adapter):
     assert subscriber
     assert subscriber.tags[0].get() == tag1
     assert subscriber.tags[1].get() == tag2
+
+
+def test_models_with_unicode_properties_can_be_stored(adapter):
+    entity_1 = models.ModelWithUnicodeProperty()
+    entity_1.u = "テスト"
+
+    entity_1.put()
+
+    entity_2 = entity_1.key.get()
+    assert entity_2.u == "テスト"
+
+
+def test_unicode_properties_can_be_assigned_arbitrarily_long_values():
+    string = props.Unicode()
+    text = "♥" * 501  # Black Heart Suit (U+2665) is 3 bytes long
+    assert len(text.encode('utf-8')) == 1503
+    assert string.validate(text)
+
+
+def test_indexed_unicode_properties_cannot_be_assigned_values_longer_than_the_max():
+    string = props.Unicode(indexed=True)
+    text = "♥" * 501  # Black Heart Suit (U+2665) is 3 bytes long
+    assert len(text.encode('utf-8')) == 1503
+    with pytest.raises(ValueError):
+        string.validate(text)
