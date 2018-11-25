@@ -3,6 +3,17 @@
 Changelog
 =========
 
+v0.8.0
+------
+
+* Added support for ``Unicode`` properties.  (`#13`_, `@JorinTielen`_)
+* Repeated properties are now always stored as lists, regardless of
+  whether ``None`` is assigned to them or not. (`#11`_)
+
+.. _#11: https://github.com/Bogdanp/anom-py/pull/11
+.. _#13: https://github.com/Bogdanp/anom-py/pull/13
+.. _@JorinTielen: https://github.com/JorinTielen
+
 v0.7.1
 ------
 
