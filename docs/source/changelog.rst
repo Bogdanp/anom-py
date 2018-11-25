@@ -9,9 +9,12 @@ v0.8.0
 * Added support for ``Unicode`` properties.  (`#13`_, `@JorinTielen`_)
 * Repeated properties are now always stored as lists, regardless of
   whether ``None`` is assigned to them or not. (`#11`_)
+* Fixed an issue with repeated key properties being returned as
+  ``datastore.Key`` objects instead of ``anom.Key`` objects. (`#14`_)
 
 .. _#11: https://github.com/Bogdanp/anom-py/pull/11
 .. _#13: https://github.com/Bogdanp/anom-py/pull/13
+.. _#14: https://github.com/Bogdanp/anom-py/pull/14
 .. _@JorinTielen: https://github.com/JorinTielen
 
 v0.7.1
