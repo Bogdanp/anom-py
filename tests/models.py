@@ -103,6 +103,10 @@ class ModelWithRestrictedKeyProperty(Model):
     k = props.Key(kind=Person)
 
 
+class ModelWithRepeatedKeyProperty(Model):
+    ks = props.Key(kind=Person, repeated=True)
+
+
 class ModelWithComputedProperty(Model):
     s = props.String()
 

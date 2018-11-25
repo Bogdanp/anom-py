@@ -304,6 +304,16 @@ def test_restricted_key_properties_can_only_be_assigned_keys_of_that_kind(person
         entity.k = Key("Foo", 1)
 
 
+def test_repeated_key_properties_are_returned_as_anom_keys(person):
+    entity = models.ModelWithRepeatedKeyProperty()
+    entity.ks = [person.key, person.key]
+    entity.put()
+
+    entity_2 = entity.key.get()
+    for k in entity_2.ks:
+        assert isinstance(k, Key)
+
+
 def test_keys_are_converted_to_and_from_datastore(person):
     with models.temp_person(email="child@example.com", first_name="Child", parent=person) as child:
         assert child.parent == person.key

@@ -248,6 +248,9 @@ class DatastoreAdapter(Adapter):
             if isinstance(value, datastore.Key):
                 value = self._convert_key_from_datastore(value)
 
+            elif isinstance(value, list) and all(isinstance(v, datastore.Key) for v in value):
+                value = [self._convert_key_from_datastore(v) for v in value]
+
             data[name] = value
 
         return data
