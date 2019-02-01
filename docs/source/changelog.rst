@@ -3,6 +3,13 @@
 Changelog
 =========
 
+v0.9.1
+------
+
+* Fixed an issue with queries getting stuck in an infinite loop.  ([#18])
+
+.. _#18: https://github.com/Bogdanp/anom-py/issues/18
+
 v0.9.0
 ------
 

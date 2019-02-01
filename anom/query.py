@@ -121,6 +121,7 @@ class Resultset:
                 if remaining < 0:
                     entities = entities[:remaining]
 
+            # This check is here for compatibility with the datastor emulator.
             if not entities:
                 break
 
@@ -135,7 +136,11 @@ class Resultset:
             else:
                 yield (key.get_model()._load(key, data) for key, data in entities)
 
-            if remaining is not None and remaining <= 0:
+            # Datastore now returns None as the next cursor if there
+            # are no more values.  The emulator, though, behaves the
+            # same way it used to behave so we need both this check as
+            # well as the "if not entities" check above.
+            if self._options.cursor is None or remaining is not None and remaining <= 0:
                 break
 
         self._complete = True
