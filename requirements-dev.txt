@@ -7,5 +7,4 @@ bumpversion
 # Testing
 pytest
 pytest-cov
-pytest-xdist
 twine
