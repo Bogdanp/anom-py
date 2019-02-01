@@ -317,11 +317,6 @@ class DateTime(Property):
         return datetime.now(tz.tzlocal())
 
     def prepare_to_load(self, entity, value):
-        # BUG(gcloud): Projections seem to cause datetimes to be
-        # loaded as ints in microseconds.
-        if value is not None and isinstance(value, int):
-            value = datetime.fromtimestamp(value / 1000000, tz.tzutc())
-
         return super().prepare_to_load(entity, value)
 
     def prepare_to_store(self, entity, value):

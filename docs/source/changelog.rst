@@ -3,6 +3,12 @@
 Changelog
 =========
 
+v0.9.0
+------
+
+* Updated `gcloud-requests` and `google-cloud-datastore` to versions
+  2.0 and 1.7, respectively.
+
 v0.8.0
 ------
 
