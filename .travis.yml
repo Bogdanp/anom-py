@@ -14,7 +14,7 @@ before_install:
 - gcloud -q config set project anom-ci
 - gcloud auth activate-service-account --key-file credentials.json
 install:
-- pip install -r requirements-dev.txt
+- pip install -Ur requirements-dev.txt
 script:
 - py.test
 services:
