@@ -16,11 +16,12 @@
 import os
 import sys
 
+import alabaster  # noqa
+import anom  # noqa
+
 sys.path.insert(0, os.path.abspath('../..'))
 
 
-import anom  # noqa
-import alabaster  # noqa
 
 
 # -- General configuration ------------------------------------------------
@@ -56,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'anom'
-copyright = '2017, Bogdan Popa'
+copyright = '2017, 2018, 2019 Bogdan Popa'
 author = 'Bogdan Popa'
 
 # The version info for the project you're documenting, acts as replacement for

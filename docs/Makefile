@@ -13,7 +13,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 deploy: html
-	gcloud app deploy --project anom-docs app.yaml
+	rsync -r --delete build/html/* anom@anom.defn.io:~/www
 
 .PHONY: deploy help Makefile
 
