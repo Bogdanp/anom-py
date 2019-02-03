@@ -13,7 +13,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 deploy: html
-	rsync -r --delete build/html/* anom@anom.defn.io:~/www
+	rsync -avz --delete build/html/* anom@ssh.defn.io:~/www
 
 .PHONY: deploy help Makefile
 
